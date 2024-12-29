@@ -1,4 +1,5 @@
 from flask import Flask
+from models import init_db
 
 app = Flask(__name__)
 
@@ -7,4 +8,9 @@ def home():
     return "Hello, Flask!"
 
 if __name__ == "__main__":
+    try:
+        init_db()
+        print("Database initialized!")
+    except Exception as e:
+        print(f"Error: {e}")
     app.run(debug=True)
