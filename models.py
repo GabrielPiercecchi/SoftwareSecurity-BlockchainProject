@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, Enum, ForeignKey, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import ProgrammingError
@@ -32,6 +32,46 @@ class Oracle(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
+
+class Type(Base):
+    __tablename__ = 'type'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), nullable=False, unique=True)
+    default_co2_value = Column(Float, nullable=False, unique=True)
+    standard = Column(Float, nullable=False)
+
+class Organization(Base):
+    __tablename__ = 'organization'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    ragione_sociale = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    partita_iva = Column(String, nullable=False, unique=True)
+    address = Column(String, nullable=False)
+    city = Column(String, nullable=False)
+    cap = Column(String, nullable=False)
+    telephone = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.type'), nullable=False)
+    coin = Column(Float, nullable=False)
+
+class Employer(Base):
+    __tablename__ = 'employer'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    surname = Column(String, nullable=False)
+    id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+
+class Product(Base):
+    __tablename__ = 'product'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    type = Column(Enum('raw materials', 'end product', name='product_enum'), nullable=False)
+    co2_production = Column(Float, nullable=False)
+    id_deliver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    id_receive_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
 
 def init_db():
     create_database_if_not_exists()
