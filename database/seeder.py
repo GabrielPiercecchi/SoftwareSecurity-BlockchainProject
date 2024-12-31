@@ -56,8 +56,8 @@ def seed_products(session: Session):
 def seed_deliveries(session: Session):
     if not session.query(Delivery).first():
         deliveries = [
-            Delivery(id_product=1, quantity=50, co2_emission=5.0, id_deliver_organization=1, id_receive_organization=2, date_timestamp=datetime.now()),
-            Delivery(id_product=2, quantity=100, co2_emission=10.0, id_deliver_organization=2, id_receive_organization=1, date_timestamp=datetime.now()),
+            Delivery(id_product=1, quantity=50, co2_emission=5.0, id_deliver_organization=1, id_receiver_organization=2, date_timestamp=datetime.now()),
+            Delivery(id_product=2, quantity=100, co2_emission=10.0, id_deliver_organization=2, id_receiver_organization=1, date_timestamp=datetime.now()),
         ]
         session.bulk_save_objects(deliveries)
         session.commit()

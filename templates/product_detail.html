@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name | e }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
 </head>
 <body>
     <header>
@@ -44,7 +44,7 @@
                             <p>CO2 Emission: {{ delivery.co2_emission | e }}</p>
                             <p>Delivvery Date: {{ delivery.date_timestamp | e }}</p>
                             <p>ID Deliver Organization: {{ delivery.id_deliver_organization | e }}</p>
-                            <p>ID Receiver Organization: {{ delivery.id_receive_organization | e }}</p>
+                            <p>ID Receiver Organization: {{ delivery.id_receiver_organization | e }}</p>
                         </li>
                     {% endfor %}
                 </ul>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ organization.name | e }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
 </head>
 <body>
     <header>
@@ -44,6 +44,7 @@
             {% if employers %}
                 <ul>
                     {% for employer in employers %}
+                        <p><b>Employer N° {{ loop.index }}</b></p>
                         <li>{{ employer.name | e }} {{ employer.surname | e }}</li>
                     {% endfor %}
                 </ul>

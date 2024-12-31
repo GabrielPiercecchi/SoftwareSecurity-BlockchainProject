@@ -80,7 +80,7 @@ class Delivery(Base):
     quantity = Column(Integer, nullable=False)
     co2_emission = Column(Float, nullable=False)
     id_deliver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
-    id_receive_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    id_receiver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     date_timestamp = Column(DateTime, nullable=False, default=datetime.now)
 
 def init_db():
