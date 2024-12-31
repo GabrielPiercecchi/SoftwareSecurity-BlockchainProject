@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ organization.name | e }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='co2.gif') }}" type="image/gif">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizzazioni</a></li>
+                <li><a href="/products">Prodotti</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h1>{{ organization.name | e }}</h1>
+        <section>
+            <h3>Description</h3>
+            <p>{{ organization.description | e }}</p>
+        </section>
+        <section>
+            <h3>Details</h3>
+            <p>Partita IVA: {{ organization.partita_iva | e }}</p>
+            <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
+            <p>Telephone: {{ organization.telephone | e }}</p>
+            <p>Email: {{ organization.email | e }}</p>
+            <p>Organization Type: {{ organization.type | e }}</p>
+            <p>Coin: {{ organization.coin | e }}</p>
+        </section>
+        <section>
+            <h2>Employers</h2>
+            {% if employers %}
+                <ul>
+                    {% for employer in employers %}
+                        <li>{{ employer.name | e }} {{ employer.surname | e }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No Employer found for this organization</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

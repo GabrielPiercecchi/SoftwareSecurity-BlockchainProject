@@ -321,6 +321,7 @@ services:
   my-postgres:
     image: postgres:15
     container_name: db_pg
+    restart: unless-stopped
     environment:
     - POSTGRES_DB=${DATABASE_NAME}
     - POSTGRES_USER=${DATABASE_USER}
@@ -330,6 +331,8 @@ services:
     - '${DATABASE_PORT}:${DATABASE_PORT}'
     volumes:
     - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: "exit 0"
     networks:
       quorum-dev-quickstart:
 

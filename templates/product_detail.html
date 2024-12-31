@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name | e }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='co2.gif') }}" type="image/gif">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizzazioni</a></li>
+                <li><a href="/products">Prodotti</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h1>{{ product.name | e }}</h1>
+        <section>
+        <section>
+            <h3>Description</h3>
+            <p>Made by: {{ organization.name | e }}</p>
+            <p>Type: {{ product.type | e }}</p>
+            <p>Quantity: {{ product.quantity | e }}</p>
+        </section>
+        <section>
+            <h2>Deliveries</h2>
+            {% if deliveries %}
+                <ul>
+                    {% for delivery in deliveries %}
+                        <p><b>Dlivery N° {{ loop.index }}</b></p>
+                        <li>
+                            <p>Quantity: {{ delivery.quantity | e }}</p>
+                            <p>CO2 Emission: {{ delivery.co2_emission | e }}</p>
+                            <p>Delivvery Date: {{ delivery.date_timestamp | e }}</p>
+                            <p>ID Deliver Organization: {{ delivery.id_deliver_organization | e }}</p>
+                            <p>ID Receiver Organization: {{ delivery.id_receive_organization | e }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No delivery found for this product</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

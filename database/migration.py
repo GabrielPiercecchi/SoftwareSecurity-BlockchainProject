@@ -1,10 +1,12 @@
-from sqlalchemy import create_engine, Column, Integer, String, Enum, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Float, DateTime
+from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import validates, relationship
 from sqlalchemy.exc import ProgrammingError
 from dotenv import load_dotenv
 import psycopg2
 import os
+from .database import DBIsConnected
 
 load_dotenv()
 
@@ -35,8 +37,7 @@ class Oracle(Base):
 
 class Type(Base):
     __tablename__ = 'type'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), nullable=False, unique=True)
+    id_type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), primary_key=True)
     default_co2_value = Column(Float, nullable=False, unique=True)
     standard = Column(Float, nullable=False)
 
@@ -52,9 +53,9 @@ class Organization(Base):
     cap = Column(String, nullable=False)
     telephone = Column(String, nullable=False)
     email = Column(String, nullable=False)
-    type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.type'), nullable=False)
+    type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.id_type'), nullable=False)
     coin = Column(Float, nullable=False)
-
+    
 class Employer(Base):
     __tablename__ = 'employer'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -68,13 +69,21 @@ class Product(Base):
     __tablename__ = 'product'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
-    type = Column(Enum('raw materials', 'end product', name='product_enum'), nullable=False)
-    co2_production = Column(Float, nullable=False)
+    type = Column(Enum('raw material', 'end product', name='product_type_enum'), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+
+class Delivery(Base):
+    __tablename__ = 'delivery'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    id_product = Column(Integer, ForeignKey('product.id'), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    co2_emission = Column(Float, nullable=False)
     id_deliver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_receive_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    date_timestamp = Column(DateTime, nullable=False, default=datetime.now)
 
 def init_db():
     create_database_if_not_exists()
-    DATABASE_URL = f"postgresql+psycopg2://{os.getenv('DATABASE_USER')}:{os.getenv('DATABASE_PASSWORD')}@{os.getenv('DATABASE_HOST')}:{os.getenv('DATABASE_PORT')}/{os.getenv('DATABASE_NAME')}"
-    engine = create_engine(DATABASE_URL)
-    Base.metadata.create_all(bind=engine)   
+    db_instance = DBIsConnected.get_instance()
+    Base.metadata.create_all(bind=db_instance.engine)
