@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CO2 Application</title>
+    <title>Organizations</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
 </head>
 <body>
     <header>
@@ -24,30 +23,15 @@
         </nav>
     </header>
     <main>
-        <section class="description">
-            <h2>Tracciamento della CO2 dei Prodotti</h2>
-            <p>Questa applicazione consente di tracciare l'impronta di CO2 dei prodotti attraverso le varie fasi della loro produzione e distribuzione.</p>
-        </section>
         <section>
-            <h2>Organizzazioni</h2>
+            <h2>All Organizations</h2>
             <div class="organizations">
                 {% for organization in organizations %}
                     <div class="organization">
                         <h3><a href="/organization/{{ organization.id }}">{{ organization.name | e }}</a></h3>
-                        <p>Description: {{ organization.description | e }}</p>
+                        <p>{{ organization.description | e }}</p>
+                        <p>Organization Type: {{ organization.type | e }}</p>
                         <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </section>
-        <section>
-            <h2>Prodotti</h2>
-            <div class="products">
-                {% for product in products %}
-                    <div class="product">
-                        <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
-                        <p>Made by: {{ product.id_organization | e }}</p>
-                        <p>Type: {{ product.type | e }}</p>
                     </div>
                 {% endfor %}
             </div>

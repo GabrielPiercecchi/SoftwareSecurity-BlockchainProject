@@ -105,3 +105,13 @@ main h1, main h2, main h3, main p {
 .organization p, .product p {
     margin: 0.5rem 0;
 }
+
+/* Aggiungi contorno e ombra alle sezioni specifiche */
+.section-bordered {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}

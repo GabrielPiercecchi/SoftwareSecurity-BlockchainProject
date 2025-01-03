@@ -16,8 +16,8 @@
         <nav class="header-right">
             <ul>
                 <li><a href="/">Home</a></li>
-                <li><a href="/organizations">Organizzazioni</a></li>
-                <li><a href="/products">Prodotti</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
                 <li><a href="/login">Login</a></li>
                 <li><a href="/register">Register</a></li>
             </ul>
@@ -26,12 +26,13 @@
     <main>
         <section>
             <h1>{{ organization.name | e }}</h1>
-        <section>
-            <h3>Description</h3>
+        </section>
+        <section class="section-bordered">
+            <h2>Description</h2>
             <p>{{ organization.description | e }}</p>
         </section>
-        <section>
-            <h3>Details</h3>
+        <section class="section-bordered">
+            <h2>Details</h2>
             <p>Partita IVA: {{ organization.partita_iva | e }}</p>
             <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
             <p>Telephone: {{ organization.telephone | e }}</p>
@@ -39,10 +40,10 @@
             <p>Organization Type: {{ organization.type | e }}</p>
             <p>Coin: {{ organization.coin | e }}</p>
         </section>
-        <section>
+        <section class="section-bordered">
             <h2>Employers</h2>
             {% if employers %}
-                <ul>
+                <ul class="section-bordered">
                     {% for employer in employers %}
                         <p><b>Employer N° {{ loop.index }}</b></p>
                         <li>{{ employer.name | e }} {{ employer.surname | e }}</li>

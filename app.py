@@ -1,50 +1,42 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_talisman import Talisman
 from database.migration import init_db
 from database.seeder import run_seeders
-from database.database import DBIsConnected
-from database.migration import Organization, Product, Employer, Delivery
+from controllers.logging_controller import setup_logging
+from controllers.home_controller import home, initialize_database
+from controllers.organizations_controller import organization_detail, get_all_organizations
+from controllers.products_controller import product_detail, get_all_products
+
+# Configura il logging
+app_logger = setup_logging()
 
 app = Flask(__name__)
 Talisman(app)
 
+@app.before_request
+def log_request_info():
+    app_logger.info('Request received')
+
 @app.route("/")
-def home():
-    db_instance = DBIsConnected.get_instance()
-    session = db_instance.get_session()
-    organizations = session.query(Organization).limit(10).all()
-    products = session.query(Product).limit(10).all()
-    session.close()
-    return render_template("home.html", organizations=organizations, products=products)
+def home_route():
+    return home()
+
+@app.route("/organizations")
+def organizations_route():
+    return get_all_organizations()
 
 @app.route("/organization/<int:id>")
-def organization_detail(id):
-    db_instance = DBIsConnected.get_instance()
-    session = db_instance.get_session()
-    organization = session.query(Organization).get(id)
-    employers = session.query(Employer).filter_by(id_organization=id).all()
-    session.close()
-    return render_template("organization_detail.html", organization=organization, employers=employers)
+def organization_detail_route(id):
+    return organization_detail(id)
+
+@app.route("/products")
+def products_route():
+    return get_all_products()
 
 @app.route("/product/<int:id>")
-def product_detail(id):
-    db_instance = DBIsConnected.get_instance()
-    session = db_instance.get_session()
-    product = session.query(Product).get(id)
-    deliveries = session.query(Delivery).filter_by(id_product=id).all()
-    organization = session.query(Organization).get(product.id_organization)
-    session.close()
-    return render_template("product_detail.html", product=product, deliveries=deliveries, organization=organization)
+def product_detail_route(id):
+    return product_detail(id)
 
 if __name__ == "__main__":
-    try:
-        # Initialize the database (drop and create tables)
-        init_db()
-        print("Database and tables initialized!")
-
-        # Run seeders to populate the database with initial data
-        run_seeders()
-        print("Database seeded successfully!")
-    except Exception as e:
-        print(f"Error: {e}")
+    initialize_database()
     app.run(debug=True)
