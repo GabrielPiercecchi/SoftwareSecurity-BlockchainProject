@@ -13,3 +13,6 @@ sqlalchemy==2.0.36
 typing-extensions==4.12.2
 python-dotenv==1.0.1
 cryptography==44.0.0
+flask_wtf==1.2.2
+wtforms==3.2.1
+email-validator==2.2.0

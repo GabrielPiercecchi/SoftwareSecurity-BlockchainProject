@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products</title>
+    <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
     <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
@@ -29,19 +29,27 @@
         </nav>
     </header>
     <main>
-        <section>
-            <h2>All Products</h2>
-            <div class="products">
-                {% for item in products %}
-                    <div class="product">
-                        <h3><a href="/product/{{ item.product.id }}">{{ item.product.name | e }}</a></h3>
-                        <p>Type: {{ item.product.type | e }}</p>
-                        <p>Quantity: {{ item.product.quantity | e }}</p>
-                        <p>Made by: {{ item.organization_name | e }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </section>
+        <div class="login-container">
+            <form class="login-form" method="post" action="/login">
+                <h2>Login</h2>
+                {{ form.hidden_tag() }}
+                <div>
+                    <label for="username">Username:</label>
+                    {{ form.username }}
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    {{ form.password }}
+                </div>
+                <div>
+                    <button type="submit">Login</button>
+                </div>
+                <br>
+                {% if error %}
+                    <div id="error-message" class="error-message">{{ error }}</div>
+                {% endif %}
+            </form>
+        </div>
     </main>
 </body>
 </html>

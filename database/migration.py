@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import psycopg2
 import os
 from .database import DBIsConnected
+from werkzeug.security import generate_password_hash
 
 load_dotenv()
 
@@ -35,6 +36,9 @@ class Oracle(Base):
     username = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
 
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
 class Type(Base):
     __tablename__ = 'type'
     id_type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), primary_key=True)
@@ -52,7 +56,7 @@ class Organization(Base):
     city = Column(String, nullable=False)
     cap = Column(String, nullable=False)
     telephone = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.id_type'), nullable=False)
     coin = Column(Float, nullable=False)
     
@@ -63,7 +67,11 @@ class Employer(Base):
     password = Column(String, nullable=False)
     name = Column(String, nullable=False)
     surname = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True) 
     id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
 
 class Product(Base):
     __tablename__ = 'product'

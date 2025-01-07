@@ -1,0 +1,318 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-left h1 {
+    margin: 0;
+    margin-right: 1rem;
+}
+
+.header-left img {
+    width: 50px;
+    height: 50px;
+}
+
+.header-right ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.header-right ul li {
+    display: inline;
+}
+
+.header-right ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.header-right ul li a:hover {
+    text-decoration: underline;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+main section {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 2rem;
+}
+
+main ul {
+    list-style: none;
+    padding: 0;
+}
+
+main ul li {
+    margin-bottom: 1rem;
+}
+
+main h1, main h2, main h3, main p {
+    text-align: center;
+}
+
+.description {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.organizations, .products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centratura degli elementi */
+    gap: 1rem;
+}
+
+.organization, .product {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    width: calc(33.333% - 2rem);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.organization h3, .product h3 {
+    margin-top: 0;
+}
+
+.organization p, .product p {
+    margin: 0.5rem 0;
+}
+
+/* Aggiungi contorno e ombra alle sezioni specifiche */
+.section-bordered {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+/* Stili per il modulo di login */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Posiziona il modulo in alto */
+    padding-top: 2rem; /* Aggiungi un po' di margine superiore */
+}
+
+.login-form {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.login-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.login-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.login-form button:hover {
+    background-color: #0056b3;
+}
+
+.login-form .error-message {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2rem;
+    width: 100%; /* Imposta la larghezza al 90% della pagina */
+}
+
+.signup-form {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 2rem;
+    width: 50%; /* Imposta la larghezza al 90% della pagina */
+    min-width: 280px; /* Imposta una larghezza minima per evitare che diventi troppo stretta */
+    max-width: 1200px; /* Imposta una larghezza massima per evitare che diventi troppo larga */
+}
+
+.signup-form h2, .signup-form h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.signup-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.signup-form input, .signup-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Stile per i pulsanti radio (nuovo codice) */
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.radio-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: calc(50% - 1rem); /* Due colonne */
+    box-sizing: border-box;
+}
+
+.radio-item input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
+.radio-item label {
+    font-weight: normal;
+}
+
+/* Stili per i pulsanti radio */
+.signup-form .form-group.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+}
+
+.signup-form .form-group.radio-group .radio-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(50% - 1rem); /* Due colonne */
+    margin-bottom: 0.5rem;
+}
+
+.signup-form .form-group.radio-group .radio-item input[type="radio"] {
+    margin-right: 0.5rem;
+}
+
+.signup-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.signup-form button:hover {
+    background-color: #0056b3;
+}
+
+.signup-form .employer {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.signup-form .button-green {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: green;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.signup-form .button-green:hover {
+    background-color: darkgreen;
+}
+
+.signup-form .form-group label {
+    color: black; /* Imposta il colore del testo delle etichette a nero */
+}
+
+.signup-form select {
+    padding: 0.5rem; /* Aggiungi padding al campo select */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 50%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    text-align: center; /* Centra il testo all'interno del campo select */
+    text-align-last: center; /* Centra il testo selezionato all'interno del campo select */
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employers to Existing Organization</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/add_employers.js') }}" defer></script>
+    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
+                {% if session.logged_in %}
+                    <li><a href="/logout">Logout</a></li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/signup">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="signup-container">
+            <form class="signup-form" method="post" action="/add_employers">
+                {{ form.hidden_tag() }} <!-- Token CSRF -->
+                <h2>Add Employers to Existing Organization</h2>
+                <div class="form-group">
+                    <label for="organization">Select Organization:</label>
+                    <select name="organization" id="organization" required>
+                        {% for org in organizations %}
+                            <option value="{{ org.id }}">{{ org.id }} - {{ org.name }} - {{ org.type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-column">
+                    <div id="employers-container">
+                        <div class="employer">
+                            <div class="form-group">
+                                <label for="emp_username_0">Username:</label>
+                                {{ form.emp_username }}
+                            </div>
+                            <div class="form-group">
+                                <label for="emp_password_0">Password:</label>
+                                {{ form.emp_password }}
+                            </div>
+                            <div class="form-group">
+                                <label for="emp_name_0">Name:</label>
+                                {{ form.emp_name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="emp_surname_0">Surname:</label>
+                                {{ form.emp_surname }}
+                            </div>
+                            <div class="form-group">
+                                <label for="emp_email_0">Email:</label>
+                                {{ form.emp_email }}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="add-employer">Add Another Employer</button>
+                </div>
+                <div>
+                    <button type="submit" class="button-green">Add Employers</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

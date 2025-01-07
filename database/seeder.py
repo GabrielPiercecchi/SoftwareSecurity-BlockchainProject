@@ -4,15 +4,17 @@ from .migration import Type, Organization, Employer, Oracle, Product, Delivery
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+from werkzeug.security import generate_password_hash
 
 load_dotenv()
 
 def seed_oracle(session: Session):
     if not session.query(Oracle).filter_by(username=os.getenv('ORACLE_USERNAME')).first():
-        oracle = [
-            Oracle(username=os.getenv('ORACLE_USERNAME'), password=os.getenv('ORACLE_PASSWORD')),
-        ]
-        session.bulk_save_objects(oracle)
+        oracle = Oracle(
+            username=os.getenv('ORACLE_USERNAME'),
+            password=generate_password_hash(os.getenv('ORACLE_PASSWORD'))
+        )
+        session.add(oracle)
         session.commit()
 
 def seed_types(session: Session):
@@ -37,10 +39,22 @@ def seed_organizations(session: Session):
 
 def seed_employers(session: Session):
     if not session.query(Employer).first():
-        employers = [
-            Employer(username='user1', password='pass1', name='Name1', surname='Surname1', id_organization=1),
-            Employer(username='user2', password='pass2', name='Name2', surname='Surname2', id_organization=2),
+        employers_data = [
+            {'username': 'user1', 'password': 'pass1', 'name': 'Name1', 'surname': 'Surname1', 'email': 'email1@example.com', 'id_organization': 1},
+            {'username': 'user2', 'password': 'pass2', 'name': 'Name2', 'surname': 'Surname2', 'email': 'email2@example.com', 'id_organization': 2},
         ]
+        employers = []
+        for data in employers_data:
+            employer = Employer(
+                username=data['username'],
+                name=data['name'],
+                surname=data['surname'],
+                email=data['email'],
+                id_organization=data['id_organization']
+            )
+            employer.set_password(data['password'])  # Hash the password
+            employers.append(employer)
+        
         session.bulk_save_objects(employers)
         session.commit()
 
