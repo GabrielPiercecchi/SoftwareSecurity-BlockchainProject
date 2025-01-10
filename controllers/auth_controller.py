@@ -61,6 +61,10 @@ def login():
             print('Valid username and password')
             session['logged_in'] = True
             session['username'] = username
+            if employer:
+                session['user_type'] = 'employer'
+            else:
+                session['user_type'] = 'oracle'
             session_db.close()
             return redirect(url_for('home_route'))
             

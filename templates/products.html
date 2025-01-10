@@ -14,19 +14,20 @@
             <h1>CO2 Application</h1>
             <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
         </div>
-        <nav class="header-right">
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/organizations">Organizations</a></li>
-                <li><a href="/products">Products</a></li>
-                {% if session.logged_in %}
-                    <li><a href="/logout" class="orange-button">Logout</a></li>
-                {% else %}
-                    <li><a href="/login" class="orange-button">Login</a></li>
-                    <li><a href="/signup" class="orange-button">Sign Up</a></li>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/organizations">Organizations</a></li>
+            <li><a href="/products">Products</a></li>
+            {% if session.logged_in %}
+                {% if session.user_type == 'employer' %}
+                    <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
                 {% endif %}
-            </ul>
-        </nav>
+                <li><a href="/logout" class="orange-button">Logout</a></li>
+            {% else %}
+                <li><a href="/login" class="orange-button">Login</a></li>
+                <li><a href="/signup" class="orange-button">Sign Up</a></li>
+            {% endif %}
+        </ul>
     </header>
     <main>
         <section>

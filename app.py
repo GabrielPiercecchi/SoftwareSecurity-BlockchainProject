@@ -10,6 +10,7 @@ from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
 from controllers.products_controller import product_detail, get_all_products
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
+from controllers.users_controller import employer_home
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -63,6 +64,10 @@ def add_employers_route():
 @app.route("/logout")
 def logout_route():
     return logout()
+
+@app.route("/employer/")
+def employer_home_route():
+    return employer_home()
 
 if __name__ == "__main__":
     initialize_database()
