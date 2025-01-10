@@ -6,7 +6,11 @@
     <title>CO2 Application</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
-    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% if session.logged_in %}
+    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    {% else %}
+        <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% endif %} 
 </head>
 <body>
     <header>
@@ -32,7 +36,7 @@
         <section class="description">
             <h2>Tracciamento della CO2 dei Prodotti</h2>
             <p>Questa applicazione consente di tracciare l'impronta di CO2 dei prodotti attraverso le varie fasi della loro produzione e distribuzione.</p>
-            <p>Se sei un'azienda e vuoi registrarti al nostro sito vai all'indirizzo <a href="/signup">Sign Up</a></li> e compila la from predisposta. <b>Sarà necessario registrare almeno un impiegato per poter gestire i vostri dati</b>.</p>
+            <p>Se sei un'azienda e vuoi registrarti al nostro sito vai all'indirizzo <a href="/signup">Sign Up</a></li> e compila la from predisposta. Entro 24h un nostro <i>oracolo</i> vi aggiungerà al sistema. <b>Sarà necessario registrare almeno un impiegato per poter gestire i vostri dati</b>.</p>
         </section>
         <section>
             <h2>Organizzazioni</h2>

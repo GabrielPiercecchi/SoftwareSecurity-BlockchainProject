@@ -1,0 +1,20 @@
+LIVELLO 2
+    Pagina ORACOLO:
+    1- Nella pagina principale avrà 4 BUTTON: uno per la gestione delle REGISTER REQUEST, uno per il 
+            trasferimento ECCEZIONALE dei COIN e uno per il controllo dei LOG
+        1.1- Nel BUTTON delle REGISTER REQUEST vi sarà posto sotto il numero delle richieste fatte: 
+            a- REQUEST di INSERT AZIENDA
+            b- REQUEST di INSERT EMPLOYER per AZIENDA ESISTENTE
+            c- REQUEST per DELETE AZIENDA 
+            d- REQUEST per DELETE EMPLOYER
+        Queste richieste apriranno delle pagine dedicate che mostreranno i dati delle REQUEST FORM e i comandi per 
+            gestirle (INSERT, DELETE)
+
+LIVELLO 1
+    Pagina EMPLOYER:
+    1- Nella pagina principale avrà 6 BUTTON: uno per il CREATE PRUDOCT, uno per l'UPDATE PRUDOCT, uno per la visualizzazione dei 
+        propri PRUDOCT, uno per la creazione delle PRUDOCT REQUEST, uno per la gestione delle PRUDOCT REQUEST fatte a lui 
+        (come organizzazione) e una per la visualizzazione delle DELIVERY.
+        1.1- Se accettata la PRUDOCT REQUEST di altri si apre una pagina per la creazione delli DELIVERY
+            1.1.1- Nelle DELIVERY usare le api per colcolare la distanza tra le due organizzazioni della DELIVERY e la CO2 generata
+            Creata la DELIVERY deve comparire anche nella pagina delle DELIVERY
