@@ -18,3 +18,9 @@ LIVELLO 1
         1.1- Se accettata la PRUDOCT REQUEST di altri si apre una pagina per la creazione delli DELIVERY
             1.1.1- Nelle DELIVERY usare le api per colcolare la distanza tra le due organizzazioni della DELIVERY e la CO2 generata
             Creata la DELIVERY deve comparire anche nella pagina delle DELIVERY
+
+
+TODO
+    Gabriel: view_deliveries e view_products
+    Caterina: create_product
+    Tosca: update_product

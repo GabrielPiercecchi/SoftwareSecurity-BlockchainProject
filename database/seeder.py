@@ -63,6 +63,7 @@ def seed_products(session: Session):
         products = [
             Product(name='Prod1', type='raw material', quantity=100, id_organization=1),
             Product(name='Prod2', type='end product', quantity=200, id_organization=2),
+            Product(name='Prod3', type='raw material', quantity=100, id_organization=1),
         ]
         session.bulk_save_objects(products)
         session.commit()

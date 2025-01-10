@@ -8,9 +8,10 @@ from database.seeder import run_seeders
 from controllers.logging_controller import setup_logging
 from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
-from controllers.products_controller import product_detail, get_all_products
+from controllers.products_controller import product_detail, get_all_products, employer_view_products
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
-from controllers.users_controller import employer_home
+from controllers.employers_controller import employer_home
+from controllers.deliveries_controller import employer_view_deliveries
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -68,6 +69,14 @@ def logout_route():
 @app.route("/employer/")
 def employer_home_route():
     return employer_home()
+
+@app.route("/employer/view_products/")
+def employer_view_products_route():
+    return employer_view_products()
+
+@app.route("/employer/view_deliveries/")
+def employer_view_deliveries_route():
+    return employer_view_deliveries()
 
 if __name__ == "__main__":
     initialize_database()
