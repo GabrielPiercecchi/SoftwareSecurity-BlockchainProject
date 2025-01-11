@@ -1,9 +1,6 @@
 document.getElementById('create-product-button').addEventListener('click', function() {
     window.location.href = "create_product_route";
 });
-document.getElementById('update-product-button').addEventListener('click', function() {
-    window.location.href = "update_product_route";
-});
 document.getElementById('view-products-button').addEventListener('click', function() {
     window.location.href = "view_products/";
 });

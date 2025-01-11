@@ -8,7 +8,7 @@ from database.seeder import run_seeders
 from controllers.logging_controller import setup_logging
 from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
-from controllers.products_controller import product_detail, get_all_products, employer_view_products
+from controllers.products_controller import product_detail, get_all_products, employer_view_products, update_product
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
 from controllers.employers_controller import employer_home
 from controllers.deliveries_controller import employer_view_deliveries, view_product_requests
@@ -73,6 +73,10 @@ def employer_home_route():
 @app.route("/employer/view_products/")
 def employer_view_products_route():
     return employer_view_products()
+
+@app.route("/update_product/<int:product_id>", methods=['GET', 'POST'])
+def update_product_route(product_id):
+    return update_product(product_id)
 
 @app.route("/employer/view_deliveries/")
 def employer_view_deliveries_route():

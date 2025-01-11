@@ -1,6 +1,13 @@
-from flask import render_template, session, redirect, url_for
+from flask import render_template, session, redirect, url_for, request, flash
+from flask_wtf import FlaskForm
+from wtforms import StringField, SelectField, IntegerField
+from wtforms.validators import DataRequired
 from database.database import DBIsConnected
 from database.migration import Product, Delivery, Organization, Employer
+
+class UpdateProductForm(FlaskForm):
+    name = StringField('Organization Name', validators=[DataRequired()])
+    type = SelectField('Type', choices=[('raw material', 'Raw material'), ('end product', 'End product')], validators=[DataRequired()])
 
 def product_detail(id):
     db_instance = DBIsConnected.get_instance()
@@ -48,3 +55,40 @@ def employer_view_products():
     products = session_db.query(Product).filter_by(id_organization=organization.id).all()
     session_db.close()
     return render_template('employer_view_products.html', products=products, organization=organization)
+
+def update_product(product_id):
+    db_instance = DBIsConnected.get_instance()
+    session_db = db_instance.get_session()
+    product = session_db.query(Product).filter_by(id=product_id).first()
+    session_db.close()
+    
+    form = UpdateProductForm()
+    
+    if request.method == 'GET':
+        # Fetch the product from the database
+        
+        if not product:
+            flash('Product not found.', 'error')
+            return redirect(url_for('employer_view_products_route'))
+        
+        # Populate the form with the product data
+        form.name.data = product.name
+        form.type.data = product.type
+        
+        return render_template('employer_update_product.html', form=form, product=product)
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        product = session_db.query(Product).filter_by(id=product_id).first()
+        if product:
+            product.name = form.name.data
+            product.type = form.type.data
+            session_db.commit()
+            session_db.close()
+            flash('Product updated successfully!', 'success')
+            return redirect(url_for('employer_view_products_route'))
+        else:
+            session_db.close()
+            flash('Failed to update product.', 'error')
+            return redirect(url_for('employer_view_products_route'))
+    
+    return render_template('employer_update_product.html', form=form, product=product)
