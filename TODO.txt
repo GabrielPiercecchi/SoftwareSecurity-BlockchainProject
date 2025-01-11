@@ -18,13 +18,39 @@ LIVELLO 1
         1.1 - Se accettata la DELIVERY REQUEST di altri si apre una pagina per la creazione della DELIVERY
             1.1.1 - Nelle DELIVERY usare le api per colcolare la distanza tra le due organizzazioni della DELIVERY e la CO2 generata
             Creata la DELIVERY deve comparire anche nella pagina delle DELIVERY
+            1.1.2 - Collegamento CARRIER per ogni DELIVERY
+        1.2 - Creazione rotta UPDATE PERSONAL DATA
 
 
 TODO 10/01/2025
-    Gabriel: view_deliveries e view_products
-        DONE
-    Caterina: create_product
-    Tosca: update_product
+    Gabriel: 
+        view_deliveries e view_products
+            DONE
+    Caterina: 
+        create_product
+            DONE
+    Tosca: 
+        update_product
+            DONE
 
 TODO 11/01/2025
-    Gabriel: creazione della Tabella PRODUCT REQUEST
+    Gabriel: 
+        creazione della Tabella PRODUCT REQUEST nel DB, 
+        view PRODUCT REQUEST
+            DONE
+        gestione accettazione PRODUCT REQUEST
+        creazione della Tabella REGISTER REQUEST nel DB
+    Tosca:
+        CREATE PRODUCT REQUEST
+    Caterina:
+        creazione rotta UPDATE PERSONAL DATA: rotta che apre una form che permette la modifica dei dati personali
+            - password
+            - email
+            - name
+            - surname
+            Questa form permette di visualizzare i dati già presenti e di aggirnarli (eccetto la pssword che è criptata e
+                può essere solo aggiornata e non letta)
+
+
+
+            
