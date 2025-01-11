@@ -40,6 +40,7 @@
         <section>
             <h2>All {{organization.name | e }} Products</h2>
             <div class="products">
+                {% if products %}
                 {% for product in products %}
                     <div class="product">
                         <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
@@ -49,6 +50,9 @@
                         <a href="/update_product/{{ product.id }}" class="orange-button">Update Product</a>
                     </div>
                 {% endfor %}
+                {% else %}
+                    <p class="red-text"><b>No products found</b></p>
+                {% endif %}
             </div>
         </section>
     </main>

@@ -8,7 +8,7 @@ document.getElementById('create-product-request-button').addEventListener('click
     window.location.href = "create_product_request_route";
 });
 document.getElementById('manage-product-requests-button').addEventListener('click', function() {
-    window.location.href = "manage_product_requests_route";
+    window.location.href = "/employer/menage_product_requests";
 });
 document.getElementById('view-deliveries-button').addEventListener('click', function() {
     window.location.href = "view_deliveries/";

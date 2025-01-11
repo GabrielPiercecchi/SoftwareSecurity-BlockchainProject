@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/employer_view_deliveries.js') }}" defer></script>
     {% if session.logged_in %}
     <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
@@ -40,9 +39,6 @@
     <main>
         <section class="section-bordered">
             <h2>Deliveries</h2>
-            <div>
-                <button type="button" class="button-green" id="product-request-button">Check all the Product Request</button>
-            </div>
             {% if deliveries %}
                 <ul class="section-bordered">
                     <h3 class="blue-text">When {{ organization.name | e}} is the Deliver</h3>
@@ -57,6 +53,8 @@
                         </li>
                     {% endfor %}
                 </ul>
+            {% else %}
+                <p class="red-text"><b>No delivery found</b></p>
             {% endif %}
             {% if receivers %}
                 <ul class="section-bordered">
@@ -73,7 +71,7 @@
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No delivery found for this product</p>
+                <p class="red-text"><b>No delivery found</b></p>
             {% endif %}
         </section>
     </main>

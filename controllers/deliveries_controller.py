@@ -37,7 +37,7 @@ def employer_view_deliveries():
 
     return render_template('employer_view_deliveries.html', deliveries=deliveries_with_orgs, receivers=receivers_with_orgs, organization=organization)
 
-def view_product_requests():
+def menage_product_requests():
     username = session.get('username')
     if not username:
         return redirect(url_for('login_route'))
@@ -74,4 +74,4 @@ def view_product_requests():
     
     session_db.close()
 
-    return render_template('employer_view_product_requests.html', organization=organization, providing_product_requests=providing_requests_with_details, requesting_product_requests=requesting_requests_with_details)
+    return render_template('employer_menage_product_requests.html', organization=organization, providing_product_requests=providing_requests_with_details, requesting_product_requests=requesting_requests_with_details)
