@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from .database import DBIsConnected
-from .migration import Type, Organization, Employer, Oracle, Product, Delivery
+from .migration import Type, Organization, Employer, Oracle, Product, Delivery, ProductRequest
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -68,6 +68,46 @@ def seed_products(session: Session):
         session.bulk_save_objects(products)
         session.commit()
 
+def seed_product_requests(session: Session):
+    # Assicurati che ci siano organizzazioni e prodotti di esempio
+    org_a = session.query(Organization).filter_by(name='Org1').first()
+    org_b = session.query(Organization).filter_by(name='Org2').first()
+    product1 = session.query(Product).filter_by(name='Prod1').first()
+    product2 = session.query(Product).filter_by(name='Prod2').first()
+
+    if org_a and org_b and product1:
+        if not session.query(ProductRequest).first():
+            product_requests = [
+                ProductRequest(
+                    id_product=product1.id,
+                    id_requesting_organization=org_b.id,
+                    id_providing_organization=org_a.id,
+                    quantity=50,
+                    status='pending',
+                    date_requested=datetime.now()
+                ),
+                ProductRequest(
+                    id_product=product1.id,
+                    id_requesting_organization=org_b.id,
+                    id_providing_organization=org_a.id,
+                    quantity=100,
+                    status='approved',
+                    date_requested=datetime.now(),
+                    date_responded=datetime.now()
+                ),
+                ProductRequest(
+                    id_product=product2.id,
+                    id_requesting_organization=org_a.id,
+                    id_providing_organization=org_b.id,
+                    quantity=100,
+                    status='approved',
+                    date_requested=datetime.now(),
+                    date_responded=datetime.now()
+                )
+            ]
+            session.bulk_save_objects(product_requests)
+            session.commit()
+
 def seed_deliveries(session: Session):
     if not session.query(Delivery).first():
         deliveries = [
@@ -87,6 +127,7 @@ def run_seeders():
         seed_organizations(session)
         seed_employers(session)
         seed_products(session)  # Seed products before deliveries
+        seed_product_requests(session)
         seed_deliveries(session)
         print("Database seeded successfully!")
     except Exception as e:

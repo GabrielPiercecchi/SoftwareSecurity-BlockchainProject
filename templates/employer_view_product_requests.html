@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/employer_view_deliveries.js') }}" defer></script>
     {% if session.logged_in %}
     <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
@@ -39,41 +38,48 @@
     </header>
     <main>
         <section class="section-bordered">
-            <h2>Deliveries</h2>
-            <div>
-                <button type="button" class="button-green" id="product-request-button">Check all the Product Request</button>
-            </div>
-            {% if deliveries %}
+            <h2>Product Requests</h2>
+            {% if providing_product_requests %}
                 <ul class="section-bordered">
-                    <h3 class="blue-text">When {{ organization.name | e}} is the Deliver</h3>
-                    {% for item in deliveries %}
-                        <h3>Delivery N° {{ loop.index }}</h3>
+                    <h3 class="blue-text">Requests Provided by {{ organization.name | e }}</h3>
+                    {% for item in providing_product_requests %}
+                        <h3>Request N° {{ loop.index }}</h3>
                         <li>
-                            <p>Quantity: {{ item.delivery.quantity | e }}</p>
-                            <p>CO2 Emission: {{ item.delivery.co2_emission | e }}</p>
-                            <p>Delivery Date: {{ item.delivery.date_timestamp | e }}</p>
-                            <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
-                            <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-            {% if receivers %}
-                <ul class="section-bordered">
-                    <h3 class="red-text">When {{ organization.name | e}} is the Receiver</h3>
-                    {% for item in receivers %}
-                        <h3>Delivery N° {{ loop.index }}</h3>
-                        <li>
-                            <p>Quantity: {{ item.receiver.quantity | e }}</p>
-                            <p>CO2 Emission: {{ item.receiver.co2_emission | e }}</p>
-                            <p>Delivery Date: {{ item.receiver.date_timestamp | e }}</p>
-                            <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
-                            <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
+                            <p>Product: {{ item.product_name | e }}</p>
+                            <p>Quantity: {{ item.request.quantity | e }}</p>
+                            <p>Status: {{ item.request.status | e }}</p>
+                            <p>Date Requested: {{ item.request.date_requested | e }}</p>
+                            {% if item.request.status == 'approved' %}
+                                <p>Date Approved: {{ item.request.date_responded | e }}</p>
+                            {% endif %}
+                            <p>Requesting Organization: {{ item.requesting_org_name | e }}</p>
+                            <p>Providing Organization: {{ item.providing_org_name | e }}</p>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No delivery found for this product</p>
+                <p>No providing requests found.</p>
+            {% endif %}
+            {% if requesting_product_requests %}
+                <ul class="section-bordered">
+                    <h3 class="red-text">Requests Made by {{ organization.name | e }}</h3>
+                    {% for item in requesting_product_requests %}
+                        <h3>Request N° {{ loop.index }}</h3>
+                        <li>
+                            <p>Product: {{ item.product_name | e }}</p>
+                            <p>Quantity: {{ item.request.quantity | e }}</p>
+                            <p>Status: {{ item.request.status | e }}</p>
+                            <p>Date Requested: {{ item.request.date_requested | e }}</p>
+                            {% if item.request.status == 'approved' %}
+                                <p>Date Approved: {{ item.request.date_responded | e }}</p>
+                            {% endif %}
+                            <p>Requesting Organization: {{ item.requesting_org_name | e }}</p>
+                            <p>Providing Organization: {{ item.providing_org_name | e }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No requesting requests found.</p>
             {% endif %}
         </section>
     </main>

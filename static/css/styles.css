@@ -146,6 +146,22 @@ main h1, main h2, main h3, main p {
     margin-bottom: 2rem;
 }
 
+.section-bordered .button-green {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: green;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.section-bordered .button-green:hover {
+    background-color: darkgreen;
+}
+
 /* Stili per il modulo di login */
 .login-container {
     display: flex;

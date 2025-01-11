@@ -81,6 +81,17 @@ class Product(Base):
     quantity = Column(Integer, nullable=False)
     id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
 
+class ProductRequest(Base):
+    __tablename__ = 'product_request'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    id_product = Column(Integer, ForeignKey('product.id'), nullable=False)
+    id_requesting_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    id_providing_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    status = Column(Enum('pending', 'approved', 'rejected', name='request_status_enum'), nullable=False, default='pending')
+    date_requested = Column(DateTime, nullable=False, default=datetime.now)
+    date_responded = Column(DateTime)
+
 class Delivery(Base):
     __tablename__ = 'delivery'
     id = Column(Integer, primary_key=True, autoincrement=True)
