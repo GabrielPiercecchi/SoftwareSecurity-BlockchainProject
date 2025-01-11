@@ -46,6 +46,7 @@
                         <p>ID: {{ product.id | e }}</p>
                         <p>Type: {{ product.type | e }}</p>
                         <p>Quantity: {{ product.quantity | e }}</p>
+                        <a href="/update_product/{{ product.id }}" class="orange-button">Update Product</a>
                     </div>
                 {% endfor %}
             </div>
