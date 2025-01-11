@@ -35,6 +35,15 @@
             <form class="signup-form" method="post" action="/create_products">
                 {{ form.hidden_tag() }} <!-- Token CSRF -->
                 <h2>Create a New Product</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
                 <div class="form-columns">
                     <div class="employer">
                         <div class="form-columns">
@@ -48,9 +57,13 @@
                             </div>
                             <div class="form-group">
                                 <p>ATTENTION: enter the correct quantity value. Co2 emission values ​
-                                    ​are calculated based on this value. ONCE INSERTED IT WILL NO LONGER BE POSSIBLE TO MODIFY IT.</p>
+                                    ​are calculated based on this value. <b>ONCE INSERTED IT WILL NO LONGER BE POSSIBLE TO MODIFY IT.</b></p>
                                 <label for="quantity">Quantity:</label>
                                 {{ form.quantity }}
+                            </div>
+                            <div class="form-group">
+                                <label  for="co2_production_product">CO2 Production:</label>
+                                {{ form.co2_production_product }}
                             </div>
                         </div>
                     </div>

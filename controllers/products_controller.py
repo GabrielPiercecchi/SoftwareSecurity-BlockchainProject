@@ -9,12 +9,7 @@ class ProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()])
     type = SelectField('Type', choices=[('raw material', 'Raw Material'), ('end product', 'End Product')], validators=[DataRequired()])
     quantity = IntegerField('Quantity', validators=[DataRequired()])
-from flask import render_template, session, redirect, url_for, request, flash
-from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, IntegerField
-from wtforms.validators import DataRequired
-from database.database import DBIsConnected
-from database.migration import Product, Delivery, Organization, Employer
+    co2_production_product = FloatField('CO2 Production', validators=[DataRequired()])
 
 class UpdateProductForm(FlaskForm):
     name = StringField('Organization Name', validators=[DataRequired()])
@@ -55,7 +50,9 @@ def get_all_products():
     return render_template("products.html", products=products_with_org)
 
 def create_product():
-    username = session['username']
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login_route'))
 
     db_instance = DBIsConnected.get_instance()
     session_db = db_instance.get_session()
@@ -72,6 +69,7 @@ def create_product():
         name = form.name.data
         type = form.type.data
         quantity = form.quantity.data
+        co2_production_product = form.co2_production_product.data
 
         session_db = db_instance.get_session()
     
@@ -80,7 +78,8 @@ def create_product():
             name=name,
             type=type,
             quantity=quantity,
-            id_organization=organization.id
+            id_organization=organization.id,
+            co2_production_product=co2_production_product
             )    
             session_db.add(new_prod)
 
@@ -89,12 +88,14 @@ def create_product():
         except Exception as e:
             session_db.rollback()
             print(f'Error: {str(e)}')
+            flash('Failed to add product.', 'error')
         finally:
             session_db.close()
 
-        return redirect(url_for('home_route'))
+        return redirect(url_for('employer_home_route'))
     
     return render_template('create_products.html', form=form, organization=organization)
+
 def employer_view_products():
     username = session.get('username')
     if not username:
@@ -106,9 +107,14 @@ def employer_view_products():
     organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
     products = session_db.query(Product).filter_by(id_organization=organization.id).all()
     session_db.close()
+    
     return render_template('employer_view_products.html', products=products, organization=organization)
 
 def update_product(product_id):
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login_route'))
+
     db_instance = DBIsConnected.get_instance()
     session_db = db_instance.get_session()
     product = session_db.query(Product).filter_by(id=product_id).first()

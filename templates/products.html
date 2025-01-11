@@ -40,6 +40,7 @@
                         <h3><a href="/product/{{ item.product.id }}">{{ item.product.name | e }}</a></h3>
                         <p>Type: {{ item.product.type | e }}</p>
                         <p>Quantity: {{ item.product.quantity | e }}</p>
+                        <p>CO2 Production: {{ item.product.co2_production_product }}</p>
                         <p>Made by: {{ item.organization_name | e }}</p>
                     </div>
                 {% endfor %}

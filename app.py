@@ -74,6 +74,7 @@ def employer_home_route():
 @app.route("/create_products", methods=['GET', 'POST'])
 def create_product_route():
     return create_product()
+
 @app.route("/employer/view_products/")
 def employer_view_products_route():
     return employer_view_products()

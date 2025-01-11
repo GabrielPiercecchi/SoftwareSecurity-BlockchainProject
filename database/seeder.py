@@ -61,9 +61,9 @@ def seed_employers(session: Session):
 def seed_products(session: Session):
     if not session.query(Product).first():
         products = [
-            Product(name='Prod1', type='raw material', quantity=100, id_organization=1),
-            Product(name='Prod2', type='end product', quantity=200, id_organization=2),
-            Product(name='Prod3', type='raw material', quantity=100, id_organization=1),
+            Product(name='Prod1', type='raw material', quantity=100, id_organization=1, co2_production_product=1.0),
+            Product(name='Prod2', type='end product', quantity=200, id_organization=2, co2_production_product=2.0),
+            Product(name='Prod3', type='raw material', quantity=100, id_organization=1, co2_production_product=100.0),
         ]
         session.bulk_save_objects(products)
         session.commit()
