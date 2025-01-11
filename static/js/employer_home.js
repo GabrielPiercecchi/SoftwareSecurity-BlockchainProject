@@ -16,3 +16,6 @@ document.getElementById('manage-product-requests-button').addEventListener('clic
 document.getElementById('view-deliveries-button').addEventListener('click', function() {
     window.location.href = "{{ url_for('view_deliveries_route') }}";
 });
+document.getElementById('create-product-button').addEventListener('click', function() {
+    window.location.href = "/create_products";
+});

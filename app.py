@@ -11,6 +11,7 @@ from controllers.organizations_controller import organization_detail, get_all_or
 from controllers.products_controller import product_detail, get_all_products
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
 from controllers.users_controller import employer_home
+from controllers.products_controller import create_product
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -68,6 +69,10 @@ def logout_route():
 @app.route("/employer/")
 def employer_home_route():
     return employer_home()
+
+@app.route("/create_products", methods=['GET', 'POST'])
+def create_product_route():
+    return create_product()
 
 if __name__ == "__main__":
     initialize_database()
