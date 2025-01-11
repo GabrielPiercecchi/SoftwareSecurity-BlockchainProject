@@ -37,6 +37,7 @@ TODO 11/01/2025
     Gabriel: 
         creazione della Tabella PRODUCT REQUEST nel DB, 
         view PRODUCT REQUEST
+        Implementazione CO2 nei PRODUCT
             DONE
         gestione accettazione PRODUCT REQUEST
         creazione della Tabella REGISTER REQUEST nel DB
