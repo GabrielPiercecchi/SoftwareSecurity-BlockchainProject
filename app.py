@@ -8,10 +8,11 @@ from database.seeder import run_seeders
 from controllers.logging_controller import setup_logging
 from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
-from controllers.products_controller import product_detail, get_all_products
+from controllers.products_controller import product_detail, get_all_products, employer_view_products, update_product
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
-from controllers.users_controller import employer_home
 from controllers.products_controller import create_product
+from controllers.employers_controller import employer_home
+from controllers.deliveries_controller import employer_view_deliveries, menage_product_requests
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -73,6 +74,21 @@ def employer_home_route():
 @app.route("/create_products", methods=['GET', 'POST'])
 def create_product_route():
     return create_product()
+@app.route("/employer/view_products/")
+def employer_view_products_route():
+    return employer_view_products()
+
+@app.route("/update_product/<int:product_id>", methods=['GET', 'POST'])
+def update_product_route(product_id):
+    return update_product(product_id)
+
+@app.route("/employer/view_deliveries/")
+def employer_view_deliveries_route():
+    return employer_view_deliveries()
+
+@app.route("/employer/menage_product_requests")
+def menage_product_requests_route():
+    return menage_product_requests()
 
 if __name__ == "__main__":
     initialize_database()

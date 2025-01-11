@@ -37,15 +37,24 @@
         </nav>
     </header>
     <main>
-        <div class="signup-container">
-            <div class="signup-form">
-                <button type="button" class="button-green" id="create-product-button">Create Products</button>
-                <button type="button" class="button-green" id="view-products-button">View My Organization Products</button>
-                <button type="button" class="button-green" id="create-product-request-button">Create Product Request</button>
-                <button type="button" class="button-green" id="manage-product-requests-button">Manage Product Requests</button>
-                <button type="button" class="button-green" id="view-deliveries-button">View my Organization Deliveries</button>
+        <section>
+            <h2>All {{organization.name | e }} Products</h2>
+            <div class="products">
+                {% if products %}
+                {% for product in products %}
+                    <div class="product">
+                        <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
+                        <p>ID: {{ product.id | e }}</p>
+                        <p>Type: {{ product.type | e }}</p>
+                        <p>Quantity: {{ product.quantity | e }}</p>
+                        <a href="/update_product/{{ product.id }}" class="orange-button">Update Product</a>
+                    </div>
+                {% endfor %}
+                {% else %}
+                    <p class="red-text"><b>No products found</b></p>
+                {% endif %}
             </div>
-        </div>
+        </section>
     </main>
 </body>
 </html>
