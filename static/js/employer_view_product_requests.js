@@ -1,0 +1,3 @@
+document.getElementById('product-request-button').addEventListener('click', function() {
+    window.location.href = "/employer/menage_product_requests/view_other_products/create_product_requests/{{ item.product.id }}";
+});

@@ -11,7 +11,8 @@ from controllers.organizations_controller import organization_detail, get_all_or
 from controllers.products_controller import product_detail, get_all_products, employer_view_products, update_product
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
 from controllers.employers_controller import employer_home
-from controllers.deliveries_controller import employer_view_deliveries, menage_product_requests
+from controllers.deliveries_controller import employer_view_deliveries
+from controllers.requests_products_controller import menage_product_requests, view_other_products, create_product_requests
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -85,6 +86,14 @@ def employer_view_deliveries_route():
 @app.route("/employer/menage_product_requests")
 def menage_product_requests_route():
     return menage_product_requests()
+
+@app.route("/employer/menage_product_requests/view_other_products/")
+def view_other_products_route():
+    return view_other_products()
+
+@app.route("/employer/menage_product_requests/view_other_products/create_product_requests/<int:product_id>", methods=['GET', 'POST'])
+def create_product_requests_route(product_id):
+    return create_product_requests(product_id)
 
 if __name__ == "__main__":
     initialize_database()

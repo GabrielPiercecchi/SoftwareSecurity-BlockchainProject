@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Product Request</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/employer_create_product_requests.js') }}" defer></script>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
+                {% if session.logged_in %}
+                    {% if session.user_type == 'employer' %}
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                    {% endif %}
+                    <li><a href="/logout" class="orange-button">Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="orange-button">Login</a></li>
+                    <li><a href="/signup" class="orange-button">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="signup-container">
+            <form class="signup-form" id="update-product-form" method="post" action="{{ url_for('create_product_requests_route', product_id=product.product.id) }}">
+                {{ form.hidden_tag() }} <!-- CSRF Token -->
+                <h2>Create a New Product Request</h2>
+                <div class="form-group">
+                    <label for="product">Product:{{ product.product.name | e }}</label>
+                        <p>ID: {{ product.product.id | e }}</p>
+                        <p>Max Quantity: {{ product.product.quantity | e }}</p>
+                        <p>Organization: {{ product.organization_name| e }}</p>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" class="form-control" required>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                {% if category == 'danger' %}
+                                    <div class="invalid-tooltip" style="display: block;">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <button type="submit" class="blue-button">Create product request</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

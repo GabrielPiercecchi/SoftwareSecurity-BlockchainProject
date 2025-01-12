@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View other products</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/employer_view_product_requests') }}" defer></script>
+    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
+                {% if session.logged_in %}
+                    {% if session.user_type == 'employer' %}
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                    {% endif %}
+                    <li><a href="/logout" class="orange-button">Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="orange-button">Login</a></li>
+                    <li><a href="/signup" class="orange-button">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Products from Other Organizations</h2>
+            <div class="products">
+                {% if products %}
+                    {% for item in products %}
+                        <div class="product">
+                            <h3>{{ item.product.name | e }}</h3>
+                            <p>ID: {{ item.product.id | e }}</p>
+                            <p>Type: {{ item.product.type | e }}</p>
+                            <p>Max Quantity: {{ item.product.quantity | e }}</p>
+                            <p>Organization: {{ item.organization_name | e }}</p>
+                            <a href="/employer/menage_product_requests/view_other_products/create_product_requests/{{ item.product.id }}" class="orange-button">Create Product Request</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No products available from other organizations.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>
