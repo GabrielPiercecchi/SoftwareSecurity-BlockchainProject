@@ -37,6 +37,7 @@ class AddEmployersForm(FlaskForm):
     emp_surname = StringField('Surname', validators=[DataRequired()])
     emp_email = StringField('Email', validators=[DataRequired(), Email()])
 
+
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -206,3 +207,4 @@ def add_employers_to_existing_org():
         return redirect(url_for('home_route'))
 
     return render_template('add_employers.html', form=form, organizations=organizations)
+

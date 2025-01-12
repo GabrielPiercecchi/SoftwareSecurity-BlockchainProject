@@ -6,7 +6,7 @@
     <title>CO2 Application</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/employer_view_products.js') }}" defer></script>
     {% if session.logged_in %}
     <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
@@ -37,22 +37,28 @@
         </nav>
     </header>
     <main>
-        <section>
+        <section class="section-bordered">
             <h2>All {{organization.name | e }} Products</h2>
-            <div class="products">
-                {% if products %}
-                {% for product in products %}
-                    <div class="product">
-                        <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
-                        <p>ID: {{ product.id | e }}</p>
-                        <p>Type: {{ product.type | e }}</p>
-                        <p>Quantity: {{ product.quantity | e }}</p>
-                        <a href="/update_product/{{ product.id }}" class="orange-button">Update Product</a>
-                    </div>
-                {% endfor %}
-                {% else %}
-                    <p class="red-text"><b>No products found</b></p>
-                {% endif %}
+            <div>
+                <button type="button" class="button-green" id="create-product-button">Create Products</button>
+            </div>
+            <div class="section-bordered">
+                <div class="products">
+                    {% if products %}
+                    {% for product in products %}
+                        <div class="product">
+                            <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
+                            <p>ID: {{ product.id | e }}</p>
+                            <p>Type: {{ product.type | e }}</p>
+                            <p>Quantity: {{ product.quantity | e }}</p>
+                            <p>CO2 Production: {{ product.co2_production_product }}</p>
+                            <a href="/update_product/{{ product.id }}" class="orange-button">Update Product</a>
+                        </div>
+                    {% endfor %}
+                    {% else %}
+                        <p class="red-text"><b>No products found</b></p>
+                    {% endif %}
+                </div>
             </div>
         </section>
     </main>

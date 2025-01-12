@@ -1,6 +1,3 @@
-document.getElementById('create-product-button').addEventListener('click', function() {
-    window.location.href = "create_product_route";
-});
 document.getElementById('view-products-button').addEventListener('click', function() {
     window.location.href = "view_products/";
 });
@@ -11,5 +8,5 @@ document.getElementById('manage-product-requests-button').addEventListener('clic
     window.location.href = "/employer/menage_product_requests";
 });
 document.getElementById('view-deliveries-button').addEventListener('click', function() {
-    window.location.href = "view_deliveries/";
+        window.location.href = "view_deliveries/";
 });

@@ -80,6 +80,7 @@ class Product(Base):
     type = Column(Enum('raw material', 'end product', name='product_type_enum'), nullable=False)
     quantity = Column(Integer, nullable=False)
     id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    co2_production_product = Column(Float, nullable=False)
 
 class ProductRequest(Base):
     __tablename__ = 'product_request'
