@@ -40,6 +40,9 @@ TODO 11/01/2025
         Implementazione CO2 nei PRODUCT
             DONE
         gestione accettazione PRODUCT REQUEST
+            diminuire la quantità del prodotto
+            collegare organizzazioni CARRIER
+            creare algoritmo per il calcolo della CO2 della DELIVERY
         creazione della Tabella REGISTER REQUEST nel DB
     Tosca:
         CREATE PRODUCT REQUEST
