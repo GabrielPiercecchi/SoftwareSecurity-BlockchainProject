@@ -11,7 +11,7 @@ from controllers.organizations_controller import organization_detail, get_all_or
 from controllers.products_controller import product_detail, get_all_products, employer_view_products, update_product
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
 from controllers.products_controller import create_product
-from controllers.employers_controller import employer_home
+from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries
 from controllers.requests_products_controller import menage_product_requests, view_other_products, create_product_requests
 
@@ -71,6 +71,10 @@ def logout_route():
 @app.route("/employer/")
 def employer_home_route():
     return employer_home()
+
+@app.route('/employer_update_personal_data', methods=['GET', 'POST'])
+def employer_update_personal_data_route():
+    return employer_update_personal_data()
 
 @app.route("/create_products", methods=['GET', 'POST'])
 def create_product_route():
