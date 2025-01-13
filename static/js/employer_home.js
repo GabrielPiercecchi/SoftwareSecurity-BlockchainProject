@@ -10,3 +10,6 @@ document.getElementById('manage-product-requests-button').addEventListener('clic
 document.getElementById('view-deliveries-button').addEventListener('click', function() {
         window.location.href = "view_deliveries/";
 });
+document.getElementById('update-personal-data-button').addEventListener('click', function() {
+    window.location.href = "/employer_update_personal_data";
+});
