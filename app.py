@@ -14,6 +14,7 @@ from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries
 from controllers.requests_products_controller import menage_product_requests, view_other_products, create_product_requests
+from controllers.oracle_controller import oracle_home
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -103,6 +104,10 @@ def view_other_products_route():
 @app.route("/employer/menage_product_requests/view_other_products/create_product_requests/<int:product_id>", methods=['GET', 'POST'])
 def create_product_requests_route(product_id):
     return create_product_requests(product_id)
+
+@app.route("/oracle/")
+def oracle_home_route():
+    return oracle_home()
 
 if __name__ == "__main__":
     initialize_database()
