@@ -47,14 +47,20 @@
             {% if deliveries %}
                 <ul class="section-bordered">
                     {% for item in deliveries %}
-                        <h3>Delivery N° {{ loop.index }}</h3>
-                        <li>
-                            <p>Quantity: {{ item.delivery.quantity | e }}</p>
-                            <p>CO2 Emission: {{ item.delivery.co2_emission | e }}</p>
-                            <p>Delivery Date: {{ item.delivery.date_timestamp | e }}</p>
-                            <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
-                            <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
-                        </li>
+                        <ul class="section-bordered">
+                            <h3>Delivery N° {{ loop.index }}</h3>
+                            <li>
+                                <p>Delivery ID: {{ item.delivery.id }}</p>
+                                <p>Quantity: {{ item.delivery.quantity | e }}</p>
+                                <p>CO2 Emission: {{ item.delivery.co2_emission | e }}</p>
+                                <p>Delivery Date: {{ item.delivery.date_timestamp | e }}</p>
+                                <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
+                                <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
+                                {% if item.delivery.status == 'approved' %}
+                                    <p>Carrier Organization: {{ item.carrier_org_name }}</p>
+                                {% endif %}
+                            </li>
+                        </ul> 
                     {% endfor %}
                 </ul>
             {% else %}

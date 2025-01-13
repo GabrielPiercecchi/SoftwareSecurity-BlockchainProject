@@ -88,8 +88,10 @@ class ProductRequest(Base):
     id_product = Column(Integer, ForeignKey('product.id'), nullable=False)
     id_requesting_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_providing_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    id_carrier_organization = Column(Integer, default=None)
     quantity = Column(Integer, nullable=False)
     status = Column(Enum('pending', 'approved', 'rejected', name='request_status_enum'), nullable=False, default='pending')
+    status_delivery = Column(Enum('pending', 'delivered', name='delivery_status_enum'), nullable=False, default='pending')
     date_requested = Column(DateTime, nullable=False, default=datetime.now)
     date_responded = Column(DateTime)
 
@@ -101,6 +103,7 @@ class Delivery(Base):
     co2_emission = Column(Float, nullable=False)
     id_deliver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_receiver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    id_carrier_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     date_timestamp = Column(DateTime, nullable=False, default=datetime.now)
 
 def init_db():

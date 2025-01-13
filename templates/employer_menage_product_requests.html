@@ -9,7 +9,7 @@
     <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/employer_menage_product_requests.js') }}" defer></script>
     {% if session.logged_in %}
-    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+        <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
         <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
     {% endif %} 
@@ -47,18 +47,60 @@
                 <ul class="section-bordered">
                     <h3 class="blue-text">Requests Provided by {{ organization.name | e }}</h3>
                     {% for item in providing_product_requests %}
-                        <h3>Request N° {{ loop.index }}</h3>
-                        <li>
-                            <p>Product: {{ item.product_name | e }}</p>
-                            <p>Quantity: {{ item.request.quantity | e }}</p>
-                            <p>Status: {{ item.request.status | e }}</p>
-                            <p>Date Requested: {{ item.request.date_requested | e }}</p>
-                            {% if item.request.status == 'approved' %}
-                                <p>Date Approved: {{ item.request.date_responded | e }}</p>
-                            {% endif %}
-                            <p>Requesting Organization: {{ item.requesting_org_name | e }}</p>
-                            <p>Providing Organization: {{ item.providing_org_name | e }}</p>
-                        </li>
+                        <ul class="section-bordered">
+                            <h3>Request N° {{ loop.index }}</h3>
+                            <li>
+                                <p>Request ID: {{ item.request.id }}</p>
+                                <p>Product: {{ item.product_name | e }}</p>
+                                <p>Quantity: {{ item.request.quantity | e }}</p>
+                                <p>Status Request: {{ item.request.status | e }}</p>
+                                <p>Status Delivery: {{ item.request.status_delivery | e }}</p>
+                                <p>Date Requested: {{ item.request.date_requested | e }}</p>
+                                {% if item.request.status == 'approved' %}
+                                    <p>Date Approved: {{ item.request.date_responded | e }}</p>
+                                {% endif %}
+                                {% if item.request.status == 'denied' %}
+                                    <p>Date Denied: {{ item.request.date_responded | e }}</p>
+                                {% endif %}
+                                <p>Requesting Organization: {{ item.requesting_org_name | e }}</p>
+                                <p>Providing Organization: {{ item.providing_org_name | e }}</p>
+                                {% if item.request.status == 'approved' %}
+                                    <p>Carrier Organization: {{ item.carrier_org_name }}</p>
+                                {% endif %}
+                                {% if item.request.status == 'pending' %}
+                                <form method="post" action="{{ url_for('accept_product_request_route') }}">
+                                    {{ form.hidden_tag() }}
+                                    <input type="hidden" name="request_id" value="{{ item.request.id }}">
+                                    <div class="carrier-select" style="display: none;">
+                                        <label for="carrier_id">Select Carrier Organization:</label>
+                                        <select name="carrier_id" id="carrier_id">
+                                            {% for carrier in carriers %}
+                                                <option value="{{ carrier.id }}">{{ carrier.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="button-orange">Accept Request N° {{ loop.index }}</button>
+                                    </div>
+                                </form>
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                    {% if messages %}
+                                        {% for category, message in messages %}
+                                            <br>
+                                            <div class="invalid-tooltip" style="display: block;">
+                                                {{ message }}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                                <form method="post" action="{{ url_for('deny_product_request_route') }}">
+                                    {{ form.hidden_tag() }}
+                                    <input type="hidden" name="request_id" value="{{ item.request.id }}">
+                                    <div>
+                                        <button type="submit" class="button-red">Reject Request N° {{ loop.index }}</button>
+                                    </div>
+                                </form>
+                                {% endif %}
+                            </li>
+                        </ul>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -68,18 +110,28 @@
                 <ul class="section-bordered">
                     <h3 class="red-text">Requests Made by {{ organization.name | e }}</h3>
                     {% for item in requesting_product_requests %}
-                        <h3>Request N° {{ loop.index }}</h3>
-                        <li>
-                            <p>Product: {{ item.product_name | e }}</p>
-                            <p>Quantity: {{ item.request.quantity | e }}</p>
-                            <p>Status: {{ item.request.status | e }}</p>
-                            <p>Date Requested: {{ item.request.date_requested | e }}</p>
-                            {% if item.request.status == 'approved' %}
-                                <p>Date Approved: {{ item.request.date_responded | e }}</p>
-                            {% endif %}
-                            <p>Requesting Organization: {{ item.requesting_org_name | e }}</p>
-                            <p>Providing Organization: {{ item.providing_org_name | e }}</p>
-                        </li>
+                        <ul class="section-bordered">
+                            <h3>Request N° {{ loop.index }}</h3>
+                            <li>
+                                <p>Request ID: {{ item.request.id }}</p>
+                                <p>Product: {{ item.product_name | e }}</p>
+                                <p>Quantity: {{ item.request.quantity | e }}</p>
+                                <p>Status Request: {{ item.request.status | e }}</p>
+                                <p>Status Delivery: {{ item.request.status_delivery | e }}</p>
+                                <p>Date Requested: {{ item.request.date_requested | e }}</p>
+                                {% if item.request.status == 'approved' %}
+                                    <p>Date Approved: {{ item.request.date_responded | e }}</p>
+                                {% endif %}
+                                {% if item.request.status == 'denied' %}
+                                    <p>Date Denied: {{ item.request.date_responded | e }}</p>
+                                {% endif %}
+                                <p>Requesting Organization: {{ item.requesting_org_name | e }}</p>
+                                <p>Providing Organization: {{ item.providing_org_name | e }}</p>
+                                {% if item.request.status == 'approved' %}
+                                    <p>Carrier Organization: {{ item.carrier_org_name }}</p>
+                                {% endif %}
+                            </li>
+                        </ul>
                     {% endfor %}
                 </ul>
             {% else %}

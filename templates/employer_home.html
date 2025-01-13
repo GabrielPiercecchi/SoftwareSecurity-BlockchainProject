@@ -8,7 +8,7 @@
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
     {% if session.logged_in %}
-    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+        <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
         <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
     {% endif %} 
@@ -40,11 +40,16 @@
         <div class="signup-container">
             <div class="signup-form">
                 <button type="button" class="button-green" id="update-personal-data-button">Update Personal Data</button>
-                <button type="button" class="button-green" id="view-products-button">Menage my Organization Products</button>
-                <button type="button" class="button-green" id="create-product-request-button">Create Product Request</button>
-                <button type="button" class="button-green" id="manage-product-requests-button">
+                {% if organization.type == 'carrier' %}
+                    <button type="button" class="button-green" id="carrier-manage-product-requests-button">
                     Manage my Organization Product Requests</button>
-                <button type="button" class="button-green" id="view-deliveries-button">View my Organization Deliveries</button>
+                    <button type="button" class="button-green" id="carrier-view-deliveries-button">View my Organization Deliveries</button>
+                {% else %}
+                    <button type="button" class="button-green" id="view-products-button">Menage my Organization Products</button>
+                    <button type="button" class="button-green" id="manage-product-requests-button">
+                        Manage my Organization Product Requests</button>
+                    <button type="button" class="button-green" id="view-deliveries-button">View my Organization Deliveries</button>
+                {% endif %}
             </div>
         </div>
     </main>

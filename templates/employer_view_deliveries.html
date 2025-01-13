@@ -8,7 +8,7 @@
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
     {% if session.logged_in %}
-    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+        <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
         <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
     {% endif %} 
@@ -43,14 +43,18 @@
                 <ul class="section-bordered">
                     <h3 class="blue-text">When {{ organization.name | e}} is the Deliver</h3>
                     {% for item in deliveries %}
-                        <h3>Delivery N° {{ loop.index }}</h3>
-                        <li>
-                            <p>Quantity: {{ item.delivery.quantity | e }}</p>
-                            <p>CO2 Emission: {{ item.delivery.co2_emission | e }}</p>
-                            <p>Delivery Date: {{ item.delivery.date_timestamp | e }}</p>
-                            <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
-                            <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
-                        </li>
+                        <ul class="section-bordered">
+                            <h3>Delivery N° {{ loop.index }}</h3>
+                            <li>
+                                <p>Delivery ID: {{ item.delivery.id }}</p>
+                                <p>Quantity: {{ item.delivery.quantity | e }}</p>
+                                <p>CO2 Emission: {{ item.delivery.co2_emission | e }}</p>
+                                <p>Delivery Date: {{ item.delivery.date_timestamp | e }}</p>
+                                <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
+                                <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
+                                <p>Carrier Organization: {{ item.carrier_org_name }}</p>
+                            </li>
+                        </ul>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -60,14 +64,19 @@
                 <ul class="section-bordered">
                     <h3 class="red-text">When {{ organization.name | e}} is the Receiver</h3>
                     {% for item in receivers %}
+                    <ul class="section-bordered">
                         <h3>Delivery N° {{ loop.index }}</h3>
                         <li>
+                            <p>Delivery ID: {{ item.receiver.id }}</p>
                             <p>Quantity: {{ item.receiver.quantity | e }}</p>
                             <p>CO2 Emission: {{ item.receiver.co2_emission | e }}</p>
                             <p>Delivery Date: {{ item.receiver.date_timestamp | e }}</p>
                             <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
                             <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
+                            <p>Carrier Organization: {{ item.carrier_org_name }}</p>
                         </li>
+                    </ul>
+                        
                     {% endfor %}
                 </ul>
             {% else %}

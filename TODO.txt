@@ -53,7 +53,7 @@ TODO 11/01/2025
             - email
             - name
             - surname
-            Questa form permette di visualizzare i dati già presenti e di aggirnarli (eccetto la pssword che è criptata e
+            Questa form permette di visualizzare i dati già presenti e di aggiornarli (eccetto la pssword che è criptata e
                 può essere solo aggiornata e non letta)
             DONE
 

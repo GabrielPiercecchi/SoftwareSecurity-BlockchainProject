@@ -31,8 +31,10 @@ def seed_types(session: Session):
 def seed_organizations(session: Session):
     if not session.query(Organization).first():
         organizations = [
-            Organization(name='Org1', ragione_sociale='RS1', description='Desc1', partita_iva='12345678901', address='Address1', city='City1', cap='00001', telephone='1234567890', email='org1@example.com', type='farmer', coin=100.0),
+            Organization(name='Org1', ragione_sociale='RS1', description='Desc1', partita_iva='12345678901', address='Address1', city='City1', cap='00001', telephone='1234567890', email='org1@example.com', type='farmer', coin=200.0),
             Organization(name='Org2', ragione_sociale='RS2', description='Desc2', partita_iva='12345678902', address='Address2', city='City2', cap='00002', telephone='1234567891', email='org2@example.com', type='seller', coin=200.0),
+            Organization(name='Org3', ragione_sociale='RS3', description='Desc3', partita_iva='12345678903', address='Address3', city='City3', cap='00003', telephone='1234567892', email='org3@example.com', type='carrier', coin=200.0),
+            Organization(name='Org4', ragione_sociale='RS4', description='Desc4', partita_iva='12345678904', address='Address4', city='City4', cap='00004', telephone='1234567893', email='org4@example.com', type='carrier', coin=200.0),
         ]
         session.bulk_save_objects(organizations)
         session.commit()
@@ -42,6 +44,8 @@ def seed_employers(session: Session):
         employers_data = [
             {'username': 'user1', 'password': 'pass1', 'name': 'Name1', 'surname': 'Surname1', 'email': 'email1@example.com', 'id_organization': 1},
             {'username': 'user2', 'password': 'pass2', 'name': 'Name2', 'surname': 'Surname2', 'email': 'email2@example.com', 'id_organization': 2},
+            {'username': 'user3', 'password': 'pass3', 'name': 'Name3', 'surname': 'Surname3', 'email': 'email3@example.com', 'id_organization': 3},
+            {'username': 'user4', 'password': 'pass4', 'name': 'Name4', 'surname': 'Surname4', 'email': 'email4@example.com', 'id_organization': 4},
         ]
         employers = []
         for data in employers_data:
@@ -91,6 +95,15 @@ def seed_product_requests(session: Session):
                     id_requesting_organization=org_b.id,
                     id_providing_organization=org_a.id,
                     quantity=100,
+                    status='pending',
+                    date_requested=datetime.now()
+                ),
+                ProductRequest(
+                    id_product=product1.id,
+                    id_requesting_organization=org_b.id,
+                    id_providing_organization=org_a.id,
+                    id_carrier_organization=3,
+                    quantity=100,
                     status='approved',
                     date_requested=datetime.now(),
                     date_responded=datetime.now()
@@ -99,6 +112,7 @@ def seed_product_requests(session: Session):
                     id_product=product2.id,
                     id_requesting_organization=org_a.id,
                     id_providing_organization=org_b.id,
+                    id_carrier_organization=3,
                     quantity=100,
                     status='approved',
                     date_requested=datetime.now(),
@@ -111,8 +125,8 @@ def seed_product_requests(session: Session):
 def seed_deliveries(session: Session):
     if not session.query(Delivery).first():
         deliveries = [
-            Delivery(id_product=1, quantity=50, co2_emission=5.0, id_deliver_organization=1, id_receiver_organization=2, date_timestamp=datetime.now()),
-            Delivery(id_product=2, quantity=100, co2_emission=10.0, id_deliver_organization=2, id_receiver_organization=1, date_timestamp=datetime.now()),
+            Delivery(id_product=1, quantity=50, co2_emission=5.0, id_deliver_organization=1, id_receiver_organization=2, id_carrier_organization=3, date_timestamp=datetime.now()),
+            Delivery(id_product=2, quantity=100, co2_emission=10.0, id_deliver_organization=2, id_receiver_organization=1, id_carrier_organization=3, date_timestamp=datetime.now()),
         ]
         session.bulk_save_objects(deliveries)
         session.commit()
