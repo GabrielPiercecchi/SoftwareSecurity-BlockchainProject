@@ -6,6 +6,8 @@
     <title>{{ organization.name | e }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/oracle_view_organization_inactive.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/oracle_manage_organization.js') }}" defer></script>
     <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
 </head>
 <body>
@@ -67,6 +69,22 @@
                 <p>No Employer found for this organization</p>
             {% endif %}
         </section>
+        <section class="section-bordered">
+            <h2>Actions</h2>   
+            <form method="post" action="{{ url_for('approve_organization_route', organization_id=organization.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="button-orange">Accept registration</button>
+            </form>    
+            <form method="post" action="{{ url_for('reject_organization_route', organization_id=organization.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="button-red">Reject registration</button>
+            </form>
+        </section>
+        {% with messages = get_flashed_messages(with_categories=false) %}
+            {% if messages %}
+                <script id="flash-messages" type="application/json" data-redirect-url="{{ url_for('view_organization_inactive_route') }}">{{ messages|tojson }}</script>
+            {% endif %}
+        {% endwith %}
     </main>
 </body>
 </html>

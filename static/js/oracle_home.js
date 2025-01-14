@@ -1,5 +1,5 @@
-document.getElementById('accept-organization-sign-up-button').addEventListener('click', function() {
-    window.location.href = "accept_organization_sign_up";
+document.getElementById('view-organization-inactive-button').addEventListener('click', function() {
+    window.location.href = "view_organization_inactive";
 });
 document.getElementById('coin-transfer-button').addEventListener('click', function() {
     window.location.href = "coin_transfer";
