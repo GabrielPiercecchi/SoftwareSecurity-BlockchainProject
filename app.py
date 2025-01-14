@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, request
 from flask_talisman import Talisman
 from flask_wtf import CSRFProtect
 from dotenv import load_dotenv
@@ -19,9 +19,6 @@ from controllers.oracle_controller import oracle_home
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
 
-# Configura il logging
-app_logger = setup_logging()
-
 app = Flask(__name__)
 # Configura la chiave segreta per la sicurezza delle sessioni e dei token CSRF
 app.secret_key = os.getenv('SECRET_KEY')  # Carica la chiave segreta dall'ambiente
@@ -29,9 +26,8 @@ app.secret_key = os.getenv('SECRET_KEY')  # Carica la chiave segreta dall'ambien
 csrf = CSRFProtect(app)
 Talisman(app)
 
-@app.before_request
-def log_request_info():
-    app_logger.info('Request received')
+# Configura il logging
+setup_logging(app)
 
 @app.route("/")
 def home_route():

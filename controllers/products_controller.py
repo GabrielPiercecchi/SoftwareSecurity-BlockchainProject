@@ -1,9 +1,10 @@
 from flask import flash, render_template, request, redirect, url_for, session
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
-from database.migration import Employer, Product, Delivery, Organization
+from database.migration import Employer, Product, Delivery, Organization, Type
 from wtforms.validators import DataRequired
 from wtforms import RadioField, StringField, FloatField, IntegerField, SelectField
+from algorithms.coins_algorithm import coins_algorithm
 
 class ProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()])
@@ -76,6 +77,12 @@ def create_product():
         session_db = db_instance.get_session()
     
         try:
+            default_co2_value = session_db.query(Type).filter_by(id_type=organization.type).first().default_co2_value
+            co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
+            co2_limit = default_co2_value + co2_standard*quantity
+
+            coins_algorithm(co2_production_product, co2_limit, organization, session_db) 
+
             new_prod = Product(  
             name=name,
             type=type,
@@ -84,16 +91,15 @@ def create_product():
             co2_production_product=co2_production_product
             )    
             session_db.add(new_prod)
-
             session_db.commit()
+            session_db.close()
             print('Product added successfully!')
         except Exception as e:
             session_db.rollback()
             print(f'Error: {str(e)}')
             flash('Failed to add product.', 'error')
-        finally:
-            session_db.close()
-
+            return redirect(url_for('create_product_route'))
+            
         return redirect(url_for('employer_home_route'))
     
     return render_template('create_products.html', form=form, organization=organization)

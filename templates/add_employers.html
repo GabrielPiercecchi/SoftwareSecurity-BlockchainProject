@@ -49,11 +49,31 @@
                         <div class="employer">
                             <div class="form-group">
                                 <label for="emp_username_0">Username:</label>
-                                {{ form.emp_username }}
+                                {{ form.emp_username(id='emp_username') }}
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                    {% if messages %}
+                                        {% for category, message in messages %}
+                                            {% if category == 'wrong_emp_username' %}
+                                                <div class="invalid-tooltip" style="display: block;">
+                                                    {{ message }}
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
                             </div>
                             <div class="form-group">
                                 <label for="emp_password_0">Password:</label>
                                 {{ form.emp_password }}
+                            </div>
+                            <div class="form-group">
+                                <label for="emp_confirm_password_0" >Confirm Password:</label>
+                                {{ form.emp_confirm_password(id='emp_confirm_password') }}
+                                {% if form.emp_confirm_password.errors %}
+                                    <div class="invalid-tooltip" style="display: block;">
+                                        {{ form.emp_confirm_password.errors[0] }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="form-group">
                                 <label for="emp_name_0">Name:</label>
@@ -65,7 +85,23 @@
                             </div>
                             <div class="form-group">
                                 <label for="emp_email_0">Email:</label>
-                                {{ form.emp_email }}
+                                {{ form.emp_email(id='emp_email') }}
+                                {% if form.emp_email.errors %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ form.emp_email.errors[0] }}
+                                        </div>
+                                    {% endif %}
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                    {% if messages %}
+                                        {% for category, message in messages %}
+                                            {% if category == 'wrong_emp_email' %}
+                                                <div class="invalid-tooltip" style="display: block;">
+                                                    {{ message }}
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
                             </div>
                         </div>
                     </div>

@@ -37,6 +37,11 @@
         </nav>
     </header>
     <main>
+        <div class="description">
+            <h1>Welcome {{ employer.username }}</h1>
+            <h3>Here you can manage your organization data and products.</h3>
+            <p><b><i>Your Organization {{ organization.name }} earned {{ organization.coin }} coins until now</i></b></p>
+        </div>
         <div class="signup-container">
             <div class="signup-form">
                 <button type="button" class="button-green" id="update-personal-data-button">Update Personal Data</button>

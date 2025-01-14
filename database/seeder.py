@@ -31,10 +31,10 @@ def seed_types(session: Session):
 def seed_organizations(session: Session):
     if not session.query(Organization).first():
         organizations = [
-            Organization(name='Org1', ragione_sociale='RS1', description='Desc1', partita_iva='12345678901', address='Address1', city='City1', cap='00001', telephone='1234567890', email='org1@example.com', type='farmer', status= 'active', coin=200.0),
-            Organization(name='Org2', ragione_sociale='RS2', description='Desc2', partita_iva='12345678902', address='Address2', city='City2', cap='00002', telephone='1234567891', email='org2@example.com', type='seller', status= 'active', coin=200.0),
-            Organization(name='Org3', ragione_sociale='RS3', description='Desc3', partita_iva='12345678903', address='Address3', city='City3', cap='00003', telephone='1234567892', email='org3@example.com', type='carrier', status= 'active', coin=200.0),
-            Organization(name='Org4', ragione_sociale='RS4', description='Desc4', partita_iva='12345678904', address='Address4', city='City4', cap='00004', telephone='1234567893', email='org4@example.com', type='carrier', status= 'active', coin=200.0),
+            Organization(name='Org1', ragione_sociale='RS1', description='Desc1', partita_iva='12345678901', address='Address1', city='City1', cap='00001', telephone='1234567890', email='org1@example.com', type='farmer', status= 'active', coin=100.0),
+            Organization(name='Org2', ragione_sociale='RS2', description='Desc2', partita_iva='12345678902', address='Address2', city='City2', cap='00002', telephone='1234567891', email='org2@example.com', type='seller', status= 'active', coin=100.0),
+            Organization(name='Org3', ragione_sociale='RS3', description='Desc3', partita_iva='12345678903', address='Address3', city='City3', cap='00003', telephone='1234567892', email='org3@example.com', type='carrier', status= 'active', coin=100.0),
+            Organization(name='Org4', ragione_sociale='RS4', description='Desc4', partita_iva='12345678904', address='Address4', city='City4', cap='00004', telephone='1234567893', email='org4@example.com', type='carrier', status= 'active', coin=100.0),
         ]
         session.bulk_save_objects(organizations)
         session.commit()

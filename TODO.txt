@@ -42,7 +42,8 @@ TODO 11/01/2025
         gestione accettazione PRODUCT REQUEST
             diminuire la quantità del prodotto
             collegare organizzazioni CARRIER
-            creare algoritmo per il calcolo della CO2 della DELIVERY
+                DONE
+            creare algoritmo per il calcolo della CO2 della DELIVERY: ogni tonnellata bonus/malus = +-1 coin
         creazione della Tabella REGISTER REQUEST nel DB
     Tosca:
         CREATE PRODUCT REQUEST
@@ -57,6 +58,11 @@ TODO 11/01/2025
                 può essere solo aggiornata e non letta)
             DONE
 
-
+TODO 14/01/2025
+    Caterina:
+        Implementazione transferimento coin (min 20 coin) nell'ORACOLO.
+            Significa che puoi trasferire coina piacimento sopra la soglia
+    Tosca: 
+        accettazione organizzazioni e employer
 
             

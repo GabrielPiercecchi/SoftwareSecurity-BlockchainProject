@@ -40,6 +40,7 @@
     <main>
         <section class="section-bordered">
             <h2>Product Requests</h2>
+            <p><b><i>Your Organization {{ organization.name }} earned {{ organization.coin }} coins until now</i></b></p>
             {% if carring_product_request %}
                 <ul class="section-bordered">
                     <h3 class="blue-text">Requests carried by {{ organization.name | e }}</h3>

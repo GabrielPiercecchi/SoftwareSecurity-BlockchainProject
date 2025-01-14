@@ -43,35 +43,92 @@
                     <div class="employer">
                         <div class="form-group">
                             <label for="org_name">Organization Name:</label>
-                            {{ org_form.org_name }}
+                            {{ org_form.org_name(id='org_name') }}
+                            {% if org_form.org_name.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_name.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="org_email">Organization Email:</label>
-                            {{ org_form.org_email }}
+                            {{ org_form.org_email(id='org_email') }}
+                            {% if org_form.org_email.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_email.errors[0] }}
+                                </div>
+                            {% endif %}
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        {% if category == 'wrong_org_email' %}
+                                            <div class="invalid-tooltip" style="display: block;">
+                                                {{ message }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
                         </div>
                         <div class="form-group">
                             <label for="org_address">Address:</label>
                             {{ org_form.org_address }}
+                            {% if org_form.org_address.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_address.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="org_city">City:</label>
                             {{ org_form.org_city }}
+                            {% if org_form.org_city.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_city.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="org_cap">CAP:</label>
                             {{ org_form.org_cap }}
+                            {% if org_form.org_cap.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_cap.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="org_telephone">Telephone:</label>
                             {{ org_form.org_telephone }}
+                            {% if org_form.org_telephone.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_telephone.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="org_partita_iva">Partita IVA:</label>
-                            {{ org_form.org_partita_iva }}
+                            {{ org_form.org_partita_iva(id='org_partita_iva') }}
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        {% if category == 'wrong_org_partita_iva' %}
+                                            <div class="invalid-tooltip" style="display: block;">
+                                                {{ message }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
                         </div>
                         <div class="form-group">
                             <label for="org_ragione_sociale">Ragione Sociale:</label>
                             {{ org_form.org_ragione_sociale }}
+                            {% if org_form.org_ragione_sociale.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_ragione_sociale.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group">
                             <label>Organization Type:</label>
@@ -89,6 +146,11 @@
                         <div class="form-group">
                             <label for="org_description">Description:</label>
                             {{ org_form.org_description }}
+                            {% if org_form.org_description.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_description.errors[0] }}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="form-column">
@@ -97,23 +159,69 @@
                             <div class="employer">
                                 <div class="form-group">
                                     <label for="emp_username_0">Username:</label>
-                                    {{ emp_form.emp_username }}
+                                    {{ emp_form.emp_username(id='emp_username_0') }}
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                                {% if category == 'wrong_emp_username' %}
+                                                    <div class="invalid-tooltip" style="display: block;">
+                                                        {{ message }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
                                 </div>
                                 <div class="form-group">
                                     <label for="emp_password_0">Password:</label>
                                     {{ emp_form.emp_password }}
                                 </div>
                                 <div class="form-group">
+                                    <label for="emp_confirm_password_0" >Confirm Password:</label>
+                                    {{ emp_form.emp_confirm_password }}
+                                    {% if emp_form.emp_confirm_password.errors %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ emp_form.emp_confirm_password.errors[0] }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
                                     <label for="emp_name_0">Name:</label>
                                     {{ emp_form.emp_name }}
+                                    {% if emp_form.emp_name.errors %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ emp_form.emp_name.errors[0] }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="form-group">
                                     <label for="emp_surname_0">Surname:</label>
                                     {{ emp_form.emp_surname }}
+                                    {% if emp_form.emp_surname.errors %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ emp_form.emp_surname.errors[0] }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="form-group">
                                     <label for="emp_email_0">Email:</label>
-                                    {{ emp_form.emp_email }}
+                                    {{ emp_form.emp_email(id='emp_email_0') }}
+                                    {% if emp_form.emp_email.errors %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ emp_form.emp_email.errors[0] }}
+                                        </div>
+                                    {% endif %}
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                                {% if category == 'wrong_emp_email' %}
+                                                    <div class="invalid-tooltip" style="display: block;">
+                                                        {{ message }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
                                 </div>
                             </div>
                         </div>

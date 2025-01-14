@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 def home():
     db_instance = DBIsConnected.get_instance()
     session = db_instance.get_session()
-    organizations = session.query(Organization).order_by(func.random()).limit(10).all()
+    organizations = session.query(Organization).filter_by(status='active').order_by(func.random()).limit(10).all()
     products = session.query(Product).order_by(func.random()).limit(10).all()
     session.close()
     return render_template("home.html", organizations=organizations, products=products)

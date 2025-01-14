@@ -1,41 +1,43 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, RadioField, SelectField
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import DataRequired, Email, EqualTo
 from werkzeug.security import check_password_hash, generate_password_hash
 from database.database import DBIsConnected
 from database.migration import Oracle, Employer, Organization
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
+    password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Password"})
 
 class OrganizationForm(FlaskForm):
-    org_name = StringField('Organization Name', validators=[DataRequired()])
-    org_email = StringField('Organization Email', validators=[DataRequired(), Email()])
-    org_address = StringField('Address', validators=[DataRequired()])
-    org_city = StringField('City', validators=[DataRequired()])
-    org_cap = StringField('CAP', validators=[DataRequired()])
-    org_telephone = StringField('Telephone', validators=[DataRequired()])
-    org_partita_iva = StringField('Partita IVA', validators=[DataRequired()])
-    org_ragione_sociale = StringField('Ragione Sociale', validators=[DataRequired()])
-    org_type = RadioField('Type', choices=[('farmer', 'Farmer'), ('seller', 'Seller'), ('producer', 'Producer'), ('carrier', 'Carrier')], validators=[DataRequired()])
-    org_description = TextAreaField('Description', validators=[DataRequired()])
+    org_name = StringField('Organization Name', validators=[DataRequired()], render_kw={"placeholder": "Organization Name"})
+    org_email = StringField('Organization Email', validators=[DataRequired(), Email()], render_kw={"placeholder": "Organization@Email"})
+    org_address = StringField('Address', validators=[DataRequired()], render_kw={"placeholder": "Address"})
+    org_city = StringField('City', validators=[DataRequired()], render_kw={"placeholder": "City"})
+    org_cap = StringField('CAP', validators=[DataRequired()], render_kw={"placeholder": "CAP"})
+    org_telephone = StringField('Telephone', validators=[DataRequired()], render_kw={"placeholder": "Telephone"})
+    org_partita_iva = StringField('Partita IVA', validators=[DataRequired()], render_kw={"placeholder": "Partita IVA"})
+    org_ragione_sociale = StringField('Ragione Sociale', validators=[DataRequired()], render_kw={"placeholder": "Ragione Sociale"})
+    org_type = RadioField('Type', choices=[('farmer', 'Farmer'), ('seller', 'Seller'), ('producer', 'Producer'), ('carrier', 'Carrier')], validators=[DataRequired()], default='farmer')
+    org_description = TextAreaField('Description', validators=[DataRequired()], render_kw={"placeholder": "Description"})
 
 class EmployerForm(FlaskForm):
-    emp_username = StringField('Username', validators=[DataRequired()])
-    emp_password = PasswordField('Password', validators=[DataRequired()])
-    emp_name = StringField('Name', validators=[DataRequired()])
-    emp_surname = StringField('Surname', validators=[DataRequired()])
-    emp_email = StringField('Email', validators=[DataRequired(), Email()])
+    emp_username = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
+    emp_password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Password"})
+    emp_confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('emp_password', message='Passwords must match' )], render_kw={"placeholder": "Confirm Password"})
+    emp_name = StringField('Name', validators=[DataRequired()], render_kw={"placeholder": "Name"})
+    emp_surname = StringField('Surname', validators=[DataRequired()], render_kw={"placeholder": "Surname"})
+    emp_email = StringField('Email', validators=[DataRequired(), Email()], render_kw={"placeholder": "Employer@Email"})
 
 class AddEmployersForm(FlaskForm):
     organization = SelectField('Organization', choices=[], validators=[DataRequired()])
-    emp_username = StringField('Username', validators=[DataRequired()])
-    emp_password = PasswordField('Password', validators=[DataRequired()])
-    emp_name = StringField('Name', validators=[DataRequired()])
-    emp_surname = StringField('Surname', validators=[DataRequired()])
-    emp_email = StringField('Email', validators=[DataRequired(), Email()])
+    emp_username = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
+    emp_password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Password"})
+    emp_confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('emp_password', message='Passwords must match' )], render_kw={"placeholder": "Confirm Password"})
+    emp_name = StringField('Name', validators=[DataRequired()], render_kw={"placeholder": "Name"})
+    emp_surname = StringField('Surname', validators=[DataRequired()], render_kw={"placeholder": "Surname"})
+    emp_email = StringField('Email', validators=[DataRequired(), Email()], render_kw={"placeholder": "Employer@Email"})
 
 
 def login():
@@ -98,9 +100,24 @@ def signup():
     org_form = OrganizationForm(request.form)
     emp_form = EmployerForm(request.form)
 
-    if request.method == 'POST' and org_form.validate() and emp_form.validate():
+    if request.method == 'POST' and org_form.validate_on_submit() and emp_form.validate_on_submit():
+        db_instance = DBIsConnected.get_instance()
+        session_db = db_instance.get_session()
+
+        other_organizations = session_db.query(Organization).all()
+
+        if any(org_form.org_email.data.lower() == o.email.lower() for o in other_organizations):
+            flash('Organization email already in use', 'wrong_org_email')
+            session_db.close()
+            return signup_form()
+        
+        if any(org_form.org_partita_iva.data == o.partita_iva for o in other_organizations):
+            flash('Partita IVA already in use', 'wrong_org_partita_iva')
+            session_db.close()
+            return signup_form()
+
         org_name = org_form.org_name.data
-        org_email = org_form.org_email.data
+        org_email = org_form.org_email.data.lower()
         org_address = org_form.org_address.data
         org_city = org_form.org_city.data
         org_cap = org_form.org_cap.data
@@ -116,8 +133,17 @@ def signup():
         emp_surnames = request.form.getlist('emp_surname')
         emp_emails = request.form.getlist('emp_email')
 
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        other_emp = session_db.query(Employer).all()
+
+        if any(emp_username.lower() in [e.username.lower() for e in other_emp] for emp_username in emp_usernames):
+            flash('Username already in use', 'wrong_emp_username')
+            session_db.close()
+            return signup_form()
+        
+        if any(emp_email.lower() in [e.email.lower() for e in other_emp] for emp_email in emp_emails):
+            flash('Email already in use', 'wrong_emp_email')
+            session_db.close()
+            return signup_form()
 
         try:
             # Crea l'organizzazione
@@ -147,7 +173,7 @@ def signup():
                         password=generate_password_hash(emp_passwords[i]),
                         name=emp_names[i],
                         surname=emp_surnames[i],
-                        email=emp_emails[i],
+                        email=emp_emails[i].lower(),
                         id_organization=new_org.id  # Associa l'impiegato all'organizzazione appena creata
                     )
                     session_db.add(new_emp)
@@ -190,6 +216,19 @@ def add_employers_to_existing_org():
         emp_emails = request.form.getlist('emp_email')
 
         session_db = db_instance.get_session()
+
+        other_emp = session_db.query(Employer).all()
+
+        if any(emp_username.lower() in [e.username.lower() for e in other_emp] for emp_username in emp_usernames):
+            flash('Username already in use', 'wrong_emp_username')
+            session_db.close()
+            return render_template('add_employers.html', form=form, organizations=organizations)
+        
+        if any(emp_email.lower() in [e.email.lower() for e in other_emp] for emp_email in emp_emails):
+            flash('Email already in use', 'wrong_emp_email')
+            session_db.close()
+            return render_template('add_employers.html', form=form, organizations=organizations)
+
         try:
             for i in range(len(emp_usernames)):
                 new_emp = Employer(

@@ -8,12 +8,12 @@ from database.database import DBIsConnected
 from database.migration import Employer, Organization
 
 class UpdateEmployerForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    surname = StringField('Surname', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match' )])
+    name = StringField('Name', validators=[DataRequired()], render_kw={"placeholder": "Name"})
+    surname = StringField('Surname', validators=[DataRequired()], render_kw={"placeholder": "Surname"})
+    email = StringField('Email', validators=[DataRequired(), Email()], render_kw={"placeholder": "Email"})
+    username = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
+    password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Password"})
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match' )], render_kw={"placeholder": "Confirm Password"})
 
 
 def employer_home():

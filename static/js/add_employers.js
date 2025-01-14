@@ -10,23 +10,27 @@ document.addEventListener('DOMContentLoaded', function() {
         employerDiv.innerHTML = `
             <div class="form-group">
                 <label for="emp_username_${employerCount}">Username:</label>
-                <input type="text" id="emp_username_${employerCount}" name="emp_username" required>
+                <input type="text" id="emp_username_${employerCount}" name="emp_username" placeholder="Username" required>
             </div>
             <div class="form-group">
                 <label for="emp_password_${employerCount}">Password:</label>
-                <input type="password" id="emp_password_${employerCount}" name="emp_password" required>
+                <input type="password" id="emp_password_${employerCount}" name="emp_password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <label for="emp_confirm_password_${employerCount}">Confirm Password:</label>
+                <input type="password" id="emp_confirm_password_${employerCount}" name="emp_confirm_password" placeholder="Confirm Password" required>
             </div>
             <div class="form-group">
                 <label for="emp_name_${employerCount}">Name:</label>
-                <input type="text" id="emp_name_${employerCount}" name="emp_name" required>
+                <input type="text" id="emp_name_${employerCount}" name="emp_name" placeholder="Name" required>
             </div>
             <div class="form-group">
                 <label for="emp_surname_${employerCount}">Surname:</label>
-                <input type="text" id="emp_surname_${employerCount}" name="emp_surname" required>
+                <input type="text" id="emp_surname_${employerCount}" name="emp_surname" placeholder="Surname" required>
             </div>
             <div class="form-group">
                 <label for="emp_email_${employerCount}">Email:</label>
-                <input type="email" id="emp_email_${employerCount}" name="emp_email" required>
+                <input type="email" id="emp_email_${employerCount}" name="emp_email" placeholder="Employer@Email" required>
             </div>
         `;
         employersContainer.appendChild(employerDiv);

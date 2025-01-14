@@ -4,7 +4,8 @@ from wtforms import StringField, RadioField, TextAreaField, IntegerField, Submit
 from wtforms.validators import DataRequired, Email
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
-from database.migration import Product, Organization, Employer, ProductRequest, Delivery
+from database.migration import Product, Organization, Employer, ProductRequest, Delivery, Type
+from algorithms.coins_algorithm import coins_algorithm
 
 class CreateProductRequestForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired()])
@@ -273,7 +274,7 @@ def carrier_menage_product_requests():
             'product_name': product.name,
             'requesting_org_name': requesting_org.name,
             'providing_org_name': providing_org.name,
-            'carrier_org_name': organization.name
+            'carrier_org_name': organization.name,
         })
     
     session_db.close()
@@ -288,7 +289,7 @@ def carrier_accept_and_create_delivery():
         return redirect(url_for('login_route'))
     
     request_id = request.form.get('request_id')
-    co2_emission = request.form.get('co2_emission')
+    co2_emission = float(request.form.get('co2_emission'))
     if not request_id or not co2_emission:
         print('Request ID and CO2 Emission are required')
         flash('Request ID and CO2 Emission are required', 'error')
@@ -298,16 +299,23 @@ def carrier_accept_and_create_delivery():
     session_db = db_instance.get_session()
     
     try:
-        product_request = session_db.query(ProductRequest).get(request_id)
+        product_request = session_db.query(ProductRequest).filter_by(id=request_id).first()
         if not product_request:
             print('Product request not found')
             flash('Product request not found', 'error')
             return redirect(url_for('carrier_menage_product_requests_route'))
         
+        organization = session_db.query(Organization).filter_by(id=product_request.id_carrier_organization).first()
+        default_co2_value = session_db.query(Type).filter_by(id_type=organization.type).first().default_co2_value
+        co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
+        co2_limit = default_co2_value + co2_standard*product_request.quantity
+
+        coins_algorithm(co2_emission, co2_limit, organization, session_db)
+
         delivery = Delivery(
             id_product=product_request.id_product,
             quantity=product_request.quantity,
-            co2_emission=float(co2_emission),
+            co2_emission=co2_emission,
             id_deliver_organization=product_request.id_providing_organization,
             id_receiver_organization=product_request.id_requesting_organization,
             id_carrier_organization=product_request.id_carrier_organization,
@@ -319,11 +327,11 @@ def carrier_accept_and_create_delivery():
         session_db.commit()
         print('Delivery created successfully')
         flash('Delivery created successfully', 'success')
+        session_db.close()
     except Exception as e:
         session_db.rollback()
         print(f'Error: {str(e)}')
         flash(f'Error: {str(e)}', 'error')
-    finally:
-        session_db.close()
+        return redirect(url_for('carrier_menage_product_requests_route'))
     
     return redirect(url_for('carrier_menage_product_requests_route'))
