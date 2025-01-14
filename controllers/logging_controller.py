@@ -15,7 +15,7 @@ def setup_logging(app):
         '%(clientip)s - - [%(asctime)s] "%(method)s %(path)s %(http_version)s" - User: %(username)s - %(message)s',
         datefmt='%d/%b/%Y %H:%M:%S'
     )
-    handler = logging.FileHandler('logs/buyers.txt')
+    handler = logging.FileHandler('buyers.txt')
     handler.setFormatter(formatter)
     app_logger = logging.getLogger('app')
     app_logger.setLevel(logging.INFO)
