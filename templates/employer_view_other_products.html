@@ -6,7 +6,11 @@
     <title>View other products</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/employer_view_product_requests') }}" defer></script>
-    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% if session.logged_in %}
+    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    {% else %}
+        <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% endif %} 
 </head>
 <body>
     <header>
