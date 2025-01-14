@@ -2,5 +2,5 @@ document.getElementById('view-organization-inactive-button').addEventListener('c
     window.location.href = "view_organization_inactive";
 });
 document.getElementById('coin-transfer-button').addEventListener('click', function() {
-    window.location.href = "coin_transfer";
+    window.location.href = "/oracle_view_organizations/";
 });

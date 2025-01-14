@@ -14,7 +14,7 @@ from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
 from controllers.product_requests_controller import menage_product_requests, view_other_products, create_product_requests, deny_product_request, accept_product_request, carrier_menage_product_requests, carrier_accept_and_create_delivery
-from controllers.oracle_controller import oracle_home, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization
+from controllers.oracle_controller import oracle_home, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -140,6 +140,10 @@ def approve_organization_route(organization_id):
 @app.route("/reject_organization/<int:organization_id>", methods=['POST'])
 def reject_organization_route(organization_id):
     return reject_organization(organization_id)
+
+@app.route("/oracle/coin_transfer/<int:organization_id>", methods=['GET', 'POST'])
+def oracle_coin_transfer_route(organization_id):
+    return oracle_coin_transfer(organization_id)
 
 if __name__ == "__main__":
     initialize_database()

@@ -43,7 +43,7 @@ class AddEmployersForm(FlaskForm):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        username = form.username.data
+        username = form.username.data.lower()
         password = form.password.data
         
         db_instance = DBIsConnected.get_instance()
@@ -60,21 +60,27 @@ def login():
         # Verifica la password
         if ((oracle_user and check_password_hash(oracle_user.password, password)) 
             or (employer and check_password_hash(employer.password, password))):
+            if ((oracle_user) or (employer.status == 'active')):
             # Login riuscito
-            print('Valid username and password')
-            session['logged_in'] = True
-            session['username'] = username
-            if employer:
-                session['user_type'] = 'employer'
+                print('Valid username and password')
+                session['logged_in'] = True
+                session['username'] = username
+                if employer:
+                    session['user_type'] = 'employer'
+                else:
+                    session['user_type'] = 'oracle'
+                session_db.close()
+                return redirect(url_for('home_route'))
             else:
-                session['user_type'] = 'oracle'
-            session_db.close()
-            return redirect(url_for('home_route'))
-            
+                # Account disabilitato
+                session_db.close()
+                flash('Account not yet enabled')
+                return render_template('login.html', form=form)
         else:
             # Login fallito
             session_db.close()
-            return render_template('login.html', form=form, error='Invalid username or password')
+            flash('Invalid username or password')
+            return render_template('login.html', form=form)
     
     return render_template('login.html', form=form)
 

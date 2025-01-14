@@ -426,3 +426,18 @@ main h1, main h2, main h3, main p {
 .blue-button:hover {
     background-color: #0056b3;
 }
+
+.gray-button {
+    background-color: rgb(201, 201, 201);
+    border: none;
+    color: black;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 2px 1px;
+    cursor: pointer;
+    border-radius: 4px;
+    vertical-align: middle; /* Align button vertically */
+}
