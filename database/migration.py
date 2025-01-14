@@ -58,6 +58,7 @@ class Organization(Base):
     telephone = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.id_type'), nullable=False)
+    status = Column(Enum('active', 'inactive', name='status_enum'), nullable=False, default='inactive')
     coin = Column(Float, nullable=False)
     
 class Employer(Base):
@@ -68,6 +69,7 @@ class Employer(Base):
     name = Column(String, nullable=False)
     surname = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True) 
+    status = Column(Enum('active', 'inactive', name='status_enum'), nullable=False, default='inactive')
     id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
 
     def set_password(self, password):

@@ -1,22 +1,43 @@
-document.getElementById('update-personal-data-button').addEventListener('click', function() {
-    window.location.href = "/employer_update_personal_data";
-});
+document.addEventListener('DOMContentLoaded', function() {
+    var updatePersonalDataButton = document.getElementById('update-personal-data-button');
+    if (updatePersonalDataButton) {
+        updatePersonalDataButton.addEventListener('click', function() {
+            window.location.href = "/employer_update_personal_data";
+        });
+    }
 
-document.getElementById('carrier-manage-product-requests-button').addEventListener('click', function() {
-    window.location.href = "/employer/carrier_menage_product_requests";
-});
-document.getElementById('carrier-view-deliveries-button').addEventListener('click', function() {
-    window.location.href = "/employer/carrier_view_deliveries/";
-});
+    var carrierManageProductRequestsButton = document.getElementById('carrier-manage-product-requests-button');
+    if (carrierManageProductRequestsButton) {
+        carrierManageProductRequestsButton.addEventListener('click', function() {
+            window.location.href = "/employer/carrier_menage_product_requests";
+        });
+    }
 
-document.getElementById('view-products-button').addEventListener('click', function() {
-    window.location.href = "/employer/view_products/";
-});
-document.getElementById('manage-product-requests-button').addEventListener('click', function() {
-    window.location.href = "/employer/menage_product_requests";
-});
-document.getElementById('view-deliveries-button').addEventListener('click', function() {
-    window.location.href = "/employer/view_deliveries/";
-});
+    var carrierViewDeliveriesButton = document.getElementById('carrier-view-deliveries-button');
+    if (carrierViewDeliveriesButton) {
+        carrierViewDeliveriesButton.addEventListener('click', function() {
+            window.location.href = "/employer/carrier_view_deliveries/";
+        });
+    }
 
+    var viewProductsButton = document.getElementById('view-products-button');
+    if (viewProductsButton) {
+        viewProductsButton.addEventListener('click', function() {
+            window.location.href = "/employer/view_products/";
+        });
+    }
 
+    var manageProductRequestsButton = document.getElementById('manage-product-requests-button');
+    if (manageProductRequestsButton) {
+        manageProductRequestsButton.addEventListener('click', function() {
+            window.location.href = "/employer/menage_product_requests";
+        });
+    }
+
+    var viewDeliveriesButton = document.getElementById('view-deliveries-button');
+    if (viewDeliveriesButton) {
+        viewDeliveriesButton.addEventListener('click', function() {
+            window.location.href = "/employer/view_deliveries/";
+        });
+    }
+});
