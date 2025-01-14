@@ -124,7 +124,7 @@ main h1, main h2, main h3, main p {
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 1rem;
-    width: calc(33.333% - 2rem);
+    width: calc(20% - 2rem);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

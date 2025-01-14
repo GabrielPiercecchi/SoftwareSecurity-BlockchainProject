@@ -14,7 +14,7 @@ from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
 from controllers.product_requests_controller import menage_product_requests, view_other_products, create_product_requests, deny_product_request, accept_product_request, carrier_menage_product_requests, carrier_accept_and_create_delivery
-from controllers.oracle_controller import oracle_home, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer
+from controllers.oracle_controller import oracle_home, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer, oracle_view_organizations
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -124,6 +124,10 @@ def carrier_view_deliveries_route():
 @app.route("/oracle/")
 def oracle_home_route():
     return oracle_home()
+
+@app.route("/oracle_view_organizations/")
+def oracle_view_organizations_route():
+    return oracle_view_organizations()
 
 @app.route("/oracle/view_organization_inactive")
 def view_organization_inactive_route():

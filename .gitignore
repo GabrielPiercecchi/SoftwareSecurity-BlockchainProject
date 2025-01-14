@@ -50,7 +50,7 @@ wheels/
 *.spec
 
 # Log files
-logs/
+logs/buyers.txt
 
 # Installer logs
 pip-log.txt
