@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO2 Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/oracle_coin_transfer.js') }}" defer></script>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
+                {% if session.logged_in %}
+                    {% if session.user_type == 'oracle' %}
+                        <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
+                    {% endif %}
+                    <li><a href="/logout" class="orange-button">Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="orange-button">Login</a></li>
+                    <li><a href="/signup" class="orange-button">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="section-bordered signup-form" >
+            <h2>Coin Transfer from {{ organization.name | e }}</h2>
+            <div class="form-columns">
+                <form method="post" action="{{ url_for('oracle_coin_transfer_route', organization_id=organization.id) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        <label for="target_organization" id="target_organization">Select Target Organization:</label>
+                        {{ form.target_organization }}
+                    </div>
+                    <br>
+                    <br>
+                    <div class="form-group">
+                        <label for="available_coins" id="available_coins">Available Coins:</label>
+                        <input type="text" id="available_coins" name="available_coins" value="{{ organization.coin }}" readonly>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="form-group">
+                        <label for="amount" id="amount">Amount to Transfer:</label>
+                        {{ form.amount(id="amount") }}
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                {% if category == 'too_much' %}
+                                    <div class="invalid-tooltip" style="display: block;">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
+                                {% if category == 'insufficient_coins' %}
+                                    <div class="invalid-tooltip" style="display: block;">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <br>
+                    <br>
+                    <div class= "form-group" style="text-align: center;">
+                        <button type="submit" class="button-green">Transfer Coins</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

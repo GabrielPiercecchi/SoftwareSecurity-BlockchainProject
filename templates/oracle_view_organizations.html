@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO2 Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
+                {% if session.logged_in %}
+                    {% if session.user_type == 'oracle' %}
+                        <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
+                    {% endif %}
+                    <li><a href="/logout" class="orange-button">Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="orange-button">Login</a></li>
+                    <li><a href="/signup" class="orange-button">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="section-bordered">
+            <h2>All Registered Organizations</h2>
+            <div class="section-bordered">
+                <div class="organizations">
+                    {% if organizations %}
+                    {% for organization in organizations %}
+                        <div class="organization">
+                            <h3><a href="/organization/{{ organization.id }}">{{ organization.name | e }}</a></h3>
+                            <p>Status: {{ organization.status | e }}</p>
+                            <p>Coin: {{ organization.coin | e }}</p>
+                            {% if organization.coin > 20 %}
+                                <a href="{{ url_for('oracle_coin_transfer_route', organization_id=organization.id) }}" class="orange-button">Coin Transfer</a>
+                            {% else %}
+                                <button class="gray-button" color="" disabled>Coin Transfer</button>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    {% else %}
+                        <p class="red-text"><b>No organizations found</b></p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
