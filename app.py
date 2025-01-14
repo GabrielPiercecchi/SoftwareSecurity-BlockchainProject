@@ -14,7 +14,7 @@ from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
 from controllers.product_requests_controller import menage_product_requests, view_other_products, create_product_requests, deny_product_request, accept_product_request, carrier_menage_product_requests, carrier_accept_and_create_delivery
-from controllers.oracle_controller import oracle_home, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer, oracle_view_organizations
+from controllers.oracle_controller import approve_employer, manage_employer_registration, oracle_home, reject_employer, view_employer_inactive, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer, oracle_view_organizations
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -133,6 +133,10 @@ def oracle_view_organizations_route():
 def view_organization_inactive_route():
     return view_organization_inactive()
 
+@app.route("/oracle/view_employer_inactive")
+def view_employer_inactive_route():
+    return view_employer_inactive()
+
 @app.route("/manage_organization_registration/<int:organization_id>")
 def manage_organization_registration_route(organization_id):
     return manage_organization_registration(organization_id)
@@ -144,6 +148,18 @@ def approve_organization_route(organization_id):
 @app.route("/reject_organization/<int:organization_id>", methods=['POST'])
 def reject_organization_route(organization_id):
     return reject_organization(organization_id)
+
+@app.route("/manage_employer_registration/<int:employer_id>")
+def manage_employer_registration_route(employer_id):
+    return manage_employer_registration(employer_id)
+
+@app.route("/approve_employer/<int:employer_id>", methods=['POST'])
+def approve_employer_route(employer_id):
+    return approve_employer(employer_id)
+
+@app.route("/reject_employer/<int:employer_id>", methods=['POST'])
+def reject_employer_route(employer_id):
+    return reject_employer(employer_id)
 
 @app.route("/oracle/coin_transfer/<int:organization_id>", methods=['GET', 'POST'])
 def oracle_coin_transfer_route(organization_id):

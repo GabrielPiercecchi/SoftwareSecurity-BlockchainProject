@@ -134,3 +134,95 @@ def reject_organization(organization_id):
         
         session_db.close()
         return jsonify({'message': message, 'redirect_url': url_for('view_organization_inactive_route')})
+    
+def view_employer_inactive():
+    username = session.get('username')
+    if not username or session.get('user_type') != 'oracle':
+        return redirect(url_for('login_route'))
+    
+    db_instance = DBIsConnected.get_instance()
+    session_db = db_instance.get_session()
+
+    pending_employers = session_db.query(Employer).join(Organization).filter(
+        Employer.status == 'inactive',
+        Organization.status == 'active'
+    ).all()
+
+    employer_data = []
+    for employer in pending_employers:
+        employer_info = {
+            'id': employer.id,
+            'name': employer.name,
+            'surname': employer.surname,
+            'username': employer.username,
+            'email': employer.email,
+            'organization_name': session_db.query(Organization).filter_by(id=employer.id_organization).first().name,
+            'organization_id': employer.id_organization,
+        }
+        employer_data.append(employer_info)
+
+    session_db.close()
+
+    return render_template('oracle_view_employer_inactive.html', pending_employers=employer_data)
+
+def manage_employer_registration(employer_id):
+    username = session.get('username')
+    if not username or session.get('user_type') != 'oracle':
+        return redirect(url_for('login_route'))
+    
+    db_instance = DBIsConnected.get_instance()
+    session_db = db_instance.get_session()
+    
+    employer = session_db.query(Employer).filter_by(id=employer_id, status='inactive').first()
+    if not employer:
+        flash('Employer not found or not inactive.', 'danger')
+        return redirect(url_for('view_employer_inactive_route'))
+    
+    employer_info = {
+        'id': employer.id,
+        'name': employer.name,
+        'surname': employer.surname,
+        'username': employer.username,
+        'email': employer.email,
+        'organization_name': session_db.query(Organization).filter_by(id=employer.id_organization).first().name,
+        'organization_id': employer.id_organization,
+    }
+
+    session_db.close()
+    return render_template('oracle_manage_employer_registration.html', employer=employer_info)
+
+def approve_employer(employer_id):
+    if request.method == 'POST':
+        db_instance = DBIsConnected.get_instance()
+        session_db = db_instance.get_session()
+        
+        employer = session_db.query(Employer).get(employer_id)
+        if employer:
+            employer.status = 'active'
+            session_db.commit()
+            message = 'Employer approved and activated.'
+            flash(message, 'success')
+        else:
+            message = 'Employer not found.'
+            flash(message, 'danger')
+        
+        session_db.close()
+        return jsonify({'message': message, 'redirect_url': url_for('view_employer_inactive_route')})
+
+def reject_employer(employer_id):
+    if request.method == 'POST':
+        db_instance = DBIsConnected.get_instance()
+        session_db = db_instance.get_session()
+        
+        employer = session_db.query(Employer).get(employer_id)
+        if employer:
+            session_db.delete(employer)
+            session_db.commit()
+            message = 'Employer registration rejected and deleted.'
+            flash(message, 'success')
+        else:
+            message = 'Employer not found.'
+            flash(message, 'danger')
+        
+        session_db.close()
+        return jsonify({'message': message, 'redirect_url': url_for('view_employer_inactive_route')})

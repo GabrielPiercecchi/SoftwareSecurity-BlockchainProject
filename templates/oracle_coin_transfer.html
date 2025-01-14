@@ -6,6 +6,11 @@
     <title>CO2 Application</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/oracle_coin_transfer.js') }}" defer></script>
+    {% if session.logged_in %}
+    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    {% else %}
+        <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% endif %}
 </head>
 <body>
     <header>
