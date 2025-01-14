@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name | e }}</title>
+    <title>CO2 Application</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
-    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
+    {% if session.logged_in %}
+        <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    {% else %}
+        <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% endif %} 
 </head>
 <body>
     <header>
@@ -22,8 +27,6 @@
                 {% if session.logged_in %}
                     {% if session.user_type == 'employer' %}
                         <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
-                    {% elif session.user_type == 'oracle' %}
-                        <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
                     {% endif %}
                     <li><a href="/logout" class="orange-button">Logout</a></li>
                 {% else %}
@@ -34,39 +37,27 @@
         </nav>
     </header>
     <main>
-        <section>
-            <h1>{{ product.name | e }}</h1>
-        </section>
         <section class="section-bordered">
-            <h2>Description</h2>
-            <p>Made by: {{ organization.name | e }}</p>
-            <p>Type: {{ product.type | e }}</p>
-            <p>Quantity: {{ product.quantity | e }}</p>
-            <p>CO2 Production: {{product.co2_production_product}}</p>
-        </section>
-        <section class="section-bordered">
-            <h2>Deliveries</h2>
-            {% if deliveries %}
+            <h2>Deliveries when {{ organization.name }} is the Carrier</h2>
+            {% if carriers %}
                 <ul class="section-bordered">
-                    {% for item in deliveries %}
+                    {% for item in carriers %}
                         <ul class="section-bordered">
                             <h3>Delivery N° {{ loop.index }}</h3>
                             <li>
-                                <p>Delivery ID: {{ item.delivery.id }}</p>
-                                <p>Quantity: {{ item.delivery.quantity | e }}</p>
-                                <p>CO2 Emission: {{ item.delivery.co2_emission | e }}</p>
-                                <p>Delivery Date: {{ item.delivery.date_timestamp | e }}</p>
+                                <p>Delivery ID: {{ item.carrier.id }}</p>
+                                <p>Quantity: {{ item.carrier.quantity | e }}</p>
+                                <p>CO2 Emission: {{ item.carrier.co2_emission | e }}</p>
+                                <p>Delivery Date: {{ item.carrier.date_timestamp | e }}</p>
                                 <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
                                 <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
-                                {% if item.delivery.status == 'approved' %}
-                                    <p>Carrier Organization: {{ item.carrier_org_name }}</p>
-                                {% endif %}
+                                <p>Carrier Organization: {{ item.carrier_org_name }}</p>
                             </li>
-                        </ul> 
+                        </ul>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No delivery found for this product</p>
+                <p class="red-text"><b>No delivery found</b></p>
             {% endif %}
         </section>
     </main>

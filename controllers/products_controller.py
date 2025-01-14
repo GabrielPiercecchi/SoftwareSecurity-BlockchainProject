@@ -26,10 +26,12 @@ def product_detail(id):
     for delivery in deliveries:
         deliver_org = session.query(Organization).get(delivery.id_deliver_organization)
         receive_org = session.query(Organization).get(delivery.id_receiver_organization)
+        carrier_org = session.query(Organization).get(delivery.id_carrier_organization)
         deliveries_with_orgs.append({
             'delivery': delivery,
             'deliver_org_name': deliver_org.name,
-            'receive_org_name': receive_org.name
+            'receive_org_name': receive_org.name,
+            'carrier_org_name': carrier_org.name
         })
     
     session.close()

@@ -12,9 +12,8 @@ from controllers.products_controller import product_detail, get_all_products, em
 from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
 from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
-from controllers.deliveries_controller import employer_view_deliveries
-from controllers.requests_products_controller import menage_product_requests, view_other_products, create_product_requests
-from controllers.oracle_controller import oracle_home
+from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
+from controllers.product_requests_controller import menage_product_requests, view_other_products, create_product_requests, deny_product_request, accept_product_request, carrier_menage_product_requests, carrier_accept_and_create_delivery
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -101,13 +100,29 @@ def menage_product_requests_route():
 def view_other_products_route():
     return view_other_products()
 
+@app.route("/employer/menage_product_requests/accept_product_requests", methods=['GET', 'POST'])
+def accept_product_request_route():
+    return accept_product_request()
+
+@app.route("/employer/menage_product_requests/deny_product_request", methods=['GET', 'POST'])
+def deny_product_request_route():
+    return deny_product_request()
+
 @app.route("/employer/menage_product_requests/view_other_products/create_product_requests/<int:product_id>", methods=['GET', 'POST'])
 def create_product_requests_route(product_id):
     return create_product_requests(product_id)
 
-@app.route("/oracle/")
-def oracle_home_route():
-    return oracle_home()
+@app.route("/employer/carrier_menage_product_requests")
+def carrier_menage_product_requests_route():
+    return carrier_menage_product_requests()
+
+@app.route("/employer/carrier_menage_product_requests/carrier_accept_and_create_delivery", methods=['GET', 'POST'])
+def carrier_accept_and_create_delivery_route():
+    return carrier_accept_and_create_delivery()
+
+@app.route("/employer/carrier_view_deliveries/")
+def carrier_view_deliveries_route():
+    return carrier_view_deliveries()
 
 if __name__ == "__main__":
     initialize_database()

@@ -40,17 +40,22 @@ TODO 11/01/2025
         Implementazione CO2 nei PRODUCT
             DONE
         gestione accettazione PRODUCT REQUEST
+            diminuire la quantità del prodotto
+            collegare organizzazioni CARRIER
+            creare algoritmo per il calcolo della CO2 della DELIVERY
         creazione della Tabella REGISTER REQUEST nel DB
     Tosca:
         CREATE PRODUCT REQUEST
+            DONE
     Caterina:
         creazione rotta UPDATE PERSONAL DATA: rotta che apre una form che permette la modifica dei dati personali
             - password
             - email
             - name
             - surname
-            Questa form permette di visualizzare i dati già presenti e di aggirnarli (eccetto la pssword che è criptata e
+            Questa form permette di visualizzare i dati già presenti e di aggiornarli (eccetto la pssword che è criptata e
                 può essere solo aggiornata e non letta)
+            DONE
 
 
 

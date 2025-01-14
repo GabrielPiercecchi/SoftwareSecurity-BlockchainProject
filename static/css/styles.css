@@ -162,6 +162,38 @@ main h1, main h2, main h3, main p {
     background-color: darkgreen;
 }
 
+.section-bordered .button-red {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: red;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.section-bordered .button-red:hover {
+    background-color: darkred;
+}
+
+.section-bordered .button-orange {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: orange;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.section-bordered .button-orange:hover {
+    background-color: darkorange;
+}
+
 /* Stili per il modulo di login */
 .login-container {
     display: flex;
@@ -357,6 +389,23 @@ main h1, main h2, main h3, main p {
     border: 1px solid #ddd;
     border-radius: 5px;
     width: 50%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    text-align: center; /* Centra il testo all'interno del campo select */
+    text-align-last: center; /* Centra il testo selezionato all'interno del campo select */
+}
+
+.form-group input{
+    width: 25%;
+    padding: 0.5rem;
+    width: 25%;
+}
+
+.carrier-select select{
+    padding: 0.5rem; /* Aggiungi padding al campo select */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 25%;
     box-sizing: border-box;
     margin-bottom: 5px;
     text-align: center; /* Centra il testo all'interno del campo select */
