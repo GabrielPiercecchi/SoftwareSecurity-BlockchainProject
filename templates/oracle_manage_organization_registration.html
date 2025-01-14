@@ -41,7 +41,7 @@
             <div class="signup-form">
                 <h2>All organizations requesting registration</h2>
                 <div class="organizations">
-                    {% for organization in organizations %}
+                    {% for organization in pending_organization %}
                         <div class="organization">
                             <h3>{{ organization.name | e }}</h3>
                             <p>{{ organization.description | e }}</p>
