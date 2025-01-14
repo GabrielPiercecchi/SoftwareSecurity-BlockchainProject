@@ -25,7 +25,9 @@
                 <li><a href="/organizations">Organizations</a></li>
                 <li><a href="/products">Products</a></li>
                 {% if session.logged_in %}
-                    {% if session.user_type == 'oracle' %}
+                    {% if session.user_type == 'employer' %}
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                    {% elif session.user_type == 'oracle' %}
                         <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
                     {% endif %}
                     <li><a href="/logout" class="orange-button">Logout</a></li>
@@ -39,11 +41,29 @@
     <main>
         <div class="signup-container">
             <div class="signup-form">
-                <h2>Welcome to your home</h2>
-                <button type="button" class="button-green" id="view-organization-inactive-button">View all inactive organizations </button>
-                <button type="button" class="button-green" id="coin-transfer-button">Coin transfer</button>
+                <h2>All organizations requesting registration</h2>
+                <div class="organizations">
+                    {% if pending_organizations %}
+                        {% for organization in pending_organizations %}
+                            <div class="organization">
+                                <h3>{{ organization.name | e }}</h3>
+                                <p>{{ organization.description | e }}</p>
+                                <p>Organization Type: {{ organization.type | e }}</p>
+                                <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
+                                <a href="/manage_organization_registration/{{ organization.id }}" class="orange-button">Visualize details</a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No organizations are currently requesting registration.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
+        {% with messages = get_flashed_messages(with_categories=false) %}
+            {% if messages %}
+                <script id="flash-messages" type="application/json">{{ messages|tojson }}</script>
+            {% endif %}
+        {% endwith %}
     </main>
 </body>
 </html>

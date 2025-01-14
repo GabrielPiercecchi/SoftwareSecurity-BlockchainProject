@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CO2 Application</title>
+    <title>{{ organization.name | e }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/oracle_home.js') }}" defer></script>
-    {% if session.logged_in %}
-    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
-    {% else %}
-        <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
-    {% endif %} 
+    <script src="{{ url_for('static', filename='js/oracle_view_organization_inactive.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/oracle_manage_organization.js') }}" defer></script>
+    <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
 </head>
 <body>
     <header>
@@ -25,8 +22,10 @@
                 <li><a href="/organizations">Organizations</a></li>
                 <li><a href="/products">Products</a></li>
                 {% if session.logged_in %}
-                    {% if session.user_type == 'oracle' %}
-                        <li><a href="{{ url_for('oracle_manage_organization_registration_route') }}" class="orange-button">Oracle Home</a></li>
+                    {% if session.user_type == 'employer' %}
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                    {% elif session.user_type == 'oracle' %}
+                        <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
                     {% endif %}
                     <li><a href="/logout" class="orange-button">Logout</a></li>
                 {% else %}
@@ -37,22 +36,55 @@
         </nav>
     </header>
     <main>
-        <div class="signup-container">
-            <div class="signup-form">
-                <h2>All organizations requesting registration</h2>
-                <div class="organizations">
-                    {% for organization in pending_organization %}
-                        <div class="organization">
-                            <h3>{{ organization.name | e }}</h3>
-                            <p>{{ organization.description | e }}</p>
-                            <p>Organization Type: {{ organization.type | e }}</p>
-                            <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
-                            <a href="/visualize_details/{{ organization.id }}" class="orange-button">Visualize details</a>
-                        </div> <!-- /visualize_details/{{ organization.id }} pagina in cui si mostrano i dettagli dell'azienda specifica con gli employer ecc -->
-                    {% endfor %} <!-- all'interno della pagina due bottoni accept, reject -->
-                </div>
-            </div>
-        </div>
+        <section>
+            <h1>{{ organization.name | e }}</h1>
+        </section>
+        <section class="section-bordered">
+            <h2>Description</h2>
+            <p>{{ organization.description | e }}</p>
+        </section>
+        <section class="section-bordered">
+            <h2>Details</h2>
+            <p>Partita IVA: {{ organization.partita_iva | e }}</p>
+            <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
+            <p>Telephone: {{ organization.telephone | e }}</p>
+            <p>Email: {{ organization.email | e }}</p>
+            <p>Organization Type: {{ organization.type | e }}</p>
+            <p>Coin: {{ organization.coin | e }}</p>
+        </section>
+        <section class="section-bordered">
+            <h2>Employers</h2>
+            {% if employers %}
+                <ul class="section-bordered">
+                    {% for employer in employers %}
+                        <p><b>Employer N° {{ loop.index }}</b></p>
+                        <li>
+                            <p>Name employer: {{ employer.name | e }}</p>
+                            <p>Surname employer: {{ employer.surname | e }}</p>
+                            <p>Email employer: {{ employer.email | e }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No Employer found for this organization</p>
+            {% endif %}
+        </section>
+        <section class="section-bordered">
+            <h2>Actions</h2>   
+            <form method="post" action="{{ url_for('approve_organization_route', organization_id=organization.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="button-orange">Accept registration</button>
+            </form>    
+            <form method="post" action="{{ url_for('reject_organization_route', organization_id=organization.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="button-red">Reject registration</button>
+            </form>
+        </section>
+        {% with messages = get_flashed_messages(with_categories=false) %}
+            {% if messages %}
+                <script id="flash-messages" type="application/json" data-redirect-url="{{ url_for('view_organization_inactive_route') }}">{{ messages|tojson }}</script>
+            {% endif %}
+        {% endwith %}
     </main>
 </body>
 </html>

@@ -58,27 +58,21 @@ def login():
         # Verifica la password
         if ((oracle_user and check_password_hash(oracle_user.password, password)) 
             or (employer and check_password_hash(employer.password, password))):
-            if ((oracle_user) or (employer.status == 'active')):
             # Login riuscito
-                print('Valid username and password')
-                session['logged_in'] = True
-                session['username'] = username
-                if employer:
-                    session['user_type'] = 'employer'
-                else:
-                    session['user_type'] = 'oracle'
-                session_db.close()
-                return redirect(url_for('home_route'))
+            print('Valid username and password')
+            session['logged_in'] = True
+            session['username'] = username
+            if employer:
+                session['user_type'] = 'employer'
             else:
-                # Account disabilitato
-                session_db.close()
-                flash('Account not yet enabled')
-                return render_template('login.html', form=form)
+                session['user_type'] = 'oracle'
+            session_db.close()
+            return redirect(url_for('home_route'))
+            
         else:
             # Login fallito
             session_db.close()
-            flash('Invalid username or password')
-            return render_template('login.html', form=form)
+            return render_template('login.html', form=form, error='Invalid username or password')
     
     return render_template('login.html', form=form)
 
@@ -131,6 +125,7 @@ def signup():
                 partita_iva=org_partita_iva,
                 ragione_sociale=org_ragione_sociale,
                 type=org_type,
+                status='inactive',
                 description=org_description,
                 coin=100.0
             )
@@ -148,6 +143,7 @@ def signup():
                         name=emp_names[i],
                         surname=emp_surnames[i],
                         email=emp_emails[i],
+                        status='inactive',
                         id_organization=new_org.id  # Associa l'impiegato all'organizzazione appena creata
                     )
                     session_db.add(new_emp)
@@ -155,13 +151,11 @@ def signup():
                     print(new_emp)
                 
                 session_db.commit()
-                print('Organization and employers registered successfully!')
             except Exception as e:
                 print(f'Error: {e}', 'error')
             
             session_db.commit()
             session_db.close()
-            flash('Organization and employers registered successfully!')
         except Exception as e:
             session_db.rollback()
             print(f'Error: {e}', 'error')
