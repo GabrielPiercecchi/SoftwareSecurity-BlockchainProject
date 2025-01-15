@@ -137,27 +137,27 @@ def view_organization_inactive_route():
 def view_employer_inactive_route():
     return view_employer_inactive()
 
-@app.route("/manage_organization_registration/<int:organization_id>")
+@app.route("/oracle/view_organization_inactive/manage_organization_registration/<int:organization_id>")
 def manage_organization_registration_route(organization_id):
     return manage_organization_registration(organization_id)
 
-@app.route("/approve_organization/<int:organization_id>", methods=['POST'])
+@app.route("/oracle/view_organization_inactive/approve_organization/<int:organization_id>", methods=['POST'])
 def approve_organization_route(organization_id):
     return approve_organization(organization_id)
 
-@app.route("/reject_organization/<int:organization_id>", methods=['POST'])
+@app.route("/oracle/view_organization_inactivereject_organization/<int:organization_id>", methods=['POST'])
 def reject_organization_route(organization_id):
     return reject_organization(organization_id)
 
-@app.route("/manage_employer_registration/<int:employer_id>")
+@app.route("/oracle/view_employer_inactive/manage_employer_registration/<int:employer_id>")
 def manage_employer_registration_route(employer_id):
     return manage_employer_registration(employer_id)
 
-@app.route("/approve_employer/<int:employer_id>", methods=['POST'])
+@app.route("/oracle/view_employer_inactive/approve_employer/<int:employer_id>", methods=['POST'])
 def approve_employer_route(employer_id):
     return approve_employer(employer_id)
 
-@app.route("/reject_employer/<int:employer_id>", methods=['POST'])
+@app.route("/oracle/view_employer_inactive/reject_employer/<int:employer_id>", methods=['POST'])
 def reject_employer_route(employer_id):
     return reject_employer(employer_id)
 
