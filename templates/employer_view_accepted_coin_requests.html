@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO2 Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/employer_view_coin_requests.js') }}" defer></script>
+    {% if session.logged_in %}
+    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    {% else %}
+        <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% endif %}
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
+                {% if session.logged_in %}
+                    {% if session.user_type == 'employer' %}
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                    {% endif %}
+                    <li><a href="/logout" class="orange-button">Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="orange-button">Login</a></li>
+                    <li><a href="/signup" class="orange-button">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="section-bordered">
+            <h2 class="blue-text">Coin Requests accepted by {{organization.name}}</h2>
+            <div class="description">
+                <p><b><i>Your Organization {{ organization.name }} earned {{ organization.coin }} coins until now</i></b></p>
+            </div>
+            <br>
+            <div class="section-bordered">
+                <div class="organizations">
+                    {% if coin_requests_accepted %}
+                    {% for item in coin_requests_accepted %}
+                        <div class="organization">
+                            <h3>Request N° {{ loop.index | e }}</a></h3>
+                            <p>Request ID: {{ item.request.id | e }}</p>
+                            <p>Status: {{ item.request.status | e }}</p>
+                            <p>Coin Requested: {{ item.request.coin | e }}</p>
+                            <p>Providing Organization: {{ item.providing_org_name | e }}</p>
+                            <p>Requesting Organization {{ item.requesting_org_name | e }}</p>
+                            <p>Request Date: {{ item.request.date_requested | e }}</p>
+                            <p>Response Date: {{ item.request.date_responded | e }}</p>
+                        </div>
+                    {% endfor %}
+                    {% else %}
+                        <p class="red-text"><b>No Coin Requests found</b></p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

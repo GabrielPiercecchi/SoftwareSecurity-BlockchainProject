@@ -97,6 +97,16 @@ class ProductRequest(Base):
     date_requested = Column(DateTime, nullable=False, default=datetime.now)
     date_responded = Column(DateTime)
 
+class CoinRequest(Base):
+    __tablename__ = 'coin_request'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    id_requesting_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    id_providing_organization = Column(Integer, default=None)
+    coin = Column(Float, nullable=False)
+    status = Column(Enum('pending', 'approved', name='coin_request_status_enum'), nullable=False, default='pending')
+    date_requested = Column(DateTime, nullable=False, default=datetime.now)
+    date_responded = Column(DateTime)
+
 class Delivery(Base):
     __tablename__ = 'delivery'
     id = Column(Integer, primary_key=True, autoincrement=True)
