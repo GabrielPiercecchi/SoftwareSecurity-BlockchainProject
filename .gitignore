@@ -52,6 +52,9 @@ wheels/
 # Log files
 buyers.txt
 
+# Tips File
+tips.txt
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
