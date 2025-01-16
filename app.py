@@ -183,5 +183,7 @@ def oracle_coin_transfer_route(organization_id):
     return oracle_coin_transfer(organization_id)
 
 if __name__ == "__main__":
-    initialize_database()
-    app.run(debug=True)
+    if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        # Inizializza il database e altri setup qui
+        initialize_database()
+    app.run(host=(os.getenv('HOST')), port=(os.getenv('PORT')), debug=True)

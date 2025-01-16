@@ -1,13 +1,15 @@
 from flask import flash, request, session, redirect, url_for, render_template, jsonify
 from flask_wtf import FlaskForm
 from wtforms import FloatField, SelectField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 from database.database import DBIsConnected
 from database.migration import Oracle, Organization, Employer
 
 class CoinTransferForm(FlaskForm):
     target_organization = SelectField('Select Target Organization', validators=[DataRequired()])
-    amount = FloatField('Amount to Transfer', validators=[DataRequired()], render_kw={'placeholder': '100.0'})
+    amount = FloatField('Amount to Transfer', validators=[DataRequired(), 
+                                                          NumberRange(min=0.01, message='The value must be greater than 0')], 
+                                                          render_kw={'placeholder': '100.0'})
 
 def oracle_home():
     username = session.get('username')

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Float, DateTime
+from sqlalchemy_utils import database_exists, drop_database, create_database
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import validates, relationship
@@ -27,6 +28,10 @@ def create_database_if_not_exists():
         cursor.execute(f"CREATE DATABASE {os.getenv('DATABASE_NAME')}")
     except psycopg2.errors.DuplicateDatabase:
         print(f"Database {os.getenv('DATABASE_NAME')} already exists.")
+        cursor.execute(f"DROP DATABASE {os.getenv('DATABASE_NAME')}")
+        print(f"Database {os.getenv('DATABASE_NAME')} dropped.")
+        cursor.execute(f"CREATE DATABASE {os.getenv('DATABASE_NAME')}")
+        print(f"Database {os.getenv('DATABASE_NAME')} created.")
     cursor.close()
     conn.close()
 

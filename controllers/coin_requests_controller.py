@@ -1,7 +1,7 @@
 from flask import render_template, session, redirect, url_for, flash, request, jsonify
 from datetime import datetime
 from wtforms import StringField, RadioField, TextAreaField, IntegerField, SubmitField, SelectField, FloatField
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import DataRequired, Email, NumberRange
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
 from database.migration import Product, Organization, Employer, ProductRequest, Delivery, Type, CoinRequest
@@ -12,7 +12,9 @@ class AcceptCoinRequestForm(FlaskForm):
     submit = SubmitField('Accept')
 
 class CoinRequestForm(FlaskForm):
-    coin = FloatField('Coin', validators=[DataRequired(message='You must digit a float number')], render_kw={'placeholder': '100.0'})
+    coin = FloatField('Coin', validators=[DataRequired(message='You must digit a float number'), 
+                                          NumberRange(min=0.01, message='The value must be greater than 0')], 
+                                          render_kw={'placeholder': '100.0'})
     submit = SubmitField('Submit')
 
 def view_coin_requests():

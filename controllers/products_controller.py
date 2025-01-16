@@ -2,15 +2,21 @@ from flask import flash, render_template, request, redirect, url_for, session
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
 from database.migration import Employer, Product, Delivery, Organization, Type
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 from wtforms import RadioField, StringField, FloatField, IntegerField, SelectField
 from algorithms.coins_algorithm import coins_algorithm
 
 class ProductForm(FlaskForm):
-    name = StringField('Product Name', validators=[DataRequired()])
+    name = StringField('Product Name', validators=[DataRequired(), 
+                                                   NumberRange(min=1, message='The value must be greater than 0')], 
+                                                   render_kw={'placeholder': 'Name'})
     type = SelectField('Type', choices=[('raw material', 'Raw Material'), ('end product', 'End Product')], validators=[DataRequired()])
-    quantity = IntegerField('Quantity', validators=[DataRequired()])
-    co2_production_product = FloatField('CO2 Production', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired(), 
+                                                    NumberRange(min=1, message='The value must be greater than 0')], 
+                                                    render_kw={'placeholder': 'Quantity'})
+    co2_production_product = FloatField('CO2 Production', validators=[DataRequired(), 
+                                                                      NumberRange(min=0.01, message='The value must be greater than 0')], 
+                                                                      render_kw={'placeholder': '100.0'})
 
 class UpdateProductForm(FlaskForm):
     name = StringField('Organization Name', validators=[DataRequired()])

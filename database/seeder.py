@@ -175,12 +175,8 @@ def run_seeders():
         seed_product_requests(session)
         seed_coin_requests(session)
         seed_deliveries(session)
-        print("Database seeded successfully!")
     except Exception as e:
         session.rollback()
         print(f"Error seeding database: {e}")
     finally:
         session.close()
-
-if __name__ == "__main__":
-    run_seeders()

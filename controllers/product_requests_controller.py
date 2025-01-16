@@ -1,14 +1,16 @@
 from flask import render_template, session, redirect, url_for, flash, request, jsonify
 from datetime import datetime
 from wtforms import StringField, RadioField, TextAreaField, IntegerField, SubmitField, SelectField, FloatField
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import DataRequired, Email, NumberRange
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
 from database.migration import Product, Organization, Employer, ProductRequest, Delivery, Type
 from algorithms.coins_algorithm import coins_algorithm
 
 class CreateProductRequestForm(FlaskForm):
-    quantity = IntegerField('Quantity', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired(), 
+                                                    NumberRange(min=1, message='The value must be greater than 0')],
+                                                    render_kw={'placeholder': '100'})
 
 class DenyProductRequestForm(FlaskForm):
     rejectedButton = SubmitField('Reject Request')
@@ -18,7 +20,9 @@ class AcceptProductRequestForm(FlaskForm):
     acceptButton = SubmitField('Accept Request')
 
 class CarrierAcceptRequestAndCreateDEliveryForm(FlaskForm):
-    co2_emission = FloatField('CO2 Emission', validators=[DataRequired()])
+    co2_emission = FloatField('CO2 Emission', validators=[DataRequired(),
+                                                          NumberRange(min=0.01, message='The value must be greater than 0')], 
+                                                          render_kw={'placeholder': '100.0'})
     acceptButton = SubmitField('Accept Request')
 
 def menage_product_requests():
