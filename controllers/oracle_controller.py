@@ -105,8 +105,10 @@ def approve_organization(organization_id):
         organization = session_db.query(Organization).get(organization_id)
         if organization:
             organization.status = 'active'
+            # Aggiorna lo stato degli employer associati a 'active'
+            session_db.query(Employer).filter_by(id_organization=organization_id).update({'status': 'active'})
             session_db.commit()
-            message = 'Organization approved and activated.'
+            message = 'Organization and associated employers approved and activated.'
             flash(message, 'success')
         else:
             message = 'Organization not found.'
@@ -114,7 +116,7 @@ def approve_organization(organization_id):
         
         session_db.close()
         return jsonify({'message': message, 'redirect_url': url_for('view_organization_inactive_route')})
-
+    
 def reject_organization(organization_id):
     if request.method == 'POST':
         db_instance = DBIsConnected.get_instance()

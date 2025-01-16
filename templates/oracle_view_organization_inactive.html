@@ -50,7 +50,7 @@
                                 <p>{{ organization.description | e }}</p>
                                 <p>Organization Type: {{ organization.type | e }}</p>
                                 <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
-                                <a href="/manage_organization_registration/{{ organization.id }}" class="orange-button">Visualize details</a>
+                                <a href="/oracle/view_organization_inactive/manage_organization_registration/{{ organization.id }}" class="orange-button">Visualize details</a>
                             </div>
                         {% endfor %}
                     {% else %}
