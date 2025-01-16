@@ -50,7 +50,7 @@ wheels/
 *.spec
 
 # Log files
-buyers.txt
+log_users.txt
 
 # Tips File
 tips.txt

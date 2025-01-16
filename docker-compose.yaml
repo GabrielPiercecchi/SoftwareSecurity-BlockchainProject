@@ -50,9 +50,9 @@ x-blockscout-ref:
   environment:
     - PORT=4000
     - ECTO_USE_SSL=false
-    - DATABASE_URL=postgresql://postgres:postgres@blockscoutpostgres:5432/postgres?ssl=false
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_USER=postgres
+    - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${BLOCKSCOUT_HOST}:${DATABASE_PORT}/${POSTGRES_DB}?ssl=false
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_USER=${POSTGRES_USER}
     - NETWORK=quickstart
     - NETWORK=Dev Quickstart
     - SUBNETWORK=Quorum
@@ -82,8 +82,8 @@ x-blockscoutpostgres-ref:
   restart: "on-failure"
   container_name: blockscoutpostgres
   environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     - POSTGRES_HOST_AUTH_METHOD=trust
   volumes:
     - blockscoutpostgres:/var/lib/postgresql/data
