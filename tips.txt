@@ -1,0 +1,23 @@
+PER WINDOWS 11 CON WSL E UBUNTU:
+
+    cd .\quorum-test-network\
+    wsl -d Ubuntu
+    ./run.sh
+
+    POI APRIRE NUOVO TERMINALE NEL PROGETTO:
+
+        docker-compose down
+        docker-compose up -d --build
+        docker-compose logs flask-app
+
+PER LINUX
+
+    cd ./quorum-test-network
+    ./run.sh
+
+    POI APRIRE NUOVO TERMINALE NEL PROGETTO
+
+        docker-compose down
+        docker-compose up -d --build
+        docker-compose logs flask-app
+

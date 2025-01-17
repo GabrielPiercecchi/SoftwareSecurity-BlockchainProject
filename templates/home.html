@@ -47,25 +47,33 @@
         <section>
             <h2>Organizzazioni</h2>
             <div class="organizations">
-                {% for organization in organizations %}
-                    <div class="organization">
-                        <h3><a href="/organization/{{ organization.id }}">{{ organization.name | e }}</a></h3>
-                        <p>Description: {{ organization.description | e }}</p>
-                        <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
-                    </div>
-                {% endfor %}
+                {% if organizations %}
+                    {% for organization in organizations %}
+                        <div class="organization">
+                            <h3><a href="/organization/{{ organization.id }}">{{ organization.name | e }}</a></h3>
+                            <p>Description: {{ organization.description | e }}</p>
+                            <p>Address: {{ organization.address | e }}, {{ organization.city | e }}, {{ organization.cap | e }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>There are no organizations registered in the system.</p>
+                {% endif %}
             </div>
         </section>
         <section>
             <h2>Prodotti</h2>
             <div class="products">
-                {% for product in products %}
-                    <div class="product">
-                        <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
-                        <p>Made by: {{ product.id_organization | e }}</p>
-                        <p>Type: {{ product.type | e }}</p>
-                    </div>
-                {% endfor %}
+                {% if products_with_details %}
+                    {% for product in products_with_details %}
+                        <div class="product">
+                            <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
+                            <p>Made by: {{ product.organization_name | e }}</p>
+                            <p>Type: {{ product.type | e }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>There are no products registered in the system.</p>
+                {% endif %}
             </div>
         </section>
     </main>

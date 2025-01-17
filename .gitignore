@@ -53,7 +53,7 @@ wheels/
 log_users.txt
 
 # Tips File
-tips.txt
+# tips.txt
 
 # Installer logs
 pip-log.txt
