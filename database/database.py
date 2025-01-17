@@ -14,7 +14,7 @@ class DBIsConnected:
         else:
             DBIsConnected._instance = self
             self.engine = create_engine(
-                f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('DATABASE_PORT')}/{os.getenv('DATABASE_NAME')}"
+                f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('DATABASE_PORT_FASK_APP')}/{os.getenv('DATABASE_NAME')}"
             )
             self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
             

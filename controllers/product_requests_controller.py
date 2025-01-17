@@ -15,13 +15,10 @@ class CreateProductRequestForm(FlaskForm):
 class DenyProductRequestForm(FlaskForm):
     rejectedButton = SubmitField('Reject Request')
 
-class AcceptProductRequestForm(FlaskForm):
-    carrier_id = SelectField('Carrier Organization', choices=[], validators=[DataRequired()])
-    acceptButton = SubmitField('Accept Request')
-
 class CarrierAcceptRequestAndCreateDEliveryForm(FlaskForm):
+    request_id = IntegerField(validators=[DataRequired()])
     co2_emission = FloatField('CO2 Emission', validators=[DataRequired(),
-                                                          NumberRange(min=0.01, message='The value must be greater than 0')], 
+                                                          NumberRange(min=0.01, message='The value must be greater than 0.00')], 
                                                           render_kw={'placeholder': '100.0'})
     acceptButton = SubmitField('Accept Request')
 
@@ -292,53 +289,57 @@ def carrier_accept_and_create_delivery():
     if not username:
         return redirect(url_for('login_route'))
     
-    request_id = request.form.get('request_id')
-    co2_emission = float(request.form.get('co2_emission'))
-    if not request_id or not co2_emission:
-        print('Request ID and CO2 Emission are required')
-        flash('Request ID and CO2 Emission are required', 'error')
-        return redirect(url_for('carrier_menage_product_requests_route'))
-
     db_instance = DBIsConnected.get_instance()
     session_db = db_instance.get_session()
     
-    try:
-        product_request = session_db.query(ProductRequest).filter_by(id=request_id).first()
-        if not product_request:
-            print('Product request not found')
-            flash('Product request not found', 'error')
-            return redirect(url_for('carrier_menage_product_requests_route'))
-        
-        organization = session_db.query(Organization).filter_by(id=product_request.id_carrier_organization).first()
-        default_co2_value = session_db.query(Type).filter_by(id_type=organization.type).first().default_co2_value
-        co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
-        co2_limit = default_co2_value + co2_standard*product_request.quantity
+    form = CarrierAcceptRequestAndCreateDEliveryForm()
 
-        if not coins_algorithm(co2_emission, co2_limit, organization, session_db):
+    if request.method == 'POST' and form.validate_on_submit():
+        request_id = form.request_id.data
+        co2_emission = float(form.co2_emission.data)
+        
+        try:
+            product_request = session_db.query(ProductRequest).filter_by(id=request_id).first()
+            if not product_request:
+                print('Product request not found')
+                flash('Product request not found', 'error')
+                return redirect(url_for('carrier_menage_product_requests_route'))
+            
+            organization = session_db.query(Organization).filter_by(id=product_request.id_carrier_organization).first()
+            default_co2_value = session_db.query(Type).filter_by(id_type=organization.type).first().default_co2_value
+            co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
+            co2_limit = default_co2_value + co2_standard*product_request.quantity
+
+            if not coins_algorithm(co2_emission, co2_limit, organization, session_db):
+                session_db.rollback()
+                print('CO2 emission exceeds the limit')
+                return redirect(url_for('carrier_menage_product_requests_route'))
+
+            delivery = Delivery(
+                id_product=product_request.id_product,
+                quantity=product_request.quantity,
+                co2_emission=co2_emission,
+                id_deliver_organization=product_request.id_providing_organization,
+                id_receiver_organization=product_request.id_requesting_organization,
+                id_carrier_organization=product_request.id_carrier_organization,
+                date_timestamp=datetime.now()
+            )
+            
+            session_db.add(delivery)
+            product_request.status_delivery = 'delivered'
+            session_db.commit()
+            print('Delivery created successfully')
+            flash('Delivery created successfully', 'success')
+            session_db.close()
+        except Exception as e:
             session_db.rollback()
-            print('CO2 emission exceeds the limit')
+            print(f'Error: {str(e)}')
+            flash(f'Error: {str(e)}', 'error')
             return redirect(url_for('carrier_menage_product_requests_route'))
-
-        delivery = Delivery(
-            id_product=product_request.id_product,
-            quantity=product_request.quantity,
-            co2_emission=co2_emission,
-            id_deliver_organization=product_request.id_providing_organization,
-            id_receiver_organization=product_request.id_requesting_organization,
-            id_carrier_organization=product_request.id_carrier_organization,
-            date_timestamp=datetime.now()
-        )
         
-        session_db.add(delivery)
-        product_request.status_delivery = 'delivered'
-        session_db.commit()
-        print('Delivery created successfully')
-        flash('Delivery created successfully', 'success')
-        session_db.close()
-    except Exception as e:
-        session_db.rollback()
-        print(f'Error: {str(e)}')
-        flash(f'Error: {str(e)}', 'error')
+    else:
+        flash('The value must be greater than 0.00')
         return redirect(url_for('carrier_menage_product_requests_route'))
-    
+
+
     return redirect(url_for('carrier_menage_product_requests_route'))

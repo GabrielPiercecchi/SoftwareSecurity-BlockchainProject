@@ -1,23 +1,35 @@
+##########################################################################################
+#######                                                                            #######
+#######                 PURGARE TUTTO QUELLO CHE STA SU DOCKER                     #######
+#######                                                                            #######
+##########################################################################################
+
+
 PER WINDOWS 11 CON WSL E UBUNTU:
 
-    cd .\quorum-test-network\
-    wsl -d Ubuntu
-    ./run.sh
+    docker-compose down
+    docker-compose up -d --build
+    docker-compose logs flask-app
 
     POI APRIRE NUOVO TERMINALE NEL PROGETTO:
 
-        docker-compose down
-        docker-compose up -d --build
-        docker-compose logs flask-app
+        cd .\quorum-test-network\
+        ./run.sh
+        ./list.sh
+
+    
 
 PER LINUX
 
-    cd quorum-test-network/
-    ./run.sh
+    docker-compose down
+    docker-compose up -d --build
+    docker-compose logs flask-app
 
     POI APRIRE NUOVO TERMINALE NEL PROGETTO
 
-        docker-compose down
-        docker-compose up -d --build
-        docker-compose logs flask-app
+        cd quorum-test-network/
+        ./run.sh
+        ./list.sh
+
+    
 

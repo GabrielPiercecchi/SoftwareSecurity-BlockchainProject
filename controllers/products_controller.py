@@ -7,15 +7,13 @@ from wtforms import RadioField, StringField, FloatField, IntegerField, SelectFie
 from algorithms.coins_algorithm import coins_algorithm
 
 class ProductForm(FlaskForm):
-    name = StringField('Product Name', validators=[DataRequired(), 
-                                                   NumberRange(min=1, message='The value must be greater than 0')], 
-                                                   render_kw={'placeholder': 'Name'})
+    name = StringField('Product Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
     type = SelectField('Type', choices=[('raw material', 'Raw Material'), ('end product', 'End Product')], validators=[DataRequired()])
     quantity = IntegerField('Quantity', validators=[DataRequired(), 
                                                     NumberRange(min=1, message='The value must be greater than 0')], 
-                                                    render_kw={'placeholder': 'Quantity'})
+                                                    render_kw={'placeholder': '100'})
     co2_production_product = FloatField('CO2 Production', validators=[DataRequired(), 
-                                                                      NumberRange(min=0.01, message='The value must be greater than 0')], 
+                                                                      NumberRange(min=0.01, message='The value must be greater than 0.00')], 
                                                                       render_kw={'placeholder': '100.0'})
 
 class UpdateProductForm(FlaskForm):
@@ -69,16 +67,13 @@ def create_product():
     organization = session_db.query(Organization).get(employer.id_organization)
     session_db.close()
 
-
     form = ProductForm()
-    form.organization = organization.id
 
-
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST' and form.validate_on_submit():
         name = form.name.data
         type = form.type.data
-        quantity = form.quantity.data
-        co2_production_product = form.co2_production_product.data
+        quantity = int(form.quantity.data)
+        co2_production_product = float(form.co2_production_product.data)
 
         session_db = db_instance.get_session()
     
