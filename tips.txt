@@ -12,7 +12,7 @@ PER WINDOWS 11 CON WSL E UBUNTU:
 
 PER LINUX
 
-    cd ./quorum-test-network
+    cd quorum-test-network/
     ./run.sh
 
     POI APRIRE NUOVO TERMINALE NEL PROGETTO
