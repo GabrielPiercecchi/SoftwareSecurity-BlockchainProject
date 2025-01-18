@@ -14,6 +14,7 @@
 ![Hyperledger Besu](https://img.shields.io/badge/Hyperledger%20Besu-%230072C6?style=for-the-badge&logo=hyperledger&logoColor=white)
 ![Grafana](https://img.shields.io/badge/Grafana-%23F46800?style=for-the-badge&logo=grafana&logoColor=white)
 ![Overleaf](https://img.shields.io/badge/Overleaf-%2300C2B9?style=for-the-badge&logo=overleaf&logoColor=white)
+<!-- Solidity e metamask   -->
 
 - [SoftwareSecurity-BlockchainProject](#softwaresecurity-blockchainproject)
   - [Introduzione 📖](#introduzione-)
