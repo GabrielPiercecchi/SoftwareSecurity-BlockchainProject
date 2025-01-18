@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Float, DateTime
+from sqlalchemy_utils import database_exists, drop_database, create_database
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import validates, relationship
@@ -18,8 +19,8 @@ def create_database_if_not_exists():
         dbname='postgres',
         user=os.getenv('DATABASE_USER'),
         password=os.getenv('DATABASE_PASSWORD'),
-        host=os.getenv('DATABASE_HOST'),
-        port=os.getenv('DATABASE_PORT')
+        host=os.getenv('POSTGRES_HOST'),
+        port=os.getenv('DATABASE_PORT_FASK_APP')
     )
     conn.autocommit = True
     cursor = conn.cursor()
@@ -27,6 +28,10 @@ def create_database_if_not_exists():
         cursor.execute(f"CREATE DATABASE {os.getenv('DATABASE_NAME')}")
     except psycopg2.errors.DuplicateDatabase:
         print(f"Database {os.getenv('DATABASE_NAME')} already exists.")
+        cursor.execute(f"DROP DATABASE {os.getenv('DATABASE_NAME')}")
+        print(f"Database {os.getenv('DATABASE_NAME')} dropped.")
+        cursor.execute(f"CREATE DATABASE {os.getenv('DATABASE_NAME')}")
+        print(f"Database {os.getenv('DATABASE_NAME')} created.")
     cursor.close()
     conn.close()
 
@@ -94,6 +99,16 @@ class ProductRequest(Base):
     quantity = Column(Integer, nullable=False)
     status = Column(Enum('pending', 'approved', 'rejected', name='request_status_enum'), nullable=False, default='pending')
     status_delivery = Column(Enum('pending', 'delivered', name='delivery_status_enum'), nullable=False, default='pending')
+    date_requested = Column(DateTime, nullable=False, default=datetime.now)
+    date_responded = Column(DateTime)
+
+class CoinRequest(Base):
+    __tablename__ = 'coin_request'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    id_requesting_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    id_providing_organization = Column(Integer, default=None)
+    coin = Column(Float, nullable=False)
+    status = Column(Enum('pending', 'approved', name='coin_request_status_enum'), nullable=False, default='pending')
     date_requested = Column(DateTime, nullable=False, default=datetime.now)
     date_responded = Column(DateTime)
 

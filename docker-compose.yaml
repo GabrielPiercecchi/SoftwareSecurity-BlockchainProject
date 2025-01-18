@@ -1,11 +1,12 @@
-version: '3.8'
+---
+version: '3.6'
 
 x-besu-def:
   &besu-def
   restart: "on-failure"
   image: hyperledger/besu:${BESU_VERSION:-latest}
   env_file:
-    - ./.env
+    - ./quorum-test-network/config/besu/.env
   entrypoint:
     - /bin/bash
     - -c
@@ -23,7 +24,7 @@ x-besu-def:
 x-tessera-def:
   &tessera-def
   build:
-    context: besu-network/config/tessera
+    context: ./quorum-test-network/config/tessera
     args:
       TESSERA_VERSION: ${TESSERA_VERSION:-latest}
   environment:
@@ -39,6 +40,122 @@ x-tessera-def:
     timeout: 3s
     retries: 20
     start_period: 5s
+
+
+x-blockscout-ref:
+  &blockscout-def
+  image: consensys/blockscout:v4.1.5-beta
+  container_name: blockscout
+  restart: "no"
+  environment:
+    - PORT=4000
+    - ECTO_USE_SSL=false
+    - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${BLOCKSCOUT_HOST}:${DATABASE_PORT}/${POSTGRES_DB}?ssl=false
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_USER=${POSTGRES_USER}
+    - NETWORK=quickstart
+    - NETWORK=Dev Quickstart
+    - SUBNETWORK=Quorum
+    - CHAIN_ID=1337
+    - COIN=ETH
+    - ETHEREUM_JSONRPC_VARIANT=besu
+    - ETHEREUM_JSONRPC_TRANSPORT=http
+    - ETHEREUM_JSONRPC_HTTP_URL=http://rpcnode:8545
+    - ETHEREUM_JSONRPC_TRACE_URL=http://rpcnode:8545
+    - ETHEREUM_JSONRPC_WS_URL=ws://rpcnode:8546
+  entrypoint:
+    - /bin/sh
+    - -c
+    - |
+      cd /opt/app/;
+      echo $$MIX_ENV && mix do ecto.create, ecto.migrate; mix phx.server;
+  depends_on:
+    - blockscoutpostgres
+  links:
+    - blockscoutpostgres
+  ports:
+    - 26000:4000
+
+x-blockscoutpostgres-ref:
+  &blockscoutpostgres-def
+  image: postgres:13.6-alpine
+  restart: "on-failure"
+  container_name: blockscoutpostgres
+  environment:
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_HOST_AUTH_METHOD=trust
+  volumes:
+    - blockscoutpostgres:/var/lib/postgresql/data
+  ports:
+    - 5432
+  healthcheck:
+    test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+    interval: 5s
+    timeout: 10s
+    retries: 5
+
+
+
+
+
+x-chainlensapi-ref:
+  &chainlensapi-def
+  image: web3labs/epirus-free-api:latest
+  container_name: chainlensapi
+  environment:
+    - NODE_ENDPOINT=http://rpcnode:8545
+    - MONGO_CLIENT_URI=mongodb://chainlensmongodb:27017
+    - REINDEX_ENDPOINT=http://chainlensingestion/reindex/
+    - MONGO_DB_NAME=epirus
+    - MONGO_CREATE_INDICES=true
+  depends_on:
+    - chainlensmongodb
+
+x-chainlensmongodb-ref:
+  &chainlensmongodb-def
+  image: mongo:5.0.8
+  container_name: chainlensmongodb
+  environment:
+    - COMPOSE_HTTP_TIMEOUT=900
+    - DOCKER_CLIENT_TIMEOUT=900
+  entrypoint: mongod --bind_ip "0.0.0.0"
+
+x-chainlensweb-ref:
+  &chainlensweb-def
+  image: web3labs/epirus-free-web:latest
+  container_name: chainlensweb
+  environment:
+    - API_URL=/api
+    - DISPLAY_NETWORK_TAB=disabled
+  depends_on:
+    - chainlensapi
+
+x-chainlensingestion-ref:
+  &chainlensingestion-def
+  image: web3labs/epirus-free-ingestion:latest
+  container_name: chainlensingestion
+  environment:
+    - NODE_ENDPOINT=http://rpcnode:8545
+    - MONGO_CLIENT_URI=mongodb://chainlensmongodb:27017
+    - MONGO_DB_NAME=epirus
+  depends_on:
+    - chainlensmongodb
+    - chainlensweb
+
+x-chainlensnginx-ref:
+  &chainlensnginx-def
+  image: nginx:latest
+  container_name: chainlensnginx
+  volumes:
+    - ./quorum-test-network/chainlens/nginx.conf:/etc/nginx/nginx.conf
+    - ./quorum-test-network/chainlens/5xx.html:/www/error_pages/5xx.html
+  ports:
+    - 8081:80
+  depends_on:
+    - chainlensapi
+    - chainlensweb
+
 
 
 x-ethsignerProxy-def:
@@ -59,8 +176,7 @@ x-ethsignerProxy-def:
     - 8545
 
 services:
-# Hyperledger Besu
-
+  
   validator1:
     << : *besu-def
     ports:
@@ -72,9 +188,9 @@ services:
     labels:
       - "consensus=besu"
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/validator1:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/validator1:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     networks:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.11
@@ -90,9 +206,9 @@ services:
     labels:
       - "consensus=besu"
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/validator2:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/validator2:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     depends_on:
       - validator1
     networks:
@@ -110,9 +226,9 @@ services:
     labels:
       - "consensus=besu"
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/validator3:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/validator3:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     depends_on:
       - validator1
     networks:
@@ -130,9 +246,9 @@ services:
     labels:
       - "consensus=besu"
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/validator4:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/validator4:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     depends_on:
       - validator1
     networks:
@@ -140,14 +256,14 @@ services:
         ipv4_address: 172.16.239.14
 
   rpcnode:
-    <<: *besu-def
+    << : *besu-def
     container_name: rpcnode
     environment:
       - OTEL_RESOURCE_ATTRIBUTES=service.name=rpcnode,service.version=${BESU_VERSION:-latest}
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/rpcnode:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/rpcnode:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     depends_on:
       - validator1
     ports:
@@ -160,8 +276,8 @@ services:
   ethsignerProxy:
     << : *ethsignerProxy-def
     volumes:
-      - ./besu-network/config/ethsigner/password:/opt/ethsigner/passwordfile
-      - ./besu-network/config/ethsigner/key:/opt/ethsigner/keyfile
+      - ./quorum-test-network/config/ethsigner/password:/opt/ethsigner/passwordfile
+      - ./quorum-test-network/config/ethsigner/key:/opt/ethsigner/keyfile
     depends_on:
       - validator1
       - rpcnode
@@ -177,8 +293,8 @@ services:
     ports:
       - 9081:9080
     volumes:
-      - ./besu-network/config/nodes/member1:/config/keys
-      - ./besu-network/logs/tessera:/var/log/tessera/
+      - ./quorum-test-network/config/nodes/member1:/config/keys
+      - ./quorum-test-network/logs/tessera:/var/log/tessera/
     networks:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.26
@@ -202,9 +318,9 @@ services:
         --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,${BESU_CONS_ALGO:-QBFT} \
         --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,${BESU_CONS_ALGO:-QBFT} ;
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/member1:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/member1:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     depends_on:
       - validator1
       - member1tessera
@@ -220,8 +336,8 @@ services:
     ports:
       - 9082:9080
     volumes:
-      - ./besu-network/config/nodes/member2:/config/keys
-      - ./besu-network/logs/tessera:/var/log/tessera/
+      - ./quorum-test-network/config/nodes/member2:/config/keys
+      - ./quorum-test-network/logs/tessera:/var/log/tessera/
     networks:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.27
@@ -245,9 +361,9 @@ services:
         --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,${BESU_CONS_ALGO:-QBFT} \
         --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,${BESU_CONS_ALGO:-QBFT} ;
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/member2:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/member2:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     depends_on:
       - validator1
       - member2tessera
@@ -263,8 +379,8 @@ services:
     ports:
       - 9083:9080
     volumes:
-      - ./besu-network/config/nodes/member3:/config/keys
-      - ./besu-network/logs/tessera:/var/log/tessera/
+      - ./quorum-test-network/config/nodes/member3:/config/keys
+      - ./quorum-test-network/logs/tessera:/var/log/tessera/
     networks:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.28
@@ -288,9 +404,9 @@ services:
         --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,${BESU_CONS_ALGO:-QBFT} \
         --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,${BESU_CONS_ALGO:-QBFT} ;
     volumes:
-      - ./besu-network/config/besu/:/config
-      - ./besu-network/config/nodes/member3:/opt/besu/keys
-      - ./besu-network/logs/besu:/tmp/besu
+      - ./quorum-test-network/config/besu/:/config
+      - ./quorum-test-network/config/nodes/member3:/opt/besu/keys
+      - ./quorum-test-network/logs/besu:/tmp/besu
     depends_on:
       - validator1
       - member3tessera
@@ -306,8 +422,8 @@ services:
   explorer:
     image: consensys/quorum-explorer:${QUORUM_EXPLORER_VERSION:-latest}
     volumes:
-      - ./besu-network/quorum-explorer/config.json:/app/config.json
-      - ./besu-network/quorum-explorer/env:/app/.env.production
+      - ./quorum-test-network/quorum-explorer/config.json:/app/config.json
+      - ./quorum-test-network/quorum-explorer/env:/app/.env.production
     depends_on:
       - rpcnode
     ports:
@@ -316,67 +432,152 @@ services:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.31
 
-# Servizi web buildati per ultimi
 
-  my-postgres:
-    image: postgres:15
-    container_name: db_pg
-    restart: unless-stopped
-    environment:
-    - POSTGRES_DB=${DATABASE_NAME}
-    - POSTGRES_USER=${DATABASE_USER}
-    - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-    - PGPORT=${DATABASE_PORT}
-    ports:
-    - '${DATABASE_PORT}:${DATABASE_PORT}'
-    volumes:
-    - pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: "exit 0"
+
+  blockscout:
+    << : *blockscout-def
     networks:
       quorum-dev-quickstart:
+        ipv4_address: 172.16.239.51
 
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py --log-level debug
-    container_name: django
-    expose:
-      - 8000
-    volumes:
-      - ./static/:/app/static
-      - ./media/:/app/media
-      - ./contract/:/app/contract
-    environment:
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_PORT=${DATABASE_PORT}
-      - ADMIN_ADDRESS=${ADMIN_ADDRESS}
-      - ADMIN_PRIVATE_KEY=${ADMIN_PRIVATE_KEY}
+  blockscoutpostgres:
+    << : *blockscoutpostgres-def
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.52
+
+
+
+
+  chainlensapi:
+    <<: *chainlensapi-def
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.53
+
+  chainlensmongodb:
+    <<: *chainlensmongodb-def
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.54
+
+  chainlensingestion:
+    <<: *chainlensingestion-def
     depends_on:
-      - my-postgres
       - rpcnode
     networks:
       quorum-dev-quickstart:
+        ipv4_address: 172.16.239.55
 
-  nginx:
-    build: ./nginx
-    restart: unless-stopped
-    ports:
-      - 1337:80
+  chainlensweb:
+    <<: *chainlensweb-def
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.56
+
+  chainlensnginx:
+    <<: *chainlensnginx-def
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.57
+
+
+
+
+  prometheus:
+    image: "prom/prometheus:v2.46.0"
     volumes:
-      - ./static/:/app/static
-    depends_on:
-      - web
+      - ./quorum-test-network/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090/tcp
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.32
+
+  grafana:
+    image: "grafana/grafana:10.1.0"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_USERS_VIEWERS_CAN_EDIT=true
+    volumes:
+      - ./quorum-test-network/config/grafana/provisioning/:/etc/grafana/provisioning/
+      - grafana:/var/lib/grafana
+    ports:
+      - 3000:3000/tcp
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.33
+
+  loki:
+    image: "grafana/loki:2.8.4"
+    volumes:
+      - ./quorum-test-network/loki/loki.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - 3100:3100/tcp
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.34
+
+  promtail:
+    image: "grafana/promtail:2.8.4"
+    volumes:
+      - ./quorum-test-network/logs:/var/log
+      - ./quorum-test-network/promtail/promtail.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.16.239.35
+
+  postgres:
+    image: postgres:13.6-alpine
+    container_name: db_pg
+    restart: on-failure
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
     networks:
       quorum-dev-quickstart:
 
+  flask-app:
+    container_name: flask-app
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DATABASE_PORT_FASK_APP}/${DATABASE_NAME}
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - rpcnode
+    networks:
+      quorum-dev-quickstart:
+    #depends_on:
+    #  - database_service_name  # Sostituisci con il nome del servizio del database se necessario
+
+
 
 volumes:
-  pg_data:
+  public-keys:
+  prometheus:
+  grafana:
+  splunk:
+  ethlogger:
+  blockscoutpostgres:
+  postgres_data:
 
 networks:
   quorum-dev-quickstart:

@@ -15,6 +15,7 @@ from controllers.employers_controller import employer_home, employer_update_pers
 from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
 from controllers.product_requests_controller import menage_product_requests, view_other_products, create_product_requests, deny_product_request, accept_product_request, carrier_menage_product_requests, carrier_accept_and_create_delivery
 from controllers.oracle_controller import approve_employer, manage_employer_registration, oracle_home, reject_employer, view_employer_inactive, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer, oracle_view_organizations
+from controllers.coin_requests_controller import view_coin_requests, create_coin_request, accept_coin_request, view_accepted_coin_requests
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -121,6 +122,22 @@ def carrier_accept_and_create_delivery_route():
 def carrier_view_deliveries_route():
     return carrier_view_deliveries()
 
+@app.route("/employer/view_coin_requests/")
+def view_coin_requests_route():
+    return view_coin_requests()
+
+@app.route("/employer/view_coin_requests/view_accepted_coin_requests/")
+def view_accepted_coin_requests_route():
+    return view_accepted_coin_requests()
+
+@app.route("/employer/view_coin_requests/create_coin_request/", methods=['GET', 'POST'])
+def create_coin_request_route():
+    return create_coin_request()
+
+@app.route("/employer/view_coin_requests/accept_coin_request", methods=['GET', 'POST'])
+def accept_coin_request_route():
+    return accept_coin_request()
+
 @app.route("/oracle/")
 def oracle_home_route():
     return oracle_home()
@@ -166,5 +183,7 @@ def oracle_coin_transfer_route(organization_id):
     return oracle_coin_transfer(organization_id)
 
 if __name__ == "__main__":
-    initialize_database()
-    app.run(debug=True)
+    if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        # Inizializza il database e altri setup qui
+        initialize_database()
+    app.run(host=(os.getenv('HOST')), port=(os.getenv('PORT')), debug=True)

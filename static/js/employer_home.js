@@ -40,4 +40,12 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = "/employer/view_deliveries/";
         });
     }
+
+    var viewCoinRequestsButton = document.getElementById('view-coin-requests-button');
+    if (viewCoinRequestsButton) {
+        viewCoinRequestsButton.addEventListener('click', function() {
+            window.location.href = "/employer/view_coin_requests/";
+        });
+    }
+
 });

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Product</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/employer_create_product_requests.js') }}" defer></script>
     {% if session.logged_in %}
     <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
@@ -44,7 +45,11 @@
                     {% if messages %}
                         <ul class="flashes">
                             {% for category, message in messages %}
-                                <li class="{{ category }}">{{ message }}</li>
+                                {% if category != 'error_co2' %}
+                                    <div class="invalid-tooltip" style="display: block;">
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         </ul>
                     {% endif %}
@@ -65,11 +70,21 @@
                                     ​are calculated based on this value. <b>ONCE INSERTED IT WILL NO LONGER BE POSSIBLE TO MODIFY IT.</b></p>
                                 <label for="quantity">Quantity:</label>
                                 {{ form.quantity }}
+                                {% if form.quantity.errors %}
+                                    <div class="invalid-tooltip" style="display: block;">
+                                        {{ form.quantity.errors[0] }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="form-group">
                                 <p>ATTENTION: enter the correct Co2 production value. <b>ONCE INSERTED IT WILL NO LONGER BE POSSIBLE TO MODIFY IT.</b></p>
                                 <label  for="co2_production_product">CO2 Production:</label>
                                 {{ form.co2_production_product }}
+                                {% if form.co2_production_product.errors %}
+                                    <div class="invalid-tooltip" style="display: block;">
+                                        {{ form.co2_production_product.errors[0] }}
+                                    </div>
+                                {% endif %}
                             </div>
                             {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}

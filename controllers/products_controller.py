@@ -2,15 +2,19 @@ from flask import flash, render_template, request, redirect, url_for, session
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
 from database.migration import Employer, Product, Delivery, Organization, Type
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 from wtforms import RadioField, StringField, FloatField, IntegerField, SelectField
 from algorithms.coins_algorithm import coins_algorithm
 
 class ProductForm(FlaskForm):
-    name = StringField('Product Name', validators=[DataRequired()])
+    name = StringField('Product Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
     type = SelectField('Type', choices=[('raw material', 'Raw Material'), ('end product', 'End Product')], validators=[DataRequired()])
-    quantity = IntegerField('Quantity', validators=[DataRequired()])
-    co2_production_product = FloatField('CO2 Production', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired(), 
+                                                    NumberRange(min=1, message='The value must be greater than 0')], 
+                                                    render_kw={'placeholder': '100'})
+    co2_production_product = FloatField('CO2 Production', validators=[DataRequired(), 
+                                                                      NumberRange(min=0.01, message='The value must be greater than 0.00')], 
+                                                                      render_kw={'placeholder': '100.0'})
 
 class UpdateProductForm(FlaskForm):
     name = StringField('Organization Name', validators=[DataRequired()])
@@ -63,16 +67,13 @@ def create_product():
     organization = session_db.query(Organization).get(employer.id_organization)
     session_db.close()
 
-
     form = ProductForm()
-    form.organization = organization.id
 
-
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST' and form.validate_on_submit():
         name = form.name.data
         type = form.type.data
-        quantity = form.quantity.data
-        co2_production_product = form.co2_production_product.data
+        quantity = int(form.quantity.data)
+        co2_production_product = float(form.co2_production_product.data)
 
         session_db = db_instance.get_session()
     
@@ -81,7 +82,9 @@ def create_product():
             co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
             co2_limit = default_co2_value + co2_standard*quantity
 
-            coins_algorithm(co2_production_product, co2_limit, organization, session_db) 
+            if not coins_algorithm(co2_production_product, co2_limit, organization, session_db):
+                session_db.rollback()
+                return redirect(url_for('create_product_route'))
 
             new_prod = Product(  
             name=name,
@@ -97,7 +100,7 @@ def create_product():
         except Exception as e:
             session_db.rollback()
             print(f'Error: {str(e)}')
-            flash('Failed to add product.', 'error')
+            flash('Failed to add product: intero fuori dall\'intervallo', 'error')
             return redirect(url_for('create_product_route'))
             
         return redirect(url_for('employer_home_route'))

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from .database import DBIsConnected
-from .migration import Type, Organization, Employer, Oracle, Product, Delivery, ProductRequest
+from .migration import Type, Organization, Employer, Oracle, Product, Delivery, ProductRequest, CoinRequest
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -123,6 +123,36 @@ def seed_product_requests(session: Session):
             session.bulk_save_objects(product_requests)
             session.commit()
 
+def seed_coin_requests(session: Session):
+    if not session.query(CoinRequest).first():
+        coin_requests = [
+            CoinRequest(
+                id_requesting_organization=1,
+                id_providing_organization=2,
+                coin=100.0,
+                status='approved',
+                date_requested=datetime.now(),
+                date_responded=datetime.now()
+            ),
+            CoinRequest(
+                id_requesting_organization=2,
+                coin=150.0,
+                status='pending',
+                date_requested=datetime.now()
+            ),
+            CoinRequest(
+                id_requesting_organization=3,
+                id_providing_organization=1,
+                coin=200.0,
+                status='approved',
+                date_requested=datetime.now(),
+                date_responded=datetime.now()
+            )
+        ]
+        session.bulk_save_objects(coin_requests)
+        session.commit()
+
+
 def seed_deliveries(session: Session):
     if not session.query(Delivery).first():
         deliveries = [
@@ -143,13 +173,10 @@ def run_seeders():
         seed_employers(session)
         seed_products(session)  # Seed products before deliveries
         seed_product_requests(session)
+        seed_coin_requests(session)
         seed_deliveries(session)
-        print("Database seeded successfully!")
     except Exception as e:
         session.rollback()
         print(f"Error seeding database: {e}")
     finally:
         session.close()
-
-if __name__ == "__main__":
-    run_seeders()
