@@ -10,6 +10,7 @@ contract_interactions = ContractInteractions()
 try:
     with open('contract/contract_address.txt', 'r') as file:
         contract_address = file.read().strip()
+        contract_address = Web3.to_checksum_address(contract_address)  # Converti l'indirizzo in formato checksum
 except FileNotFoundError:
     raise Exception("Contract address file not found. Ensure the contract is deployed.")
 
