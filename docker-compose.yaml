@@ -535,7 +535,6 @@ services:
   postgres:
     image: postgres:13.6-alpine
     container_name: db_pg
-    restart: on-failure
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -543,7 +542,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
     networks:
       quorum-dev-quickstart:
 
@@ -554,7 +553,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "${PORT}:${PORT}"
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DATABASE_PORT_FASK_APP}/${DATABASE_NAME}

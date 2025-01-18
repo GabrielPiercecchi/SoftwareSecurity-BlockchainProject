@@ -554,7 +554,7 @@ networks:
   quorum-dev-quickstart:
     name: quorum-dev-quickstart
     driver: bridge
-    external: true
     ipam:
       config:
         - subnet: 172.16.239.0/24
+    external: true

@@ -65,6 +65,7 @@ class Organization(Base):
     type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.id_type'), nullable=False)
     status = Column(Enum('active', 'inactive', name='status_enum'), nullable=False, default='inactive')
     coin = Column(Float, nullable=False)
+    blockchain_address = Column(String, nullable=True)  # Nuovo campo aggiunto
     
 class Employer(Base):
     __tablename__ = 'employer'
