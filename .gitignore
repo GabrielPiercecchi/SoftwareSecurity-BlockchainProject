@@ -55,6 +55,15 @@ log_users.txt
 # Tips File
 # tips.txt
 
+# Quorum Dev Quickstart
+/quorum-test-network/
+/config/
+/logs/
+/loki/
+/promtail/
+/my-private-blockchain/
+
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt

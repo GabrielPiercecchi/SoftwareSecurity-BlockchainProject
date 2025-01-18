@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, Email, EqualTo
 from werkzeug.security import check_password_hash, generate_password_hash
 from database.database import DBIsConnected
 from database.migration import Oracle, Employer, Organization
+from controllers.ethereum_controller import assign_addresses_to_organizations
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
@@ -164,6 +165,9 @@ def signup():
             session_db.add(new_org)
             session_db.commit()
             print(new_org)
+
+            # Assegna un indirizzo Ethereum alla nuova organizzazione
+            assign_addresses_to_organizations(session_db)
 
             # Crea gli impiegati
             try:

@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash
+from controllers.ethereum_controller import assign_addresses_to_organizations
 
 load_dotenv()
 
@@ -170,6 +171,8 @@ def run_seeders():
         seed_oracle(session)
         seed_types(session)
         seed_organizations(session)
+        # Assegna indirizzi Ethereum alle organizzazioni
+        assign_addresses_to_organizations(session)
         seed_employers(session)
         seed_products(session)  # Seed products before deliveries
         seed_product_requests(session)

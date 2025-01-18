@@ -69,7 +69,25 @@ TODO 14/01/2025
     Caterina:
         Implementazione transferimento coin (min 20 coin) nell'ORACOLO.
             Significa che puoi trasferire coina piacimento sopra la soglia
+            DONE
     Tosca: 
         accettazione organizzazioni e employer
+            DONE
+
+
+TODO 18/01/2025
+
+    1 - Capire e risolvere bug doppia compilazione per funzionare
+    2 - Sistemare Sicurezza DB con limiti ai campi
+    3 - Testing tutte le form con validazione e messaggistica
+    4 - "Eventuale utilizzo dei middleware come gestione delle validazioni"
+
+    DOMANDE DA FARE AL PROFESSORE:
+        1 - Effettivamente una volta collegato il sito alla blockchain cosa bisogna FARE
+        2 - Se come abbiamo Implementato la blockchain è corretto
+        3 - Log: come li vuole il professore, i permessi per evitare modifiche, ETC..
+        4 - Cosa manca nel dubbio
+
+
 
             

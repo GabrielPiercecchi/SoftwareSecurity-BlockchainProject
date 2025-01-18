@@ -542,17 +542,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
     networks:
       quorum-dev-quickstart:
 
   flask-app:
     container_name: flask-app
+    restart: on-failure
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "${PORT}:${PORT}"
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DATABASE_PORT_FASK_APP}/${DATABASE_NAME}
