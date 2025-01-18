@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Employer Registration</title>
+    <title>Manage Employee Registration</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/oracle_manage_employer.js') }}" defer></script>
     {% if session.logged_in %}
@@ -25,7 +25,7 @@
                 <li><a href="/products">Products</a></li>
                 {% if session.logged_in %}
                     {% if session.user_type == 'employer' %}
-                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employee Home</a></li>
                     {% elif session.user_type == 'oracle' %}
                         <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
                     {% endif %}
@@ -39,7 +39,7 @@
     </header>
     <main>
         <section class="section-bordered">
-            <h2>Employer Details</h2>
+            <h2>Employee Details</h2>
             <p>Username: {{ employer.username | e }}</p>
             <p>Name: {{ employer.name | e }}</p>
             <p>Surname: {{ employer.surname | e }}</p>

@@ -21,7 +21,7 @@
                 <li><a href="/products">Products</a></li>
                 {% if session.logged_in %}
                     {% if session.user_type == 'employer' %}
-                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employee Home</a></li>
                     {% endif %}
                     <li><a href="/logout" class="orange-button">Logout</a></li>
                 {% else %}
@@ -36,7 +36,7 @@
             <form class="signup-form" method="post" action="/signup">
                 {{ org_form.hidden_tag() }} <!-- Token CSRF -->
                 <div>
-                    <button type="button" class="button-green" id="add-employers-button">Add Employers to Existing Organization</button>
+                    <button type="button" class="button-green" id="add-employers-button">Add Employees to Existing Organization</button>
                 </div>
                 <h2>Register Organization</h2>
                 <div class="form-columns">
@@ -154,7 +154,7 @@
                         </div>
                     </div>
                     <div class="form-column">
-                        <h3>Register Employers</h3>
+                        <h3>Register Employees</h3>
                         <div id="employers-container">
                             <div class="employer">
                                 <div class="form-group">
@@ -225,7 +225,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" id="add-employer">Add Another Employer</button>
+                        <button type="button" id="add-employer">Add Another Employee</button>
                     </div>
                 </div>
                 <div>
