@@ -25,6 +25,9 @@ out/
 # JIRA plugin
 atlassian-ide-plugin.xml
 
+# quorum
+quorum-test-network/
+
 # Python #
 *.py[cod]
 *$py.class
