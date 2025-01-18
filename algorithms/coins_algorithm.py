@@ -3,26 +3,36 @@ from web3 import Web3
 from database.database import DBIsConnected
 from contract.deploy import ContractInteractions
 
-# Inizializza l'interazione con il contratto
-contract_interactions = ContractInteractions()
+# Variabili globali
+contract_interactions = None
+coin_contract = None
+nonce = None
 
-# Leggi l'indirizzo del contratto distribuito
-try:
-    with open('contract/contract_address.txt', 'r') as file:
-        contract_address = file.read().strip()
-        contract_address = Web3.to_checksum_address(contract_address)  # Converti l'indirizzo in formato checksum
-except FileNotFoundError:
-    raise Exception("Contract address file not found. Ensure the contract is deployed.")
+def initialize_contract():
+    global contract_interactions, coin_contract, nonce
+    contract_interactions = ContractInteractions()
 
-# Ottieni l'istanza del contratto
-print(f'Contract address: {contract_address}')
-coin_contract = contract_interactions.get_contract(contract_address)
+    # Leggi l'indirizzo del contratto distribuito
+    try:
+        with open('contract/contract_address.txt', 'r') as file:
+            contract_address = file.read().strip()
+            contract_address = Web3.to_checksum_address(contract_address)  # Converti l'indirizzo in formato checksum
+    except FileNotFoundError:
+        raise Exception("Contract address file not found. Ensure the contract is deployed.")
+    except ValueError as e:
+        raise Exception(f"Invalid contract address: {e}")
 
-# Mantieni traccia del nonce
-nonce = contract_interactions.w3.eth.get_transaction_count(contract_interactions.my_address, 'pending')
+    # Ottieni l'istanza del contratto
+    print(f'Contract address: {contract_address}')
+    coin_contract = contract_interactions.get_contract(contract_address)
+
+    # Mantieni traccia del nonce
+    nonce = contract_interactions.w3.eth.get_transaction_count(contract_interactions.my_address, 'pending')
 
 def coins_algorithm(co2_emission, co2_limit, organization, session_db):
     global nonce  # Usa la variabile globale nonce
+    if contract_interactions is None or coin_contract is None or nonce is None:
+        initialize_contract()
     try:
         if co2_emission > co2_limit:
             malus_coin = int(co2_emission - co2_limit)
