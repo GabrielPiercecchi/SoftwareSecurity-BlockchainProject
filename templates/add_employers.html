@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Employers to Existing Organization</title>
+    <title>Add Employees to Existing Organization</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/add_employers.js') }}" defer></script>
     <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
@@ -21,7 +21,7 @@
                 <li><a href="/products">Products</a></li>
                 {% if session.logged_in %}
                     {% if session.user_type == 'employer' %}
-                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employee Home</a></li>
                     {% endif %}
                     <li><a href="/logout" class="orange-button">Logout</a></li>
                 {% else %}
@@ -35,7 +35,7 @@
         <div class="signup-container">
             <form class="signup-form" method="post" action="/add_employers">
                 {{ form.hidden_tag() }} <!-- Token CSRF -->
-                <h2>Add Employers to Existing Organization</h2>
+                <h2>Add Employees to Existing Organization</h2>
                 <div class="form-group">
                     <label for="organization">Select Organization:</label>
                     <select name="organization" id="organization" required>
@@ -105,10 +105,10 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" id="add-employer">Add Another Employer</button>
+                    <button type="button" id="add-employer">Add Another Employee</button>
                 </div>
                 <div>
-                    <button type="submit" class="button-green">Add Employers</button>
+                    <button type="submit" class="button-green">Add Employees</button>
                 </div>
             </form>
         </div>

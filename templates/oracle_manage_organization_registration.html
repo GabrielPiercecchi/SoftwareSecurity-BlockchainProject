@@ -27,7 +27,7 @@
                 <li><a href="/products">Products</a></li>
                 {% if session.logged_in %}
                     {% if session.user_type == 'employer' %}
-                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employee Home</a></li>
                     {% elif session.user_type == 'oracle' %}
                         <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
                     {% endif %}
@@ -58,20 +58,20 @@
             <p>Coin: {{ organization.coin | e }}</p>
         </section>
         <section class="section-bordered">
-            <h2>Employers</h2>
+            <h2>Employees</h2>
             {% if employers %}
                 <ul class="section-bordered">
                     {% for employer in employers %}
-                        <p><b>Employer N° {{ loop.index }}</b></p>
+                        <p><b>Employee N° {{ loop.index }}</b></p>
                         <li>
-                            <p>Name employer: {{ employer.name | e }}</p>
-                            <p>Surname employer: {{ employer.surname | e }}</p>
-                            <p>Email employer: {{ employer.email | e }}</p>
+                            <p>Name employee: {{ employer.name | e }}</p>
+                            <p>Surname employee: {{ employer.surname | e }}</p>
+                            <p>Email employee: {{ employer.email | e }}</p>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No Employer found for this organization</p>
+                <p>No Employee found for this organization</p>
             {% endif %}
         </section>
         <section class="section-bordered">
