@@ -26,7 +26,7 @@
                 <li><a href="/products">Products</a></li>
                 {% if session.logged_in %}
                     {% if session.user_type == 'employer' %}
-                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employer Home</a></li>
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employee Home</a></li>
                     {% endif %}
                     <li><a href="/logout" class="orange-button">Logout</a></li>
                 {% else %}

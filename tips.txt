@@ -14,7 +14,6 @@ PER WINDOWS 11 CON WSL E UBUNTU:
     POI APRIRE NUOVO TERMINALE NEL PROGETTO:
 
         cd .\quorum-test-network\
-        ./run.sh
         ./list.sh
 
     
@@ -28,7 +27,6 @@ PER LINUX
     POI APRIRE NUOVO TERMINALE NEL PROGETTO
 
         cd quorum-test-network/
-        ./run.sh
         ./list.sh
 
     
