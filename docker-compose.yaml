@@ -534,6 +534,7 @@ services:
 
   postgres:
     image: postgres:13.6-alpine
+    restart: on-failure
     container_name: db_pg
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
@@ -543,6 +544,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "${DATABASE_PORT}:${DATABASE_PORT}"
+    depends_on:
+      - rpcnode
     networks:
       quorum-dev-quickstart:
 
@@ -560,8 +563,10 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - postgres
-      - rpcnode
+      rpcnode:
+        condition: service_healthy
+      postgres:
+        condition: service_started
     networks:
       quorum-dev-quickstart:
     #depends_on:
