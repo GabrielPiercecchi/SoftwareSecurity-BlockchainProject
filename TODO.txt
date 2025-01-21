@@ -101,4 +101,9 @@ TODO 18/01/2025
     4 - Utilizzare uno dei seguenti standard di codifica per Solidity
     5 - Utilizzare strumenti di analisi statica di Remix: Solidity Analyzer e Solhint
 
+
+    REVISIONE PROFESSORE:
+    1 - togliere login, concentrarsi sul modulo on-Chain
+            a - OPPURE quando vi è una dichiarazione di CO2 e poi si calcolano i crediti
+
             

@@ -52,6 +52,9 @@ wheels/
 # Log files
 log_users.txt
 
+# nonce
+/algorithms/nonce.txt
+
 # Tips File
 # tips.txt
 

@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from database.database import DBIsConnected
 from database.migration import Employer, Product, Delivery, Organization, Type
 from wtforms.validators import DataRequired, NumberRange
-from wtforms import RadioField, StringField, FloatField, IntegerField, SelectField
+from wtforms import StringField, IntegerField, SelectField
 from algorithms.coins_algorithm import coins_algorithm
 
 class ProductForm(FlaskForm):
@@ -12,9 +12,9 @@ class ProductForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired(), 
                                                     NumberRange(min=1, message='The value must be greater than 0')], 
                                                     render_kw={'placeholder': '100'})
-    co2_production_product = FloatField('CO2 Production', validators=[DataRequired(), 
-                                                                      NumberRange(min=0.01, message='The value must be greater than 0.00')], 
-                                                                      render_kw={'placeholder': '100.0'})
+    co2_production_product = IntegerField('CO2 Production', validators=[DataRequired(), 
+                                                                      NumberRange(min=1, message='The value must be greater than 0')], 
+                                                                      render_kw={'placeholder': '100'})
 
 class UpdateProductForm(FlaskForm):
     name = StringField('Organization Name', validators=[DataRequired()])
@@ -73,7 +73,7 @@ def create_product():
         name = form.name.data
         type = form.type.data
         quantity = int(form.quantity.data)
-        co2_production_product = float(form.co2_production_product.data)
+        co2_production_product = int(form.co2_production_product.data)
 
         session_db = db_instance.get_session()
     

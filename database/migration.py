@@ -1,9 +1,6 @@
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Float, DateTime
-from sqlalchemy_utils import database_exists, drop_database, create_database
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import validates, relationship
-from sqlalchemy.exc import ProgrammingError
 from dotenv import load_dotenv
 import psycopg2
 import os
@@ -47,8 +44,8 @@ class Oracle(Base):
 class Type(Base):
     __tablename__ = 'type'
     id_type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), primary_key=True)
-    default_co2_value = Column(Float, nullable=False, unique=True)
-    standard = Column(Float, nullable=False)
+    default_co2_value = Column(Integer, nullable=False, unique=True)
+    standard = Column(Integer, nullable=False)
 
 class Organization(Base):
     __tablename__ = 'organization'
@@ -64,7 +61,7 @@ class Organization(Base):
     email = Column(String, nullable=False, unique=True)
     type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.id_type'), nullable=False)
     status = Column(Enum('active', 'inactive', name='status_enum'), nullable=False, default='inactive')
-    coin = Column(Float, nullable=False)
+    coin = Column(Integer, nullable=False, default=100)
     blockchain_address = Column(String, nullable=True)  # Nuovo campo aggiunto
     
 class Employer(Base):
@@ -88,7 +85,7 @@ class Product(Base):
     type = Column(Enum('raw material', 'end product', name='product_type_enum'), nullable=False)
     quantity = Column(Integer, nullable=False)
     id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
-    co2_production_product = Column(Float, nullable=False)
+    co2_production_product = Column(Integer, nullable=False)
 
 class ProductRequest(Base):
     __tablename__ = 'product_request'
@@ -108,7 +105,7 @@ class CoinRequest(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     id_requesting_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_providing_organization = Column(Integer, default=None)
-    coin = Column(Float, nullable=False)
+    coin = Column(Integer, nullable=False)
     status = Column(Enum('pending', 'approved', name='coin_request_status_enum'), nullable=False, default='pending')
     date_requested = Column(DateTime, nullable=False, default=datetime.now)
     date_responded = Column(DateTime)
@@ -118,7 +115,7 @@ class Delivery(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     id_product = Column(Integer, ForeignKey('product.id'), nullable=False)
     quantity = Column(Integer, nullable=False)
-    co2_emission = Column(Float, nullable=False)
+    co2_emission = Column(Integer, nullable=False)
     id_deliver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_receiver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_carrier_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)

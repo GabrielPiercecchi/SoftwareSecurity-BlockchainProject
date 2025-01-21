@@ -1,4 +1,3 @@
-from typing import NotRequired
 from flask import render_template, request, redirect, url_for, flash, session
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
