@@ -14,6 +14,7 @@ contract CoinContract {
         address organization;
         int256 amount;
         uint256 timestamp;
+        bytes32 txHash;
     }
 
     /// @notice Array to store all transactions.
@@ -32,17 +33,19 @@ contract CoinContract {
 
         if (amount < 0) {
             uint256 absAmount = uint256(-amount);
-            require(balances[organization] >= (absAmount +20), "Insufficient balance");
+            require(balances[organization] >= absAmount, "Insufficient balance");
             balances[organization] -= absAmount;
         } else {
             balances[organization] += uint256(amount);
         }
 
         // Memorizza la transazione
+        bytes32 txHash = keccak256(abi.encodePacked(block.number, organization, amount, block.timestamp));
         transactions.push(Transaction({
             organization: organization,
             amount: amount,
-            timestamp: block.timestamp
+            timestamp: block.timestamp,
+            txHash: txHash
         }));
 
         emit CoinsUpdated(organization, balances[organization]);
@@ -68,13 +71,49 @@ contract CoinContract {
         }
 
         // Memorizza la transazione
+        bytes32 txHash = keccak256(abi.encodePacked(block.number, organization, amount, block.timestamp));
         transactions.push(Transaction({
             organization: organization,
             amount: amount,
-            timestamp: block.timestamp
+            timestamp: block.timestamp,
+            txHash: txHash
         }));
 
         emit CoinsUpdated(organization, balances[organization]);
+    }
+
+    /// @notice Transfers coins from one organization to another.
+    /// @param from The address of the organization sending the coins.
+    /// @param to The address of the organization receiving the coins.
+    /// @param amount The amount of coins to transfer.
+    function transferCoins(address from, address to, uint256 amount) public {
+        require(from != address(0), "Invalid sender address");
+        require(to != address(0), "Invalid recipient address");
+        require(balances[from] >= amount, "Insufficient balance");
+
+        balances[from] -= amount;
+        balances[to] += amount;
+
+        // Memorizza la transazione per il mittente
+        bytes32 txHashFrom = keccak256(abi.encodePacked(block.number, from, -int256(amount), block.timestamp));
+        transactions.push(Transaction({
+            organization: from,
+            amount: -int256(amount),
+            timestamp: block.timestamp,
+            txHash: txHashFrom
+        }));
+
+        // Memorizza la transazione per il destinatario
+        bytes32 txHashTo = keccak256(abi.encodePacked(block.number, to, int256(amount), block.timestamp));
+        transactions.push(Transaction({
+            organization: to,
+            amount: int256(amount),
+            timestamp: block.timestamp,
+            txHash: txHashTo
+        }));
+
+        emit CoinsUpdated(from, balances[from]);
+        emit CoinsUpdated(to, balances[to]);
     }
 
     /// @notice Returns the coin balance of an organization.
@@ -87,7 +126,7 @@ contract CoinContract {
     /// @notice Returns the transactions of an organization.
     /// @param organization The address of the organization.
     /// @return Arrays of transaction details.
-    function getTransactions(address organization) public view returns (address[] memory, int256[] memory, uint256[] memory) {
+    function getTransactions(address organization) public view returns (address[] memory, int256[] memory, uint256[] memory, bytes32[] memory) {
         uint256 count = 0;
         for (uint256 i = 0; i < transactions.length; i++) {
             if (transactions[i].organization == organization) {
@@ -98,16 +137,18 @@ contract CoinContract {
         address[] memory orgs = new address[](count);
         int256[] memory amounts = new int256[](count);
         uint256[] memory timestamps = new uint256[](count);
+        bytes32[] memory txHashes = new bytes32[](count);
         uint256 index = 0;
         for (uint256 i = 0; i < transactions.length; i++) {
             if (transactions[i].organization == organization) {
                 orgs[index] = transactions[i].organization;
                 amounts[index] = transactions[i].amount;
                 timestamps[index] = transactions[i].timestamp;
+                txHashes[index] = transactions[i].txHash;
                 index++;
             }
         }
 
-        return (orgs, amounts, timestamps);
+        return (orgs, amounts, timestamps, txHashes);
     }
 }
