@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from database.database import DBIsConnected
 from database.migration import Organization, Employer, CoinRequest
 from algorithms.coins_algorithm import update_organization_coins_on_blockchain
+from middlewares.validation import LengthValidator
 
 class AcceptCoinRequestForm(FlaskForm):
     request_id = IntegerField('Request ID', validators=[DataRequired()])
@@ -13,8 +14,9 @@ class AcceptCoinRequestForm(FlaskForm):
 
 class CoinRequestForm(FlaskForm):
     coin = IntegerField('Coin', validators=[DataRequired(message='You must digit an Integer number'), 
-                                          NumberRange(min=1, message='The value must be greater than 0')], 
-                                          render_kw={'placeholder': '100.0'})
+        NumberRange(min=1, message='The value must be greater than 0'),
+        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
+        render_kw={'placeholder': '100'})
     submit = SubmitField('Submit')
 
 def view_coin_requests():

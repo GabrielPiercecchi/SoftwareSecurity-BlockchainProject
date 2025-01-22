@@ -4,12 +4,18 @@ from wtforms import SelectField, IntegerField
 from wtforms.validators import DataRequired, NumberRange
 from database.database import DBIsConnected
 from database.migration import Oracle, Organization, Employer
+from middlewares.validation import LengthValidator
+import os
+from algorithms.coins_algorithm import CoinsAlgorithm
+
+NONCE_FILE = os.getenv('NONCE_FILE')
 
 class CoinTransferForm(FlaskForm):
     target_organization = SelectField('Select Target Organization', validators=[DataRequired()])
     amount = IntegerField('Amount to Transfer', validators=[DataRequired(), 
-                                                          NumberRange(min=0.01, message='The value must be greater than 0')], 
-                                                          render_kw={'placeholder': '100'})
+        NumberRange(min=1, message='The value must be greater than 0'),
+        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
+        render_kw={'placeholder': '100'})
 
 def oracle_home():
     username = session.get('username')
@@ -39,10 +45,13 @@ def oracle_coin_transfer(organization_id):
         return redirect(url_for('login_route'))
     
     form = CoinTransferForm()
+
     db_instance = DBIsConnected.get_instance()
     session_db = db_instance.get_session()
+
     organization = session_db.query(Organization).filter_by(id=organization_id).first()
     organizations = session_db.query(Organization).filter(Organization.id !=organization_id).filter_by(status = 'active').all()
+
     form.target_organization.choices = [(org.id, org.name) for org in organizations]
     session_db.close()
 
@@ -55,18 +64,37 @@ def oracle_coin_transfer(organization_id):
         source_organization = session_db.query(Organization).filter_by(id=organization_id).first()
         target_organization = session_db.query(Organization).filter_by(id=target_organization_id).first()
 
-        if amount > source_organization.coin:
+        if amount > int(source_organization.coin):
             flash('Amount exceeds available coins.', 'too_much')
         elif source_organization.coin - amount < 20:
             flash('Insufficient coins for transfer. The organization must retain at least 20 coins.', 'insufficient_coins')
         else:
-            source_organization.coin -= amount
-            target_organization.coin += amount
-            session_db.commit()
-            flash('Coins transferred successfully!', 'success')
+            # Esegui la transazione sulla blockchain
+            manager = CoinsAlgorithm()
+            tx = manager.coin_contract.functions.transferCoins(
+                source_organization.blockchain_address,
+                target_organization.blockchain_address,
+                amount
+            ).build_transaction({
+                'chainId': manager.contract_interactions.chain_id,
+                'gas': 2000000,
+                'gasPrice': manager.contract_interactions.w3.eth.gas_price,
+                'nonce': manager.nonce,
+            })
+            signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
+            tx_hash = manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            receipt = manager.contract_interactions.w3.eth.wait_for_transaction_receipt(tx_hash)
+            if receipt.status == 1:
+                manager.increment_nonce()  # Incrementa il nonce
+                source_organization.coin -= amount
+                target_organization.coin += amount
+                session_db.commit()
+                flash('Coins transferred successfully!', 'success')
+            else:
+                manager.increment_nonce()  # Incrementa il nonce
+                flash('Failed to transfer coins on blockchain.', 'error')
             session_db.close()
             return redirect(url_for('oracle_view_organizations_route'))
-
         session_db.close()
         return redirect(url_for('oracle_coin_transfer_route', organization_id=organization_id))
 

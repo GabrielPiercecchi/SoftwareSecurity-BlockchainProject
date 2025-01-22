@@ -6,7 +6,7 @@ from database.migration import Organization, Employer
 import os
 from datetime import datetime
 
-NONCE_FILE = './algorithms/nonce.txt'
+NONCE_FILE = os.getenv('NONCE_FILE')
 
 class CoinsAlgorithm:
     def __init__(self):
@@ -314,17 +314,19 @@ def view_transactions():
     organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
 
     try:
-        orgs, amounts, timestamps = manager.coin_contract.functions.getTransactions(organization.blockchain_address).call()
+        orgs, amounts, timestamps, txHashes = manager.coin_contract.functions.getTransactions(organization.blockchain_address).call()
         transactions = []
         for i in range(len(orgs)):
             transactions.append({
                 'organization': orgs[i],
                 'amount': amounts[i],
-                'timestamp': timestamps[i]
+                'timestamp': timestamps[i],
+                'txHash': txHashes[i]
             })
+        session_db.close()
         return render_template('employer_view_transactions.html', transactions=transactions, organization=organization)
     except Exception as e:
         session_db.close()
-        flash('Error while getting transactions', 'error')
+        flash(f'Error while getting transactions: {e}', 'error')
         print(f'Error: {e}')
         return redirect(url_for('view_transactions_route'))   

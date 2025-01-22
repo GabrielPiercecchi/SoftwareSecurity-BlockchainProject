@@ -55,6 +55,9 @@ log_users.txt
 # nonce
 /algorithms/nonce.txt
 
+# compiled code
+/contract/compiled_code.json
+
 # Tips File
 # tips.txt
 

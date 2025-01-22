@@ -35,8 +35,8 @@ def create_database_if_not_exists():
 class Oracle(Base):
     __tablename__ = 'oracle'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String, nullable=False, unique=True)
-    password = Column(String, nullable=False)
+    username = Column(String(50), nullable=False, unique=True)
+    password = Column(String(162), nullable=False)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -50,28 +50,28 @@ class Type(Base):
 class Organization(Base):
     __tablename__ = 'organization'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    ragione_sociale = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    partita_iva = Column(String, nullable=False, unique=True)
-    address = Column(String, nullable=False)
-    city = Column(String, nullable=False)
-    cap = Column(String, nullable=False)
-    telephone = Column(String, nullable=False)
-    email = Column(String, nullable=False, unique=True)
+    name = Column(String(100), nullable=False)
+    ragione_sociale = Column(String(100), nullable=False)
+    description = Column(String(255), nullable=False)
+    partita_iva = Column(String(20), nullable=False, unique=True)
+    address = Column(String(255), nullable=False)
+    city = Column(String(100), nullable=False)
+    cap = Column(String(10), nullable=False)
+    telephone = Column(String(20), nullable=False)
+    email = Column(String(100), nullable=False, unique=True)
     type = Column(Enum('farmer', 'seller', 'producer', 'carrier', name='type_enum'), ForeignKey('type.id_type'), nullable=False)
     status = Column(Enum('active', 'inactive', name='status_enum'), nullable=False, default='inactive')
     coin = Column(Integer, nullable=False, default=100)
-    blockchain_address = Column(String, nullable=True)  # Nuovo campo aggiunto
+    blockchain_address = Column(String(42), nullable=True)  # Nuovo campo aggiunto
     
 class Employer(Base):
     __tablename__ = 'employer'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String, nullable=False, unique=True)
-    password = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    surname = Column(String, nullable=False)
-    email = Column(String, nullable=False, unique=True) 
+    username = Column(String(50), nullable=False, unique=True)
+    password = Column(String(162), nullable=False)
+    name = Column(String(50), nullable=False)
+    surname = Column(String(50), nullable=False)
+    email = Column(String(100), nullable=False, unique=True) 
     status = Column(Enum('active', 'inactive', name='status_enum'), nullable=False, default='inactive')
     id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
 
@@ -81,7 +81,7 @@ class Employer(Base):
 class Product(Base):
     __tablename__ = 'product'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(100), nullable=False)
     type = Column(Enum('raw material', 'end product', name='product_type_enum'), nullable=False)
     quantity = Column(Integer, nullable=False)
     id_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
