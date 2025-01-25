@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Product</title>
+    <title>CO2 Application</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="{{ url_for('static', filename='js/employer_update_products.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/employer_home.js') }}" defer></script>
     {% if session.logged_in %}
-    <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+        <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
         <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
     {% endif %} 
@@ -36,27 +37,26 @@
         </nav>
     </header>
     <main>
-        <div class="signup-container">
-            <form class="signup-form" id="update-product-form" method="post" action="{{ url_for('update_product_route', product_id=product.id) }}">
-                {{ form.hidden_tag() }} <!-- CSRF Token -->
-                <h2>Update {{ product.name | e }}</h2>
-                <div class="form-group">
-                    <label for="name">Product Name:</label>
-                    <input type="text" id="name" name="name" value="{{ product.name | e }}" required>
-                </div>
-                {% if form.type %}
-                <div class="form-group">
-                    <label for="type">Product Type:</label>
-                    <select name="type" id="type" required>
-                        {% for value, label in form.type.choices %}
-                            <option value="{{ value }}" {% if value == product.type %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% endif %}
-                <button type="submit" class="orange-button">Update Product</button>
-            </form>
-        </div>
+        <section class="section-bordered">
+            <h2>Transactions</h2>
+            {% if transactions %}
+                <ul class="section-bordered">
+                    <h3 class="blue-text">Transactions from {{ organization.name | e }}  with address {{ organization.blockchain_address | e }}</h3>
+                    {% for transaction in transactions %}
+                        <ul class="section-bordered">
+                            <h3>Transaction N° {{ loop.index }}</h3>
+                            <li>
+                                <p class="word-break">Transaction txHash: {{ transaction.txHash | e }}</p>
+                                <p>Amount: {{ transaction.amount | e }}</p>
+                                <p>Epoch Transaction Date: {{ transaction.timestamp | e }}</p>
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="red-text"><b>No transaction found</b></p>
+            {% endif %}
+        </section>
     </main>
 </body>
 </html>

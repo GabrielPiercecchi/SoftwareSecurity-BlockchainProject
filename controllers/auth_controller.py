@@ -11,10 +11,6 @@ from controllers.ethereum_controller import assign_addresses_to_organizations
 from algorithms.coins_algorithm import initialize_organization_coins  # Importa la funzione per inizializzare i coins delle organizzazioni
 from middlewares.validation import LengthValidator
 
-# Configura il logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 # Dizionario per tenere traccia dei tentativi di login falliti
 login_attempts = {}
 
@@ -160,12 +156,13 @@ def login():
                 or (employer and check_password_hash(employer.password, password))):
                 if ((oracle_user) or (employer.status == 'active')):
                     # Login riuscito
-                    logger.info('Valid username and password')
+                    print('Valid username and password')
                     session['logged_in'] = True
                     session['username'] = username
-                    
+
                     if employer:
                         session['user_type'] = 'employer'
+                        session['user_org_type'] = session_db.query(Organization).filter_by(id=employer.id_organization).first().type
                     else:
                         session['user_type'] = 'oracle'
                     # Resetta i tentativi di login falliti
@@ -187,7 +184,7 @@ def login():
                     login_attempts[username] = (1, time.time())
                 return render_template('login.html', form=form)
         except Exception as e:
-            logger.error(f'Error during login: {e}')
+            print(f'Error during login: {e}')
             flash('An error occurred during login. Please try again later.', 'error')
             return render_template('login.html', form=form)
         finally:
@@ -269,7 +266,7 @@ def signup():
             )
             session_db.add(new_org)
             session_db.commit()
-            logger.info(f'New organization created: {new_org}')
+            print(f'New organization created: {new_org}')
 
             # Assegna un indirizzo Ethereum alla nuova organizzazione
             assign_addresses_to_organizations(session_db)
@@ -289,13 +286,13 @@ def signup():
                     id_organization=new_org.id  # Associa l'impiegato all'organizzazione appena creata
                 )
                 session_db.add(new_emp)
-                logger.info(f'New employee created: {new_emp}')
+                print(f'New employee created: {new_emp}')
             
             session_db.commit()
-            logger.info('Signup process completed successfully.')
+            print('Signup process completed successfully.')
         except Exception as e:
             session_db.rollback()
-            logger.error(f'Error during signup: {e}')
+            print(f'Error during signup: {e}')
             flash('An error occurred during signup. Please try again later.', 'error')
         finally:
             session_db.close()
@@ -346,10 +343,10 @@ def add_employers_to_existing_org():
                 session_db.add(new_emp)
             
             session_db.commit()
-            logger.info('Employers added successfully!')
+            print('Employers added successfully!')
         except Exception as e:
             session_db.rollback()
-            logger.error(f'Error during adding employers: {str(e)}')
+            print(f'Error during adding employers: {str(e)}')
             flash('An error occurred while adding employers. Please try again later.', 'error')
         finally:
             session_db.close()

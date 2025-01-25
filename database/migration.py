@@ -121,6 +121,13 @@ class Delivery(Base):
     id_carrier_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     date_timestamp = Column(DateTime, nullable=False, default=datetime.now)
 
+class ProductOrigin(Base):
+    __tablename__ = 'product_origin'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    id_origin_product = Column(Integer, ForeignKey('product.id'), nullable=False)
+    id_end_product = Column(Integer, ForeignKey('product.id'), nullable=False)
+    date_timestamp = Column(DateTime, nullable=False, default=datetime.now)
+
 def init_db():
     create_database_if_not_exists()
     db_instance = DBIsConnected.get_instance()

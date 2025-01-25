@@ -73,6 +73,10 @@ def create_product():
 
     form = ProductForm()
 
+    if session.get('user_org_type') == 'producer':
+        form.type.choices = [('end product', 'End Product')]
+        form.type.default = 'end product'
+
     if request.method == 'POST' and form.validate_on_submit():
         name = form.name.data
         type = form.type.data
@@ -136,6 +140,10 @@ def update_product(product_id):
     session_db.close()
     
     form = UpdateProductForm()
+
+    if session.get('user_org_type') == 'producer':
+        form.type.choices = [('end product', 'End Product')]
+        form.type.default = 'end product'
     
     if request.method == 'GET':
         # Fetch the product from the database

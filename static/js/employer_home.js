@@ -48,4 +48,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    var viewCoinTransactionsButton = document.getElementById('view-transactions-button');
+    if (viewCoinTransactionsButton) {
+        viewCoinTransactionsButton.addEventListener('click', function() {
+            window.location.href = "/employer/view_transactions/";
+        });
+    }
+
 });
