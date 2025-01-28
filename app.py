@@ -74,11 +74,11 @@ def logout_route():
 def employer_home_route():
     return employer_home()
 
-@app.route('/employer_update_personal_data', methods=['GET', 'POST'])
+@app.route('/employer/employer_update_personal_data', methods=['GET', 'POST'])
 def employer_update_personal_data_route():
     return employer_update_personal_data()
 
-@app.route("/create_products", methods=['GET', 'POST'])
+@app.route("/employer/create_products", methods=['GET', 'POST'])
 def create_product_route():
     return create_product()
 
@@ -86,7 +86,7 @@ def create_product_route():
 def employer_view_products_route():
     return employer_view_products()
 
-@app.route("/update_product/<int:product_id>", methods=['GET', 'POST'])
+@app.route("/employer/update_product/<int:product_id>", methods=['GET', 'POST'])
 def update_product_route(product_id):
     return update_product(product_id)
 

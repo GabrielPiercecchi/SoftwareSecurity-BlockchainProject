@@ -106,4 +106,10 @@ TODO 18/01/2025
     1 - togliere login, concentrarsi sul modulo on-Chain
             a - OPPURE quando vi è una dichiarazione di CO2 e poi si calcolano i crediti
 
+
+TODO 29/01/2025
+
+    1 - Correggere bug
+    2 - Correggere Vulnerabilità (URL etc...)
+
             
