@@ -81,6 +81,7 @@ TODO 18/01/2025
     2 - Sistemare Sicurezza DB con limiti ai campi
     3 - Testing tutte le form con validazione e messaggistica
     4 - "Eventuale utilizzo dei middleware come gestione delle validazioni"
+    5 - Risolvere la scadenza dei cookie
 
     DOMANDE DA FARE AL PROFESSORE:
         1 - Effettivamente una volta collegato il sito alla blockchain cosa bisogna FARE
@@ -88,6 +89,21 @@ TODO 18/01/2025
         3 - Log: come li vuole il professore, i permessi per evitare modifiche, ETC..
         4 - Cosa manca nel dubbio
 
+    PRISM:
+    1 - P. Guarantee: "Authorized users who request access to the resource will eventually access it"
+            a - 
 
+    LINEE GUIDA VALUTAZIONE PROGETTO:
+    1 - Modellazione mediante Markov Chain di una unità e 
+        verificare una proprietà di Safety e una di Guarantee/Response utilizzando PRISM 
+    2 - Utilizzare linee guida OWASP e/o Saltzer & Schroeder e/o Sommerville (PARZIALE)
+    3 - Sintetizzare un monitor di runtime enforcement di una proprietà di Safety e una di Guarantee/Response
+    4 - Utilizzare uno dei seguenti standard di codifica per Solidity
+    5 - Utilizzare strumenti di analisi statica di Remix: Solidity Analyzer e Solhint
+
+
+    REVISIONE PROFESSORE:
+    1 - togliere login, concentrarsi sul modulo on-Chain
+            a - OPPURE quando vi è una dichiarazione di CO2 e poi si calcolano i crediti
 
             

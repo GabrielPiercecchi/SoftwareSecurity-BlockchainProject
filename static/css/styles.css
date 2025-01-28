@@ -194,6 +194,18 @@ main h1, main h2, main h3, main p {
     background-color: darkorange;
 }
 
+/* Gestisci l'overflow del testo */
+.text-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Gestisci la rottura delle parole lunghe */
+.word-break {
+    word-break: break-all;
+}
+
 /* Stili per il modulo di login */
 .login-container {
     display: flex;

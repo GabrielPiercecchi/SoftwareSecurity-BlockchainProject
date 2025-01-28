@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash
-from controllers.ethereum_controller import assign_addresses_to_organizations
 
 load_dotenv()
 
@@ -21,10 +20,10 @@ def seed_oracle(session: Session):
 def seed_types(session: Session):
     if not session.query(Type).first():
         types = [
-            Type(id_type='farmer', default_co2_value=1.0, standard=1.0),
-            Type(id_type='seller', default_co2_value=2.0, standard=2.0),
-            Type(id_type='producer', default_co2_value=3.0, standard=3.0),
-            Type(id_type='carrier', default_co2_value=4.0, standard=4.0),
+            Type(id_type='farmer', default_co2_value=1, standard=1),
+            Type(id_type='seller', default_co2_value=2, standard=2),
+            Type(id_type='producer', default_co2_value=3, standard=3),
+            Type(id_type='carrier', default_co2_value=4, standard=4),
         ]
         session.bulk_save_objects(types)
         session.commit()
@@ -32,10 +31,10 @@ def seed_types(session: Session):
 def seed_organizations(session: Session):
     if not session.query(Organization).first():
         organizations = [
-            Organization(name='Org1', ragione_sociale='RS1', description='Desc1', partita_iva='12345678901', address='Address1', city='City1', cap='00001', telephone='1234567890', email='org1@example.com', type='farmer', status= 'active', coin=100.0),
-            Organization(name='Org2', ragione_sociale='RS2', description='Desc2', partita_iva='12345678902', address='Address2', city='City2', cap='00002', telephone='1234567891', email='org2@example.com', type='seller', status= 'active', coin=100.0),
-            Organization(name='Org3', ragione_sociale='RS3', description='Desc3', partita_iva='12345678903', address='Address3', city='City3', cap='00003', telephone='1234567892', email='org3@example.com', type='carrier', status= 'active', coin=100.0),
-            Organization(name='Org4', ragione_sociale='RS4', description='Desc4', partita_iva='12345678904', address='Address4', city='City4', cap='00004', telephone='1234567893', email='org4@example.com', type='carrier', status= 'active', coin=100.0),
+            Organization(name='Org1', ragione_sociale='RS1', description='Desc1', partita_iva='12345678901', address='Address1', city='City1', cap='00001', telephone='1234567890', email='org1@example.com', type='farmer', status= 'active'),
+            Organization(name='Org2', ragione_sociale='RS2', description='Desc2', partita_iva='12345678902', address='Address2', city='City2', cap='00002', telephone='1234567891', email='org2@example.com', type='seller', status= 'active'),
+            Organization(name='Org3', ragione_sociale='RS3', description='Desc3', partita_iva='12345678903', address='Address3', city='City3', cap='00003', telephone='1234567892', email='org3@example.com', type='carrier', status= 'active'),
+            Organization(name='Org4', ragione_sociale='RS4', description='Desc4', partita_iva='12345678904', address='Address4', city='City4', cap='00004', telephone='1234567893', email='org4@example.com', type='producer', status= 'active'),
         ]
         session.bulk_save_objects(organizations)
         session.commit()
@@ -67,9 +66,9 @@ def seed_employers(session: Session):
 def seed_products(session: Session):
     if not session.query(Product).first():
         products = [
-            Product(name='Prod1', type='raw material', quantity=100, id_organization=1, co2_production_product=1.0),
-            Product(name='Prod2', type='end product', quantity=200, id_organization=2, co2_production_product=2.0),
-            Product(name='Prod3', type='raw material', quantity=100, id_organization=1, co2_production_product=100.0),
+            Product(name='Prod1', type='raw material', quantity=100, id_organization=1, co2_production_product=1),
+            Product(name='Prod2', type='end product', quantity=200, id_organization=2, co2_production_product=2),
+            Product(name='Prod3', type='raw material', quantity=100, id_organization=1, co2_production_product=100),
         ]
         session.bulk_save_objects(products)
         session.commit()
@@ -130,21 +129,21 @@ def seed_coin_requests(session: Session):
             CoinRequest(
                 id_requesting_organization=1,
                 id_providing_organization=2,
-                coin=100.0,
+                coin=100,
                 status='approved',
                 date_requested=datetime.now(),
                 date_responded=datetime.now()
             ),
             CoinRequest(
                 id_requesting_organization=2,
-                coin=150.0,
+                coin=150,
                 status='pending',
                 date_requested=datetime.now()
             ),
             CoinRequest(
                 id_requesting_organization=3,
                 id_providing_organization=1,
-                coin=200.0,
+                coin=200,
                 status='approved',
                 date_requested=datetime.now(),
                 date_responded=datetime.now()
@@ -157,8 +156,8 @@ def seed_coin_requests(session: Session):
 def seed_deliveries(session: Session):
     if not session.query(Delivery).first():
         deliveries = [
-            Delivery(id_product=1, quantity=50, co2_emission=5.0, id_deliver_organization=1, id_receiver_organization=2, id_carrier_organization=3, date_timestamp=datetime.now()),
-            Delivery(id_product=2, quantity=100, co2_emission=10.0, id_deliver_organization=2, id_receiver_organization=1, id_carrier_organization=3, date_timestamp=datetime.now()),
+            Delivery(id_product=1, quantity=50, co2_emission=5, id_deliver_organization=1, id_receiver_organization=2, id_carrier_organization=3, date_timestamp=datetime.now()),
+            Delivery(id_product=2, quantity=100, co2_emission=10, id_deliver_organization=2, id_receiver_organization=1, id_carrier_organization=3, date_timestamp=datetime.now()),
         ]
         session.bulk_save_objects(deliveries)
         session.commit()
@@ -171,8 +170,6 @@ def run_seeders():
         seed_oracle(session)
         seed_types(session)
         seed_organizations(session)
-        # Assegna indirizzi Ethereum alle organizzazioni
-        assign_addresses_to_organizations(session)
         seed_employers(session)
         seed_products(session)  # Seed products before deliveries
         seed_product_requests(session)

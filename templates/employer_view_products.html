@@ -39,9 +39,11 @@
     <main>
         <section class="section-bordered">
             <h2>All {{organization.name | e }} Products</h2>
-            <div>
-                <button type="button" class="button-green" id="create-product-button">Create Products</button>
-            </div>
+            {% if organization.type != 'seller' %}
+                <div>
+                    <button type="button" class="button-green" id="create-product-button">Create Products</button>
+                </div>
+            {% endif %}
             <div class="section-bordered">
                 <div class="products">
                     {% if products %}

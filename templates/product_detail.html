@@ -42,7 +42,7 @@
             <p>Made by: {{ organization.name | e }}</p>
             <p>Type: {{ product.type | e }}</p>
             <p>Quantity: {{ product.quantity | e }}</p>
-            <p>CO2 Production: {{product.co2_production_product}}</p>
+            <p>CO2 Production: {{ product.co2_production_product | e }}</p>
         </section>
         <section class="section-bordered">
             <h2>Deliveries</h2>
@@ -59,7 +59,7 @@
                                 <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
                                 <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
                                 {% if item.delivery.status == 'approved' %}
-                                    <p>Carrier Organization: {{ item.carrier_org_name }}</p>
+                                    <p>Carrier Organization: {{ item.carrier_org_name | e }}</p>
                                 {% endif %}
                             </li>
                         </ul> 
@@ -67,6 +67,40 @@
                 </ul>
             {% else %}
                 <p>No delivery found for this product</p>
+            {% endif %}
+        </section>
+        <section class="section-bordered">
+            <h2>Products Made With {{ product.name }}</h2>
+            {% if products_made_with %}
+                <ul class="section-bordered">
+                    {% for prod in products_made_with %}
+                        <li>
+                            <p>Product Name: {{ prod.product.name }}</p>
+                            <p>Type: {{ prod.product.type }}</p>
+                            <p>CO2 Production: {{ prod.product.co2_production_product }}</p>
+                            <p>Organization: {{ prod.organization_name }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No products made with {{ product.name }}</p>
+            {% endif %}
+        </section>
+        <section class="section-bordered">
+            <h2>Products Made For {{ product.name }}</h2>
+            {% if products_made_from %}
+                <ul class="section-bordered">
+                    {% for prod in products_made_from %}
+                        <li>
+                            <p>Product Name: {{ prod.product.name }}</p>
+                            <p>Type: {{ prod.product.type }}</p>
+                            <p>CO2 Production: {{ prod.product.co2_production_product }}</p>
+                            <p>Organization: {{ prod.organization_name }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No products made from {{ product.name }}</p>
             {% endif %}
         </section>
     </main>

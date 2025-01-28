@@ -175,6 +175,17 @@
                                 <div class="form-group">
                                     <label for="emp_password_0">Password:</label>
                                     {{ emp_form.emp_password }}
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                                {% if category == 'error_hash' %}
+                                                    <div class="invalid-tooltip" style="display: block;">
+                                                        {{ message }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
                                 </div>
                                 <div class="form-group">
                                     <label for="emp_confirm_password_0" >Confirm Password:</label>

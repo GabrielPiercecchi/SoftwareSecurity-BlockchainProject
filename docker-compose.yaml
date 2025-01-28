@@ -563,10 +563,10 @@ services:
     volumes:
       - .:/app
     depends_on:
-      rpcnode:
-        condition: service_healthy
       postgres:
         condition: service_started
+      rpcnode:
+        condition: service_healthy
     networks:
       quorum-dev-quickstart:
     #depends_on:

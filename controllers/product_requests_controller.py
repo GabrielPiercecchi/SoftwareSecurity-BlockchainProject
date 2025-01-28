@@ -1,25 +1,28 @@
-from flask import render_template, session, redirect, url_for, flash, request, jsonify
+from flask import render_template, session, redirect, url_for, flash, request
 from datetime import datetime
-from wtforms import StringField, RadioField, TextAreaField, IntegerField, SubmitField, SelectField, FloatField
-from wtforms.validators import DataRequired, Email, NumberRange
+from wtforms import IntegerField, SubmitField
+from wtforms.validators import DataRequired, NumberRange
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
 from database.migration import Product, Organization, Employer, ProductRequest, Delivery, Type
 from algorithms.coins_algorithm import coins_algorithm
+from middlewares.validation import LengthValidator
 
 class CreateProductRequestForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired(), 
-                                                    NumberRange(min=1, message='The value must be greater than 0')],
-                                                    render_kw={'placeholder': '100'})
+        NumberRange(min=1, message='The value must be greater than 0'),
+        LengthValidator(max_length=10, message='The value must be less than 10 digits')],
+        render_kw={'placeholder': '100'})
 
 class DenyProductRequestForm(FlaskForm):
     rejectedButton = SubmitField('Reject Request')
 
 class CarrierAcceptRequestAndCreateDEliveryForm(FlaskForm):
     request_id = IntegerField(validators=[DataRequired()])
-    co2_emission = FloatField('CO2 Emission', validators=[DataRequired(),
-                                                          NumberRange(min=0.01, message='The value must be greater than 0.00')], 
-                                                          render_kw={'placeholder': '100.0'})
+    co2_emission = IntegerField('CO2 Emission', validators=[DataRequired(),
+                        NumberRange(min=1, message='The value must be greater than 0'),
+                        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
+                        render_kw={'placeholder': '100'})
     acceptButton = SubmitField('Accept Request')
 
 def menage_product_requests():
@@ -296,7 +299,7 @@ def carrier_accept_and_create_delivery():
 
     if request.method == 'POST' and form.validate_on_submit():
         request_id = form.request_id.data
-        co2_emission = float(form.co2_emission.data)
+        co2_emission = int(form.co2_emission.data)
         
         try:
             product_request = session_db.query(ProductRequest).filter_by(id=request_id).first()

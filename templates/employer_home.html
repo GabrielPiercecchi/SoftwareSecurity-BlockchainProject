@@ -39,8 +39,8 @@
     <main>
         <div class="description">
             <h1>Welcome {{ employer.username }}</h1>
-            <h3>Here you can manage your organization data and products.</h3>
-            <p><b><i>Your Organization {{ organization.name }} earned {{ organization.coin }} coins until now</i></b></p>
+            <h3>Here you can manage your {{ organization.type | e }} organization data</h3>
+            <p><b><i>Your Organization {{ organization.name | e }} earned {{ organization.coin | e }} coins until now</i></b></p>
         </div>
         <div class="signup-container">
             <div class="signup-form">
@@ -50,12 +50,15 @@
                     Manage my Organization Product Requests</button>
                     <button type="button" class="button-green" id="carrier-view-deliveries-button">View my Organization Deliveries</button>
                 {% else %}
+                {% if organization.type != 'seller' %}
                     <button type="button" class="button-green" id="view-products-button">Menage my Organization Products</button>
+                {% endif %}
                     <button type="button" class="button-green" id="manage-product-requests-button">
                         Manage my Organization Product Requests</button>
                     <button type="button" class="button-green" id="view-deliveries-button">View my Organization Deliveries</button>
                 {% endif %}
                 <button type="button" class="button-green" id="view-coin-requests-button">View Coin Requests</button>
+                <button type="button" class="button-green" id="view-transactions-button">View Transactions</button>
             </div>
         </div>
     </main>

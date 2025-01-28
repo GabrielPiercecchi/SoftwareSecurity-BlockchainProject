@@ -1,20 +1,22 @@
 from flask import render_template, session, redirect, url_for, flash, request, jsonify
 from datetime import datetime
-from wtforms import StringField, RadioField, TextAreaField, IntegerField, SubmitField, SelectField, FloatField
-from wtforms.validators import DataRequired, Email, NumberRange
+from wtforms import IntegerField, SubmitField
+from wtforms.validators import DataRequired, NumberRange
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
-from database.migration import Product, Organization, Employer, ProductRequest, Delivery, Type, CoinRequest
-from algorithms.coins_algorithm import coins_algorithm
+from database.migration import Organization, Employer, CoinRequest
+from algorithms.coins_algorithm import update_organization_coins_on_blockchain
+from middlewares.validation import LengthValidator
 
 class AcceptCoinRequestForm(FlaskForm):
     request_id = IntegerField('Request ID', validators=[DataRequired()])
     submit = SubmitField('Accept')
 
 class CoinRequestForm(FlaskForm):
-    coin = FloatField('Coin', validators=[DataRequired(message='You must digit a float number'), 
-                                          NumberRange(min=0.01, message='The value must be greater than 0')], 
-                                          render_kw={'placeholder': '100.0'})
+    coin = IntegerField('Coin', validators=[DataRequired(message='You must digit an Integer number'), 
+        NumberRange(min=1, message='The value must be greater than 0'),
+        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
+        render_kw={'placeholder': '100'})
     submit = SubmitField('Submit')
 
 def view_coin_requests():
@@ -142,22 +144,13 @@ def accept_coin_request():
         try:
             coin_request = session_db.query(CoinRequest).filter_by(id=request_id).first()
 
-            if float(coin_request.coin) > float(organization.coin):
-                flash('You do not have enough coins to accept this request', 'error')
-                session_db.close()
-                return redirect(url_for('view_coin_requests_route'))
-            elif float(organization.coin) - float(coin_request.coin) < 20:
-                flash('You must retain at least 20 coins', 'error')
+            # Aggiorna i coin delle organizzazioni sulla blockchain
+            if not update_organization_coins_on_blockchain(organization, organization_requesting, coin_request, session_db):
+                flash('Not enough Coins', 'error')
                 session_db.close()
                 return redirect(url_for('view_coin_requests_route'))
             else:
-                coin_request.status = 'approved'
-                coin_request.id_providing_organization = organization.id
-                organization.coin = float(organization.coin) - float(coin_request.coin)
-                organization_requesting.coin = float(organization_requesting.coin) + float(coin_request.coin)
-                coin_request.date_responded = datetime.now()
-                session_db.commit()
-                session_db.close()
+                flash('Coin request accepted', 'success')
                 return redirect(url_for('view_coin_requests_route'))
         except Exception as e:
             print(e)
