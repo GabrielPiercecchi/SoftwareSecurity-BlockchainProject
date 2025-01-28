@@ -136,7 +136,7 @@ def create_product():
 
         if session.get('user_org_type') == 'producer' and not co2_origin_product_list:
             flash('At least one origin product must be selected.', 'error')
-            return render_template('create_products.html', form=form, organization=organization)
+            return render_template('employer_create_products.html', form=form, organization=organization)
 
         session_db = db_instance.get_session()
     
@@ -203,7 +203,7 @@ def create_product():
             
         return redirect(url_for('employer_home_route'))
     
-    return render_template('create_products.html', form=form, organization=organization)
+    return render_template('employer_create_products.html', form=form, organization=organization)
 
 def employer_view_products():
     username = session.get('username')
