@@ -100,8 +100,7 @@ def create_product():
     db_instance = DBIsConnected.get_instance()
     session_db = db_instance.get_session()
     employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).get(employer.id_organization)
-    session_db.close()
+    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
 
     form = ProductForm()
 
@@ -110,7 +109,6 @@ def create_product():
         form.type.default = 'end product'
 
         # Popola le scelte per il campo co2_origin_product_list
-        session_db = db_instance.get_session()
         deliveries = session_db.query(Delivery).filter_by(id_receiver_organization=organization.id, used='no').all()
 
         # Ottieni tutti i prodotti e le organizzazioni in una sola query
