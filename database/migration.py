@@ -119,6 +119,7 @@ class Delivery(Base):
     id_deliver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_receiver_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
     id_carrier_organization = Column(Integer, ForeignKey('organization.id'), nullable=False)
+    used = Column(Enum('yes', 'no', name='used_enum'), nullable=False, default='no')
     date_timestamp = Column(DateTime, nullable=False, default=datetime.now)
 
 class ProductOrigin(Base):

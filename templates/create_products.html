@@ -97,6 +97,23 @@
                                 {% endfor %}
                             {% endif %}
                             {% endwith %}
+                            {% if session.get('user_org_type') == 'producer' %}
+                            <div class="form-group">
+                                <label for="co2_origin_product_list">CO2 Origin Products:</label>
+                                {{ form.co2_origin_product_list }}
+                            </div>
+                            {% endif %}
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if category == 'error_co2' %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ message }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% endwith %}
                         </div>
                     </div>
                     <div>

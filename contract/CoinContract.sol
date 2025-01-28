@@ -17,13 +17,28 @@ contract CoinContract {
         bytes32 txHash;
     }
 
+    /// @notice Struct to store product origin transaction details.
+    struct ProductOriginTransaction {
+        uint256 originProduct;
+        uint256 endProduct;
+        uint256 timestamp;
+    }
+
     /// @notice Array to store all transactions.
     Transaction[] public transactions;
+
+    /// @notice Array to store all product origin transactions.
+    ProductOriginTransaction[] public productOriginTransactions;
 
     /// @notice Event emitted when the coin balance of an organization is updated.
     /// @param organization The address of the organization.
     /// @param newBalance The new balance of the organization.
     event CoinsUpdated(address indexed organization, uint256 newBalance);
+
+    /// @notice Event emitted when a product origin is registered.
+    /// @param originProduct The ID of the origin product.
+    /// @param endProduct The ID of the end product.
+    event ProductOriginRegistered(uint256 indexed originProduct, uint256 indexed endProduct);
 
     /// @notice Updates the coin balance of an organization.
     /// @param organization The address of the organization.
@@ -116,6 +131,24 @@ contract CoinContract {
         emit CoinsUpdated(to, balances[to]);
     }
 
+    /// @notice Registers a product origin.
+    /// @param originProduct The ID of the origin product.
+    /// @param endProduct The ID of the end product.
+    function registerProductOrigin(uint256 originProduct, uint256 endProduct) public {
+        require(originProduct != 0, "Invalid origin product ID");
+        require(endProduct != 0, "Invalid end product ID");
+
+        // Memorizza la transazione di origine del prodotto
+        productOriginTransactions.push(ProductOriginTransaction({
+            originProduct: originProduct,
+            endProduct: endProduct,
+            timestamp: block.timestamp
+        }));
+
+        // Emit the event
+        emit ProductOriginRegistered(originProduct, endProduct);
+    }
+
     /// @notice Returns the coin balance of an organization.
     /// @param organization The address of the organization.
     /// @return The balance of the organization.
@@ -150,5 +183,23 @@ contract CoinContract {
         }
 
         return (orgs, amounts, timestamps, txHashes);
+    }
+
+    /// @notice Returns the product origin transactions.
+    /// @return Arrays of product origin transaction details.
+    function getProductOriginTransactions() public view returns (uint256[] memory, uint256[] memory, uint256[] memory) {
+        uint256 count = productOriginTransactions.length;
+
+        uint256[] memory originProducts = new uint256[](count);
+        uint256[] memory endProducts = new uint256[](count);
+        uint256[] memory timestamps = new uint256[](count);
+
+        for (uint256 i = 0; i < count; i++) {
+            originProducts[i] = productOriginTransactions[i].originProduct;
+            endProducts[i] = productOriginTransactions[i].endProduct;
+            timestamps[i] = productOriginTransactions[i].timestamp;
+        }
+
+        return (originProducts, endProducts, timestamps);
     }
 }

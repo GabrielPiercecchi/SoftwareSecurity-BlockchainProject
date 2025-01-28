@@ -1,11 +1,12 @@
 from flask import flash, render_template, request, redirect, url_for, session
 from flask_wtf import FlaskForm
 from database.database import DBIsConnected
-from database.migration import Employer, Product, Delivery, Organization, Type
+from database.migration import Employer, Product, Delivery, Organization, Type, ProductOrigin
 from wtforms.validators import DataRequired, NumberRange
-from wtforms import StringField, IntegerField, SelectField
+from wtforms import StringField, IntegerField, SelectField, SelectMultipleField
 from algorithms.coins_algorithm import coins_algorithm
 from middlewares.validation import LengthValidator
+from algorithms.coins_algorithm import CoinsAlgorithm
 
 class ProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
@@ -18,6 +19,7 @@ class ProductForm(FlaskForm):
         NumberRange(min=1, message='The value must be greater than 0'),
         LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
         render_kw={'placeholder': '100'})
+    co2_origin_product_list = SelectMultipleField('CO2 Origin Products', choices=[])
 
 class UpdateProductForm(FlaskForm):
     name = StringField('Organization Name', validators=[DataRequired()])
@@ -42,9 +44,39 @@ def product_detail(id):
             'receive_org_name': receive_org.name,
             'carrier_org_name': carrier_org.name
         })
+
+    # Ottieni le transazioni di origine del prodotto dalla blockchain
+    manager = CoinsAlgorithm()
+    origin_products, end_products, timestamps = manager.coin_contract.functions.getProductOriginTransactions().call()
+    product_origin_transactions = []
+    products_made_with = []
+    products_made_from = []
+    for i in range(len(origin_products)):
+        origin_product = session.query(Product).get(origin_products[i])
+        end_product = session.query(Product).get(end_products[i])
+        origin_product_org = session.query(Organization).get(origin_product.id_organization)
+        end_product_org = session.query(Organization).get(end_product.id_organization)
+        if origin_products[i] == id:
+            products_made_with.append({
+                'product': end_product,
+                'organization_name': end_product_org.name
+            })
+        if end_products[i] == id:
+            products_made_from.append({
+                'product': origin_product,
+                'organization_name': origin_product_org.name
+            })
+        product_origin_transactions.append({
+            'origin_product': origin_product.name,
+            'end_product': end_product.name,
+            'timestamp': timestamps[i]
+        })
     
     session.close()
-    return render_template("product_detail.html", product=product, deliveries=deliveries_with_orgs, organization=organization)
+    return render_template("product_detail.html", product=product, 
+        deliveries=deliveries_with_orgs, organization=organization, 
+        product_origin_transactions=product_origin_transactions, products_made_with=products_made_with, 
+        products_made_from=products_made_from)
 
 def get_all_products():
     db_instance = DBIsConnected.get_instance()
@@ -77,11 +109,36 @@ def create_product():
         form.type.choices = [('end product', 'End Product')]
         form.type.default = 'end product'
 
+        # Popola le scelte per il campo co2_origin_product_list
+        session_db = db_instance.get_session()
+        deliveries = session_db.query(Delivery).filter_by(id_receiver_organization=organization.id, used='no').all()
+
+        # Ottieni tutti i prodotti e le organizzazioni in una sola query
+        product_ids = [delivery.id_product for delivery in deliveries]
+        products = session_db.query(Product).filter(Product.id.in_(product_ids)).all()
+        products_dict = {product.id: product.name for product in products}
+
+        organization_ids = [delivery.id_deliver_organization for delivery in deliveries]
+        organizations = session_db.query(Organization).filter(Organization.id.in_(organization_ids)).all()
+        organizations_dict = {org.id: org.name for org in organizations}
+
+        # Popola le scelte per il campo co2_origin_product_list
+        form.co2_origin_product_list.choices = [
+            (str(delivery.id_product), f"{products_dict[delivery.id_product]} ({organizations_dict[delivery.id_deliver_organization]})")
+            for delivery in deliveries
+        ]
+        session_db.close()
+
     if request.method == 'POST' and form.validate_on_submit():
         name = form.name.data
         type = form.type.data
         quantity = int(form.quantity.data)
         co2_production_product = int(form.co2_production_product.data)
+        co2_origin_product_list = form.co2_origin_product_list.data
+
+        if session.get('user_org_type') == 'producer' and not co2_origin_product_list:
+            flash('At least one origin product must be selected.', 'error')
+            return render_template('create_products.html', form=form, organization=organization)
 
         session_db = db_instance.get_session()
     
@@ -102,6 +159,41 @@ def create_product():
             co2_production_product=co2_production_product
             )    
             session_db.add(new_prod)
+            session_db.commit()
+
+            # Aggiorna il campo used a 'yes' e popola la tabella ProductOrigin
+            manager = CoinsAlgorithm()
+            for origin_product_id in co2_origin_product_list:
+                delivery = session_db.query(Delivery).filter_by(id_product=origin_product_id, id_receiver_organization=organization.id).first()
+                if delivery:
+                    delivery.used = 'yes'
+                    product_origin = ProductOrigin(
+                        id_origin_product=origin_product_id,
+                        id_end_product=new_prod.id
+                    )
+                    session_db.add(product_origin)
+
+                    # Registra l'aggiornamento sulla blockchain
+                    tx = manager.coin_contract.functions.registerProductOrigin(
+                        int(origin_product_id),
+                        int(new_prod.id)
+                    ).build_transaction({
+                        'chainId': manager.contract_interactions.chain_id,
+                        'gas': 2000000,
+                        'gasPrice': manager.contract_interactions.w3.eth.gas_price,
+                        'nonce': manager.nonce,
+                    })
+                    signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
+                    tx_hash = manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+                    receipt = manager.contract_interactions.w3.eth.wait_for_transaction_receipt(tx_hash)
+                    if receipt.status == 1:
+                        manager.increment_nonce()  # Incrementa il nonce
+                    else:
+                        session_db.rollback()
+                        manager.increment_nonce()  # Incrementa il nonce
+                        flash('Failed to register product origin on blockchain.', 'error')
+                        return redirect(url_for('create_product_route'))
+
             session_db.commit()
             session_db.close()
             print('Product added successfully!')
