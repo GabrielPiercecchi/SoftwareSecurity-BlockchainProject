@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permesso Negato</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+    {% if session.logged_in %}
+        <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
+    {% else %}
+        <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
+    {% endif %} 
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>CO2 Application</h1>
+            <img src="{{ url_for('static', filename='co2.gif') }}" alt="CO2 GIF">
+        </div>
+        <nav class="header-right">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/organizations">Organizations</a></li>
+                <li><a href="/products">Products</a></li>
+                {% if session.logged_in %}
+                    {% if session.user_type == 'employer' %}
+                        <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employee Home</a></li>
+                    {% elif session.user_type == 'oracle' %}
+                        <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
+                    {% endif %}
+                    <li><a href="/logout" class="orange-button">Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="orange-button">Login</a></li>
+                    <li><a href="/signup" class="orange-button">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="description">
+            <h1>Permesso Negato</h1>
+            <p>Non hai i permessi necessari per accedere a questa pagina.</p>
+            <p>Per favore, contatta l'amministratore se ritieni che questo sia un errore.</p>
+        </div>
+    </main>
+</body>
+</html>

@@ -119,11 +119,17 @@ def create_product_requests(product_id):
     form = CreateProductRequestForm()
 
     if request.method == 'GET':
-        product = session_db.query(Product).get(product_id)
+        product = session_db.query(Product).filter_by(id=product_id).first()
+
         if not product:
             session_db.close()
             flash('Product not found.', 'danger')
-            return redirect(url_for('view_other_products'))
+            return redirect(url_for('view_other_products_route'))
+        
+        if product.id_organization == session_db.query(Employer).filter_by(username=username).first().id_organization:
+            session_db.close()
+            flash('Unauthorized access.', 'error')
+            return redirect(url_for('permission_denied_route'))
 
         org = session_db.query(Organization).get(product.id_organization)
         product_with_org = {

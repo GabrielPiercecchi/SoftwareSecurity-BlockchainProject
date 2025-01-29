@@ -28,16 +28,22 @@ class UpdateProductForm(FlaskForm):
 
 def product_detail(id):
     db_instance = DBIsConnected.get_instance()
-    session = db_instance.get_session()
-    product = session.query(Product).get(id)
-    deliveries = session.query(Delivery).filter_by(id_product=id).all()
-    organization = session.query(Organization).get(product.id_organization)
+    session_db = db_instance.get_session()
+    product = session_db.query(Product).get(id)
+
+    if not product:
+        session_db.close()
+        flash('Product not found.', 'danger')
+        return redirect(url_for('products_route'))
+
+    deliveries = session_db.query(Delivery).filter_by(id_product=id).all()
+    organization = session_db.query(Organization).get(product.id_organization)
     
     deliveries_with_orgs = []
     for delivery in deliveries:
-        deliver_org = session.query(Organization).get(delivery.id_deliver_organization)
-        receive_org = session.query(Organization).get(delivery.id_receiver_organization)
-        carrier_org = session.query(Organization).get(delivery.id_carrier_organization)
+        deliver_org = session_db.query(Organization).get(delivery.id_deliver_organization)
+        receive_org = session_db.query(Organization).get(delivery.id_receiver_organization)
+        carrier_org = session_db.query(Organization).get(delivery.id_carrier_organization)
         deliveries_with_orgs.append({
             'delivery': delivery,
             'deliver_org_name': deliver_org.name,
@@ -52,10 +58,10 @@ def product_detail(id):
     products_made_with = []
     products_made_from = []
     for i in range(len(origin_products)):
-        origin_product = session.query(Product).get(origin_products[i])
-        end_product = session.query(Product).get(end_products[i])
-        origin_product_org = session.query(Organization).get(origin_product.id_organization)
-        end_product_org = session.query(Organization).get(end_product.id_organization)
+        origin_product = session_db.query(Product).get(origin_products[i])
+        end_product = session_db.query(Product).get(end_products[i])
+        origin_product_org = session_db.query(Organization).get(origin_product.id_organization)
+        end_product_org = session_db.query(Organization).get(end_product.id_organization)
         if origin_products[i] == id:
             products_made_with.append({
                 'product': end_product,
@@ -72,7 +78,7 @@ def product_detail(id):
             'timestamp': timestamps[i]
         })
     
-    session.close()
+    session_db.close()
     return render_template("product_detail.html", product=product, 
         deliveries=deliveries_with_orgs, organization=organization, 
         product_origin_transactions=product_origin_transactions, products_made_with=products_made_with, 
@@ -80,16 +86,16 @@ def product_detail(id):
 
 def get_all_products():
     db_instance = DBIsConnected.get_instance()
-    session = db_instance.get_session()
-    products = session.query(Product).all()
+    session_db = db_instance.get_session()
+    products = session_db.query(Product).all()
     products_with_org = []
     for product in products:
-        organization = session.query(Organization).get(product.id_organization)
+        organization = session_db.query(Organization).get(product.id_organization)
         products_with_org.append({
             'product': product,
             'organization_name': organization.name
         })
-    session.close()
+    session_db.close()
     return render_template("products.html", products=products_with_org)
 
 def create_product():
@@ -228,6 +234,14 @@ def update_product(product_id):
     session_db = db_instance.get_session()
     product = session_db.query(Product).filter_by(id=product_id).first()
     session_db.close()
+
+    if not product:
+        flash('Product not found.', 'error')
+        return redirect(url_for('employer_view_products_route'))
+
+    if product.id_organization != session.get('user_org_id'):
+        flash('Unauthorized access.', 'error')
+        return redirect(url_for('permission_denied_route'))
     
     form = UpdateProductForm()
 

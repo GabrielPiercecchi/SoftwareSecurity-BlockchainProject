@@ -10,7 +10,7 @@ from controllers.logging_controller import setup_logging
 from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
 from controllers.products_controller import product_detail, get_all_products, employer_view_products, update_product
-from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
+from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org, permission_denied
 from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
@@ -69,6 +69,10 @@ def add_employers_route():
 @app.route("/logout")
 def logout_route():
     return logout()
+
+@app.route("/permission_denied")
+def permission_denied_route():
+    return permission_denied()
 
 @app.route("/employer/")
 def employer_home_route():

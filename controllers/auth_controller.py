@@ -162,6 +162,7 @@ def login():
 
                     if employer:
                         session['user_type'] = 'employer'
+                        session['user_org_id'] = employer.id_organization
                         session['user_org_type'] = session_db.query(Organization).filter_by(id=employer.id_organization).first().type
                     else:
                         session['user_type'] = 'oracle'
@@ -354,3 +355,6 @@ def add_employers_to_existing_org():
         return redirect(url_for('home_route'))
 
     return render_template('add_employers.html', form=form, organizations=organizations)
+
+def permission_denied():
+    return render_template('permission_denied.html')

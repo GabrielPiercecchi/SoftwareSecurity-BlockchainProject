@@ -128,6 +128,10 @@ def manage_organization_registration(organization_id):
     return render_template('oracle_manage_organization_registration.html', organization=organization, employers=employers)
 
 def approve_organization(organization_id):
+    username = session.get('username')
+    if not username or session.get('user_type') != 'oracle':
+        return redirect(url_for('login_route'))
+
     if request.method == 'POST':
         db_instance = DBIsConnected.get_instance()
         session_db = db_instance.get_session()
@@ -148,6 +152,10 @@ def approve_organization(organization_id):
         return jsonify({'message': message, 'redirect_url': url_for('view_organization_inactive_route')})
     
 def reject_organization(organization_id):
+    username = session.get('username')
+    if not username or session.get('user_type') != 'oracle':
+        return redirect(url_for('login_route'))
+    
     if request.method == 'POST':
         db_instance = DBIsConnected.get_instance()
         session_db = db_instance.get_session()
@@ -224,6 +232,10 @@ def manage_employer_registration(employer_id):
     return render_template('oracle_manage_employer_registration.html', employer=employer_info)
 
 def approve_employer(employer_id):
+    username = session.get('username')
+    if not username or session.get('user_type') != 'oracle':
+        return redirect(url_for('login_route'))
+    
     if request.method == 'POST':
         db_instance = DBIsConnected.get_instance()
         session_db = db_instance.get_session()
@@ -242,6 +254,10 @@ def approve_employer(employer_id):
         return jsonify({'message': message, 'redirect_url': url_for('view_employer_inactive_route')})
 
 def reject_employer(employer_id):
+    username = session.get('username')
+    if not username or session.get('user_type') != 'oracle':
+        return redirect(url_for('login_route'))
+    
     if request.method == 'POST':
         db_instance = DBIsConnected.get_instance()
         session_db = db_instance.get_session()
