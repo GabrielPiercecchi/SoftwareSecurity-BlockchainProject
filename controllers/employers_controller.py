@@ -3,9 +3,9 @@ from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import DataRequired, Email, EqualTo
 from werkzeug.security import generate_password_hash
-from database.database import DBIsConnected
-from database.migration import Employer, Organization
+from database.migration import Employer
 from middlewares.validation import LengthValidator
+from utilities.utilities import get_db_session, get_employer_by_username, get_organization_by_employer
 
 class UpdateEmployerForm(FlaskForm):
     name = StringField('Name', validators=[
@@ -38,35 +38,27 @@ class UpdateEmployerForm(FlaskForm):
 
 def employer_home():
     username = session.get('username')
-    if not username:
+    if not username or not session.get('user_type') == 'employer':
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    session_db = get_db_session()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
     session_db.close()
     return render_template('employer_home.html', employer=employer, organization=organization)
 
 
-
 def employer_update_personal_data():
     username = session.get('username')
-    if not username:
+    if not username or not session.get('user_type') == 'employer':
         return redirect(url_for('login_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    session_db.close()
-
-
+    session_db = get_db_session()
+    employer = get_employer_by_username(session_db, username)
     form = UpdateEmployerForm()
-    
-    if request.method == 'GET':
 
+    if request.method == 'GET':
         if not employer:
-            session_db.close()
             flash('Employer not found.', 'error')
             return redirect(url_for('employer_home_route'))
         
@@ -81,39 +73,32 @@ def employer_update_personal_data():
         return render_template('employer_update_personal_data.html', form=form, employer=employer)   
     
     if request.method == 'POST' and form.validate_on_submit():
-        employer = session_db.query(Employer).filter_by(username=username).first()
         other_employers = session_db.query(Employer).filter(Employer.id != employer.id).all()
 
-        if any(form.username.data == e.username for e in other_employers):
+        if any(form.username.data.lower() == e.username for e in other_employers):
             flash('Username already in use', 'wrong_username')
-            session_db.close()
             return render_template('employer_update_personal_data.html', form=form, employer=employer)
 
-        if  any(form.email.data == e.email for e in other_employers):
+        if any(form.email.data.lower() == e.email for e in other_employers):
             flash('Email already in use', 'wrong_email')
-            session_db.close()
             return render_template('employer_update_personal_data.html', form=form, employer=employer)
-
 
         if employer:
             employer.name = form.name.data
             employer.surname = form.surname.data
-            employer.email = form.email.data
-            employer.username = form.username.data
+            employer.email = form.email.data.lower()
+            employer.username = form.username.data.lower()
 
             if form.password.data:
                 employer.password = generate_password_hash(form.password.data)
 
-
             session_db.commit()
             session['username'] = employer.username  # Aggiorna l'username nella sessione
-            session_db.close()
-            print('Data updated successfully!', 'success')
+            flash('Data updated successfully!', 'success')
             return redirect(url_for('employer_home_route'))
     
         else:
-            session_db.close()
-            print('Failed to update personal data.', 'error')
+            flash('Failed to update personal data.', 'error')
             return redirect(url_for('employer_home_route'))
     
     return render_template('employer_update_personal_data.html', form=form, employer=employer)

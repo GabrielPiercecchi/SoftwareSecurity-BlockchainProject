@@ -25,12 +25,13 @@ load_dotenv()
 app = Flask(__name__)
 # Configura la chiave segreta per la sicurezza delle sessioni e dei token CSRF
 app.secret_key = os.getenv('SECRET_KEY')  # Carica la chiave segreta dall'ambiente
-# Abilita la protezione CSRF
-csrf = CSRFProtect(app)
 # Carica la configurazione dal file config.py
 app.config.from_object(Config)
+# Abilita la protezione CSRF
+csrf = CSRFProtect(app)
+csrf.init_app(app)
 # Configura Talisman per la sicurezza
-Talisman(app)
+talisman = Talisman(app, content_security_policy=None)
 # Configura il logging
 setup_logging(app)
 

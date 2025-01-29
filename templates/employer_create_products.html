@@ -37,7 +37,7 @@
     </header>
     <main>
         <div class="signup-container">
-            <form class="signup-form" method="post" action="/create_products">
+            <form class="signup-form" method="post" action="/employer/create_products">
                 {{ form.hidden_tag() }} <!-- Token CSRF -->
                 <h2>Create a New Product</h2>
                 <p><b><i>Your Organization {{ organization.name }} earned {{ organization.coin }} coins until now</i></b></p>

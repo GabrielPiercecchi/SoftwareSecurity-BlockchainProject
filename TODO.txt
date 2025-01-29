@@ -110,6 +110,8 @@ TODO 18/01/2025
 TODO 29/01/2025
 
     1 - Correggere bug
-    2 - Correggere Vulnerabilità (URL etc...)
+    2 - Correggere Vulnerabilità:
+        a - URL
+        b - hidden_tag nelle form
 
             
