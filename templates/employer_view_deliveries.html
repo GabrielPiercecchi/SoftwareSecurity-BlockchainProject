@@ -67,10 +67,10 @@
                     <ul class="section-bordered">
                         <h3>Delivery N° {{ loop.index }}</h3>
                         <li>
-                            <p>Delivery ID: {{ item.receiver.id }}</p>
-                            <p>Quantity: {{ item.receiver.quantity | e }}</p>
-                            <p>CO2 Emission: {{ item.receiver.co2_emission | e }}</p>
-                            <p>Delivery Date: {{ item.receiver.date_timestamp | e }}</p>
+                            <p>Delivery ID: {{ item.delivery.id }}</p>
+                            <p>Quantity: {{ item.delivery.quantity | e }}</p>
+                            <p>CO2 Emission: {{ item.delivery.co2_emission | e }}</p>
+                            <p>Delivery Date: {{ item.delivery.date_timestamp | e }}</p>
                             <p>Deliver Organization: {{ item.deliver_org_name | e }}</p>
                             <p>Receiver Organization: {{ item.receive_org_name | e }}</p>
                             <p>Carrier Organization: {{ item.carrier_org_name }}</p>
