@@ -1,8 +1,11 @@
 from database.database import DBIsConnected
-from database.migration import Organization, Employer, Oracle
+from database.migration import Organization, Employer, Oracle, Product
+from sqlalchemy.sql import func
 import time
 from flask import session
+import os
 
+NONCE_FILE = os.getenv('NONCE_FILE')
 
 ##########################################################################
 # Utilities di auth_controller.py
@@ -84,7 +87,71 @@ def get_delivery_details(session, delivery):
 # Riusati get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer
 
 ##########################################################################
-# Utilities di ethereum_controller.py
+# Utilities di home_controller.py
 ##########################################################################
 
-# TODO: Implementare le funzioni di questo modulo
+# Riusati get_db_session
+
+def get_random_organizations(session, limit=10):
+    return session.query(Organization).filter_by(status='active').order_by(func.random()).limit(limit).all()
+
+def get_random_products(session, limit=10):
+    return session.query(Product).order_by(func.random()).limit(limit).all()
+
+def get_product_details(session, product):
+    organization_name = session.query(Organization).filter_by(id=product.id_organization).first().name
+    return {
+        "id": product.id,
+        "name": product.name,
+        'type': product.type,
+        "organization_name": organization_name,
+    }
+
+##########################################################################
+# Utilities di oracle_controller.py
+##########################################################################
+
+# Riusati get_db_session, get_organization_by_id, get_organization_by_employer
+
+def get_employer_by_id(session, emp_id):
+    return session.query(Employer).filter_by(id=emp_id).first()
+
+##########################################################################
+# Utilities di organizations_controller.py
+##########################################################################
+
+# Riusati get_db_session, get_organization_by_id,
+
+def get_employers_by_organization_id(session, org_id):
+    return session.query(Employer).filter_by(id_organization=org_id).filter_by(status='active').all()
+
+##########################################################################
+# Utilities di products_requests_controller.py
+##########################################################################
+
+# Riusati get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer
+
+def get_product_by_id(session, product_id):
+    return session.query(Product).filter_by(id=product_id).first()
+
+##########################################################################
+# Utilities di products_controller.py
+##########################################################################
+
+# Riusati get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer, get_product_by_id
+
+##########################################################################
+# Utilities di coin_algorithm.py
+##########################################################################
+
+# Riusati get_db_session, get_organization_by_id, get_employer_by_username
+
+def read_nonce():
+    if os.path.exists(NONCE_FILE):
+        with open(NONCE_FILE, 'r') as file:
+            return int(file.read().strip())
+    return None
+
+def write_nonce(nonce):
+    with open(NONCE_FILE, 'w') as file:
+        file.write(str(nonce))

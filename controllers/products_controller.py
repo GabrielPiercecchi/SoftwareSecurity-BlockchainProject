@@ -1,12 +1,13 @@
 from flask import flash, render_template, request, redirect, url_for, session
 from flask_wtf import FlaskForm
-from database.database import DBIsConnected
-from database.migration import Employer, Product, Delivery, Organization, Type, ProductOrigin
+import logging
+from database.migration import Product, Delivery, Organization, Type, ProductOrigin
 from wtforms.validators import DataRequired, NumberRange
 from wtforms import StringField, IntegerField, SelectField, SelectMultipleField
 from algorithms.coins_algorithm import coins_algorithm
 from middlewares.validation import LengthValidator
 from algorithms.coins_algorithm import CoinsAlgorithm
+from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer, get_product_by_id
 
 class ProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
@@ -27,9 +28,8 @@ class UpdateProductForm(FlaskForm):
                 validators=[DataRequired()])
 
 def product_detail(id):
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    product = session_db.query(Product).get(id)
+    session_db = get_db_session()
+    product = get_product_by_id(session_db, id)
 
     if not product:
         session_db.close()
@@ -37,13 +37,13 @@ def product_detail(id):
         return redirect(url_for('products_route'))
 
     deliveries = session_db.query(Delivery).filter_by(id_product=id).all()
-    organization = session_db.query(Organization).get(product.id_organization)
+    organization = get_organization_by_id(session_db, product.id_organization)
     
     deliveries_with_orgs = []
     for delivery in deliveries:
-        deliver_org = session_db.query(Organization).get(delivery.id_deliver_organization)
-        receive_org = session_db.query(Organization).get(delivery.id_receiver_organization)
-        carrier_org = session_db.query(Organization).get(delivery.id_carrier_organization)
+        deliver_org = get_organization_by_id(session_db, delivery.id_deliver_organization)
+        receive_org = get_organization_by_id(session_db, delivery.id_receiver_organization)
+        carrier_org = get_organization_by_id(session_db, delivery.id_carrier_organization)
         deliveries_with_orgs.append({
             'delivery': delivery,
             'deliver_org_name': deliver_org.name,
@@ -58,10 +58,10 @@ def product_detail(id):
     products_made_with = []
     products_made_from = []
     for i in range(len(origin_products)):
-        origin_product = session_db.query(Product).get(origin_products[i])
-        end_product = session_db.query(Product).get(end_products[i])
-        origin_product_org = session_db.query(Organization).get(origin_product.id_organization)
-        end_product_org = session_db.query(Organization).get(end_product.id_organization)
+        origin_product = get_product_by_id(session_db, origin_products[i])
+        end_product = get_product_by_id(session_db, end_products[i])
+        origin_product_org = get_organization_by_id(session_db, origin_product.id_organization)
+        end_product_org = get_organization_by_id(session_db, end_product.id_organization)
         if origin_products[i] == id:
             products_made_with.append({
                 'product': end_product,
@@ -85,12 +85,11 @@ def product_detail(id):
         products_made_from=products_made_from)
 
 def get_all_products():
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     products = session_db.query(Product).all()
     products_with_org = []
     for product in products:
-        organization = session_db.query(Organization).get(product.id_organization)
+        organization = get_organization_by_id(session_db, product.id_organization)
         products_with_org.append({
             'product': product,
             'organization_name': organization.name
@@ -103,10 +102,9 @@ def create_product():
     if not username:
         return redirect(url_for('login_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    session_db = get_db_session()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
 
     form = ProductForm()
 
@@ -144,7 +142,7 @@ def create_product():
             flash('At least one origin product must be selected.', 'error')
             return render_template('employer_create_products.html', form=form, organization=organization)
 
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
     
         try:
             default_co2_value = session_db.query(Type).filter_by(id_type=organization.type).first().default_co2_value
@@ -204,6 +202,7 @@ def create_product():
         except Exception as e:
             session_db.rollback()
             print(f'Error: {str(e)}')
+            logging.error(f'Error: {str(e)}')
             flash('Failed to add product: intero fuori dall\'intervallo', 'error')
             return redirect(url_for('create_product_route'))
             
@@ -216,10 +215,9 @@ def employer_view_products():
     if not username:
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    session_db = get_db_session()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
     products = session_db.query(Product).filter_by(id_organization=organization.id).all()
     session_db.close()
     
@@ -230,9 +228,8 @@ def update_product(product_id):
     if not username:
         return redirect(url_for('login_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    product = session_db.query(Product).filter_by(id=product_id).first()
+    session_db = get_db_session()
+    product = get_product_by_id(session_db, product_id)
     session_db.close()
 
     if not product:
@@ -263,7 +260,8 @@ def update_product(product_id):
         return render_template('employer_update_product.html', form=form, product=product)
     
     if request.method == 'POST' and form.validate_on_submit():
-        product = session_db.query(Product).filter_by(id=product_id).first()
+        session_db = get_db_session()
+        product = get_product_by_id(session_db, product_id)
         if product:
             product.name = form.name.data
             product.type = form.type.data

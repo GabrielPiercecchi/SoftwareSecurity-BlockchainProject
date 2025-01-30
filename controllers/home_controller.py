@@ -1,28 +1,19 @@
 from flask import render_template
 from database.migration import init_db
 from database.seeder import run_seeders
-from database.database import DBIsConnected
-from database.migration import Organization, Product
 from sqlalchemy.sql import func
+import logging
 from controllers.ethereum_controller import assign_addresses_to_organizations
 from algorithms.coins_algorithm import initialize_organization_coins_for_all
 from controllers.ethereum_controller import deploy_contract
+from utilities.utilities import get_db_session, get_random_organizations, get_random_products, get_product_details
 
 def home():
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    organizations = session_db.query(Organization).filter_by(status='active').order_by(func.random()).limit(10).all()
-    products = session_db.query(Product).order_by(func.random()).limit(10).all()
+    session_db = get_db_session()
+    organizations = get_random_organizations(session_db)
+    products = get_random_products(session_db)
 
-    products_with_details = []
-    for product in products:
-        product_with_details = {
-            "id": product.id,
-            "name": product.name,
-            'type': product.type,
-            "organization_name": session_db.query(Organization).filter_by(id=product.id_organization).first().name,
-        }
-        products_with_details.append(product_with_details)
+    products_with_details = [get_product_details(session_db, product) for product in products]
 
     session_db.close()
     return render_template("home.html", organizations=organizations, products_with_details=products_with_details)
@@ -41,8 +32,7 @@ def initialize_database():
         deploy_contract()
         print('Contract deployed successfully!')
 
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
 
         # Assegna indirizzi Ethereum alle organizzazioni
         assign_addresses_to_organizations(session_db)
@@ -51,4 +41,5 @@ def initialize_database():
 
         session_db.close()
     except Exception as e:
+        logging.error(f"Error : {e}")
         print(f"Error: {e}")

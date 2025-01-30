@@ -2,13 +2,10 @@ from flask import flash, request, session, redirect, url_for, render_template, j
 from flask_wtf import FlaskForm
 from wtforms import SelectField, IntegerField
 from wtforms.validators import DataRequired, NumberRange
-from database.database import DBIsConnected
 from database.migration import Oracle, Organization, Employer
 from middlewares.validation import LengthValidator
-import os
 from algorithms.coins_algorithm import CoinsAlgorithm
-
-NONCE_FILE = os.getenv('NONCE_FILE')
+from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_id
 
 class CoinTransferForm(FlaskForm):
     target_organization = SelectField('Select Target Organization', validators=[DataRequired()])
@@ -22,8 +19,7 @@ def oracle_home():
     if not username or session.get('user_type') != 'oracle':
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     oracle_user = session_db.query(Oracle).filter_by(username=username).first()
     session_db.close()
     return render_template('oracle_home.html', oracle=oracle_user)
@@ -33,9 +29,8 @@ def oracle_view_organizations():
     if not username or session.get('user_type') != 'oracle':
         return redirect(url_for('login_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    organizations = session_db.query(Organization).filter_by(status = 'active').all()
+    session_db = get_db_session()
+    organizations = session_db.query(Organization).filter_by(status='active').all()
     session_db.close()
     return render_template('oracle_view_organizations.html', organizations=organizations)
 
@@ -46,11 +41,9 @@ def oracle_coin_transfer(organization_id):
     
     form = CoinTransferForm()
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-
-    organization = session_db.query(Organization).filter_by(id=organization_id).first()
-    organizations = session_db.query(Organization).filter(Organization.id !=organization_id).filter_by(status = 'active').all()
+    session_db = get_db_session()
+    organization = get_organization_by_id(session_db, organization_id)
+    organizations = session_db.query(Organization).filter(Organization.id != organization_id).filter_by(status='active').all()
 
     form.target_organization.choices = [(org.id, org.name) for org in organizations]
     session_db.close()
@@ -59,10 +52,9 @@ def oracle_coin_transfer(organization_id):
         target_organization_id = form.target_organization.data
         amount = int(form.amount.data)
 
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
-        source_organization = session_db.query(Organization).filter_by(id=organization_id).first()
-        target_organization = session_db.query(Organization).filter_by(id=target_organization_id).first()
+        session_db = get_db_session()
+        source_organization = get_organization_by_id(session_db, organization_id)
+        target_organization = get_organization_by_id(session_db, target_organization_id)
 
         if amount > int(source_organization.coin):
             flash('Amount exceeds available coins.', 'too_much')
@@ -98,15 +90,15 @@ def oracle_coin_transfer(organization_id):
         session_db.close()
         return redirect(url_for('oracle_coin_transfer_route', organization_id=organization_id))
 
-    return render_template('oracle_coin_transfer.html', organization=organization, form=form, organizations={org.id: org.coin for org in organizations})
+    return render_template('oracle_coin_transfer.html', organization=organization, form=form, 
+        organizations={org.id: org.coin for org in organizations})
 
 def view_organization_inactive():
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     pending_organizations = session_db.query(Organization).filter_by(status='inactive').all()
     session_db.close()
     return render_template('oracle_view_organization_inactive.html', pending_organizations=pending_organizations)
@@ -116,8 +108,7 @@ def manage_organization_registration(organization_id):
     if not username or session.get('user_type') != 'oracle':
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     organization = session_db.query(Organization).filter_by(id=organization_id, status='inactive').first()
     if not organization:
         flash('Organization not found or not inactive.', 'danger')
@@ -133,10 +124,9 @@ def approve_organization(organization_id):
         return redirect(url_for('login_route'))
 
     if request.method == 'POST':
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
         
-        organization = session_db.query(Organization).get(organization_id)
+        organization = get_organization_by_id(session_db, organization_id)
         if organization:
             organization.status = 'active'
             # Aggiorna lo stato degli employer associati a 'active'
@@ -157,10 +147,9 @@ def reject_organization(organization_id):
         return redirect(url_for('login_route'))
     
     if request.method == 'POST':
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
         
-        organization = session_db.query(Organization).get(organization_id)
+        organization = get_organization_by_id(session_db, organization_id)
         if organization:
             # Elimina prima gli employer associati
             session_db.query(Employer).filter_by(id_organization=organization_id).delete()
@@ -180,8 +169,7 @@ def view_employer_inactive():
     if not username or session.get('user_type') != 'oracle':
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
 
     pending_employers = session_db.query(Employer).join(Organization).filter(
         Employer.status == 'inactive',
@@ -210,8 +198,7 @@ def manage_employer_registration(employer_id):
     if not username or session.get('user_type') != 'oracle':
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     
     employer = session_db.query(Employer).filter_by(id=employer_id, status='inactive').first()
     if not employer:
@@ -237,10 +224,9 @@ def approve_employer(employer_id):
         return redirect(url_for('login_route'))
     
     if request.method == 'POST':
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
         
-        employer = session_db.query(Employer).get(employer_id)
+        employer = get_employer_by_id(session_db, employer_id)
         if employer:
             employer.status = 'active'
             session_db.commit()
@@ -259,10 +245,9 @@ def reject_employer(employer_id):
         return redirect(url_for('login_route'))
     
     if request.method == 'POST':
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
         
-        employer = session_db.query(Employer).get(employer_id)
+        employer = get_employer_by_id(session_db, employer_id)
         if employer:
             session_db.delete(employer)
             session_db.commit()
