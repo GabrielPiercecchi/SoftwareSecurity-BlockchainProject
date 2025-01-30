@@ -7,6 +7,7 @@ from database.migration import CoinRequest
 from algorithms.coins_algorithm import update_organization_coins_on_blockchain
 from middlewares.validation import LengthValidator
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer
+from messages.messages import REQUEST_ID_REQUIRED, NOT_ENOUGH_COINS, COIN_REQUEST_ACCEPTED, ERROR_ACCEPTING_COIN_REQUEST
 
 class AcceptCoinRequestForm(FlaskForm):
     request_id = IntegerField('Request ID', validators=[DataRequired()])
@@ -119,7 +120,7 @@ def accept_coin_request():
 
     request_id = request.form['request_id']
     if not request_id:
-        flash('Request ID is required', 'error')
+        flash(REQUEST_ID_REQUIRED, 'error')
         return redirect(url_for('view_coin_requests_route'))
 
     employer = get_employer_by_username(session_db, username)
@@ -135,14 +136,14 @@ def accept_coin_request():
             coin_request = session_db.query(CoinRequest).filter_by(id=request_id).first()
 
             if not update_organization_coins_on_blockchain(organization, organization_requesting, coin_request, session_db):
-                flash('Not enough Coins', 'error')
+                flash(NOT_ENOUGH_COINS, 'error')
                 session_db.close()
                 return redirect(url_for('view_coin_requests_route'))
             else:
-                flash('Coin request accepted', 'success')
+                flash(COIN_REQUEST_ACCEPTED, 'success')
                 return redirect(url_for('view_coin_requests_route'))
         except Exception as e:
-            flash('Error accepting coin request', 'error')
+            flash(ERROR_ACCEPTING_COIN_REQUEST, 'error')
             session_db.close()
             logging.error(f'Error accepting coin request: {e}')
             return redirect(url_for('view_coin_requests_route'))

@@ -6,6 +6,11 @@ from database.migration import Oracle, Organization, Employer
 from middlewares.validation import LengthValidator
 from algorithms.coins_algorithm import CoinsAlgorithm
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_id
+from messages.messages import (
+    LOGIN_REQUIRED, AMOUNT_EXCEEDS_AVAILABLE_COINS, INSUFFICIENT_COINS, COINS_TRANSFERRED_SUCCESSFULLY,
+    FAILED_TO_TRANSFER_COINS, ORGANIZATION_NOT_FOUND_OR_NOT_INACTIVE, ORGANIZATION_APPROVED, ORGANIZATION_NOT_FOUND,
+    ORGANIZATION_REJECTED, EMPLOYER_NOT_FOUND_OR_NOT_INACTIVE, EMPLOYER_APPROVED, EMPLOYER_REJECTED, EMPLOYER_NOT_FOUND
+)
 
 class CoinTransferForm(FlaskForm):
     target_organization = SelectField('Select Target Organization', validators=[DataRequired()])
@@ -17,6 +22,7 @@ class CoinTransferForm(FlaskForm):
 def oracle_home():
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -27,6 +33,7 @@ def oracle_home():
 def oracle_view_organizations():
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
     session_db = get_db_session()
@@ -37,6 +44,7 @@ def oracle_view_organizations():
 def oracle_coin_transfer(organization_id):
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     form = CoinTransferForm()
@@ -57,9 +65,9 @@ def oracle_coin_transfer(organization_id):
         target_organization = get_organization_by_id(session_db, target_organization_id)
 
         if amount > int(source_organization.coin):
-            flash('Amount exceeds available coins.', 'too_much')
+            flash(AMOUNT_EXCEEDS_AVAILABLE_COINS, 'too_much')
         elif source_organization.coin - amount < 20:
-            flash('Insufficient coins for transfer. The organization must retain at least 20 coins.', 'insufficient_coins')
+            flash(INSUFFICIENT_COINS, 'insufficient_coins')
         else:
             # Esegui la transazione sulla blockchain
             manager = CoinsAlgorithm()
@@ -81,10 +89,10 @@ def oracle_coin_transfer(organization_id):
                 source_organization.coin -= amount
                 target_organization.coin += amount
                 session_db.commit()
-                flash('Coins transferred successfully!', 'success')
+                flash(COINS_TRANSFERRED_SUCCESSFULLY, 'success')
             else:
                 manager.increment_nonce()  # Incrementa il nonce
-                flash('Failed to transfer coins on blockchain.', 'error')
+                flash(FAILED_TO_TRANSFER_COINS, 'error')
             session_db.close()
             return redirect(url_for('oracle_view_organizations_route'))
         session_db.close()
@@ -96,6 +104,7 @@ def oracle_coin_transfer(organization_id):
 def view_organization_inactive():
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -106,12 +115,13 @@ def view_organization_inactive():
 def manage_organization_registration(organization_id):
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
     organization = session_db.query(Organization).filter_by(id=organization_id, status='inactive').first()
     if not organization:
-        flash('Organization not found or not inactive.', 'danger')
+        flash(ORGANIZATION_NOT_FOUND_OR_NOT_INACTIVE, 'danger')
         return redirect(url_for('view_organization_inactive_route'))
     
     employers = session_db.query(Employer).filter_by(id_organization=organization_id).all()
@@ -121,6 +131,7 @@ def manage_organization_registration(organization_id):
 def approve_organization(organization_id):
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
     if request.method == 'POST':
@@ -132,10 +143,10 @@ def approve_organization(organization_id):
             # Aggiorna lo stato degli employer associati a 'active'
             session_db.query(Employer).filter_by(id_organization=organization_id).update({'status': 'active'})
             session_db.commit()
-            message = 'Organization and associated employers approved and activated.'
+            message = ORGANIZATION_APPROVED
             flash(message, 'success')
         else:
-            message = 'Organization not found.'
+            message = ORGANIZATION_NOT_FOUND
             flash(message, 'danger')
         
         session_db.close()
@@ -144,6 +155,7 @@ def approve_organization(organization_id):
 def reject_organization(organization_id):
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     if request.method == 'POST':
@@ -155,10 +167,10 @@ def reject_organization(organization_id):
             session_db.query(Employer).filter_by(id_organization=organization_id).delete()
             session_db.delete(organization)
             session_db.commit()
-            message = 'Organization registration rejected and deleted.'
+            message = ORGANIZATION_REJECTED
             flash(message, 'success')
         else:
-            message = 'Organization not found.'
+            message = ORGANIZATION_NOT_FOUND
             flash(message, 'danger')
         
         session_db.close()
@@ -167,6 +179,7 @@ def reject_organization(organization_id):
 def view_employer_inactive():
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -196,13 +209,14 @@ def view_employer_inactive():
 def manage_employer_registration(employer_id):
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
     
     employer = session_db.query(Employer).filter_by(id=employer_id, status='inactive').first()
     if not employer:
-        flash('Employer not found or not inactive.', 'danger')
+        flash(EMPLOYER_NOT_FOUND_OR_NOT_INACTIVE, 'danger')
         return redirect(url_for('view_employer_inactive_route'))
     
     employer_info = {
@@ -221,6 +235,7 @@ def manage_employer_registration(employer_id):
 def approve_employer(employer_id):
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     if request.method == 'POST':
@@ -230,10 +245,10 @@ def approve_employer(employer_id):
         if employer:
             employer.status = 'active'
             session_db.commit()
-            message = 'Employer approved and activated.'
+            message = EMPLOYER_APPROVED
             flash(message, 'success')
         else:
-            message = 'Employer not found.'
+            message = EMPLOYER_NOT_FOUND
             flash(message, 'danger')
         
         session_db.close()
@@ -242,6 +257,7 @@ def approve_employer(employer_id):
 def reject_employer(employer_id):
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     if request.method == 'POST':
@@ -251,10 +267,10 @@ def reject_employer(employer_id):
         if employer:
             session_db.delete(employer)
             session_db.commit()
-            message = 'Employer registration rejected and deleted.'
+            message = EMPLOYER_REJECTED
             flash(message, 'success')
         else:
-            message = 'Employer not found.'
+            message = EMPLOYER_NOT_FOUND
             flash(message, 'danger')
         
         session_db.close()

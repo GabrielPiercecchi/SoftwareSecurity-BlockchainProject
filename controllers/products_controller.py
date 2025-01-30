@@ -8,6 +8,10 @@ from algorithms.coins_algorithm import coins_algorithm
 from middlewares.validation import LengthValidator
 from algorithms.coins_algorithm import CoinsAlgorithm
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer, get_product_by_id
+from messages.messages import (
+    LOGIN_REQUIRED, PRODUCT_NOT_FOUND, UNAUTHORIZED_ACCESS, PRODUCT_UPDATED_SUCCESSFULLY,
+    FAILED_TO_UPDATE_PRODUCT, FAILED_TO_ADD_PRODUCT, FAILED_TO_REGISTER_PRODUCT_ORIGIN, ORIGIN_PRODUCT_REQUIRED
+)
 
 class ProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
@@ -33,7 +37,7 @@ def product_detail(id):
 
     if not product:
         session_db.close()
-        flash('Product not found.', 'danger')
+        flash(PRODUCT_NOT_FOUND, 'danger')
         return redirect(url_for('products_route'))
 
     deliveries = session_db.query(Delivery).filter_by(id_product=id).all()
@@ -100,6 +104,7 @@ def get_all_products():
 def create_product():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
     session_db = get_db_session()
@@ -139,7 +144,7 @@ def create_product():
         co2_origin_product_list = form.co2_origin_product_list.data
 
         if session.get('user_org_type') == 'producer' and not co2_origin_product_list:
-            flash('At least one origin product must be selected.', 'error')
+            flash(ORIGIN_PRODUCT_REQUIRED, 'error')
             return render_template('employer_create_products.html', form=form, organization=organization)
 
         session_db = get_db_session()
@@ -193,7 +198,7 @@ def create_product():
                     else:
                         session_db.rollback()
                         manager.increment_nonce()  # Incrementa il nonce
-                        flash('Failed to register product origin on blockchain.', 'error')
+                        flash(FAILED_TO_REGISTER_PRODUCT_ORIGIN, 'error')
                         return redirect(url_for('create_product_route'))
 
             session_db.commit()
@@ -203,7 +208,7 @@ def create_product():
             session_db.rollback()
             print(f'Error: {str(e)}')
             logging.error(f'Error: {str(e)}')
-            flash('Failed to add product: intero fuori dall\'intervallo', 'error')
+            flash(FAILED_TO_ADD_PRODUCT, 'error')
             return redirect(url_for('create_product_route'))
             
         return redirect(url_for('employer_home_route'))
@@ -213,6 +218,7 @@ def create_product():
 def employer_view_products():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -226,6 +232,7 @@ def employer_view_products():
 def update_product(product_id):
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
     session_db = get_db_session()
@@ -233,11 +240,11 @@ def update_product(product_id):
     session_db.close()
 
     if not product:
-        flash('Product not found.', 'error')
+        flash(PRODUCT_NOT_FOUND, 'error')
         return redirect(url_for('employer_view_products_route'))
 
     if product.id_organization != session.get('user_org_id'):
-        flash('Unauthorized access.', 'error')
+        flash(UNAUTHORIZED_ACCESS, 'error')
         return redirect(url_for('permission_denied_route'))
     
     form = UpdateProductForm()
@@ -250,7 +257,7 @@ def update_product(product_id):
         # Fetch the product from the database
         
         if not product:
-            flash('Product not found.', 'error')
+            flash(PRODUCT_NOT_FOUND, 'error')
             return redirect(url_for('employer_view_products_route'))
         
         # Populate the form with the product data
@@ -267,11 +274,11 @@ def update_product(product_id):
             product.type = form.type.data
             session_db.commit()
             session_db.close()
-            flash('Product updated successfully!', 'success')
+            flash(PRODUCT_UPDATED_SUCCESSFULLY, 'success')
             return redirect(url_for('employer_view_products_route'))
         else:
             session_db.close()
-            flash('Failed to update product.', 'error')
+            flash(FAILED_TO_UPDATE_PRODUCT, 'error')
             return redirect(url_for('employer_view_products_route'))
     
     return render_template('employer_update_product.html', form=form, product=product)

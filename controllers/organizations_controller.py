@@ -1,6 +1,7 @@
 from flask import render_template,  flash, redirect, url_for
 from database.migration import Organization
 from utilities.utilities import get_db_session, get_organization_by_id, get_employers_by_organization_id
+from messages.messages import ORGANIZATION_NOT_FOUND
 
 def organization_detail(id):
     session_db = get_db_session()
@@ -8,7 +9,7 @@ def organization_detail(id):
 
     if not organization:
         session_db.close()
-        flash('Organization not found.', 'danger')
+        flash(ORGANIZATION_NOT_FOUND, 'danger')
         return redirect(url_for('organizations_route'))
     
     employers = get_employers_by_organization_id(session_db, id)

@@ -1,11 +1,13 @@
-from flask import render_template, session, redirect, url_for
+from flask import render_template, session, redirect, url_for, flash
 from database.database import DBIsConnected
 from database.migration import Product, Delivery, Organization, Employer
 from utilities.utilities import get_db_session, get_employer_by_username, get_organization_by_employer, get_delivery_details
+from messages.messages import LOGIN_REQUIRED
 
 def employer_view_deliveries():
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -23,6 +25,7 @@ def employer_view_deliveries():
 def carrier_view_deliveries():
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()

@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash
 from database.migration import Employer
 from middlewares.validation import LengthValidator
 from utilities.utilities import get_db_session, get_employer_by_username, get_organization_by_employer
+from messages.messages import LOGIN_REQUIRED, EMPLOYER_NOT_FOUND, USERNAME_ALREADY_IN_USE, EMAIL_ALREADY_IN_USE, DATA_UPDATED_SUCCESSFULLY, FAILED_TO_UPDATE_PERSONAL_DATA
 
 class UpdateEmployerForm(FlaskForm):
     name = StringField('Name', validators=[
@@ -39,6 +40,7 @@ class UpdateEmployerForm(FlaskForm):
 def employer_home():
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -47,10 +49,10 @@ def employer_home():
     session_db.close()
     return render_template('employer_home.html', employer=employer, organization=organization)
 
-
 def employer_update_personal_data():
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
     session_db = get_db_session()
@@ -59,7 +61,7 @@ def employer_update_personal_data():
 
     if request.method == 'GET':
         if not employer:
-            flash('Employer not found.', 'error')
+            flash(EMPLOYER_NOT_FOUND, 'error')
             return redirect(url_for('employer_home_route'))
         
         # Populate the form with the employer data
@@ -76,11 +78,11 @@ def employer_update_personal_data():
         other_employers = session_db.query(Employer).filter(Employer.id != employer.id).all()
 
         if any(form.username.data.lower() == e.username for e in other_employers):
-            flash('Username already in use', 'wrong_username')
+            flash(USERNAME_ALREADY_IN_USE, 'wrong_username')
             return render_template('employer_update_personal_data.html', form=form, employer=employer)
 
         if any(form.email.data.lower() == e.email for e in other_employers):
-            flash('Email already in use', 'wrong_email')
+            flash(EMAIL_ALREADY_IN_USE, 'wrong_email')
             return render_template('employer_update_personal_data.html', form=form, employer=employer)
 
         if employer:
@@ -94,11 +96,11 @@ def employer_update_personal_data():
 
             session_db.commit()
             session['username'] = employer.username  # Aggiorna l'username nella sessione
-            flash('Data updated successfully!', 'success')
+            flash(DATA_UPDATED_SUCCESSFULLY, 'success')
             return redirect(url_for('employer_home_route'))
     
         else:
-            flash('Failed to update personal data.', 'error')
+            flash(FAILED_TO_UPDATE_PERSONAL_DATA, 'error')
             return redirect(url_for('employer_home_route'))
     
     return render_template('employer_update_personal_data.html', form=form, employer=employer)

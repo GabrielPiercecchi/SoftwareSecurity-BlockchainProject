@@ -8,6 +8,12 @@ from database.migration import Product, Organization, ProductRequest, Delivery, 
 from algorithms.coins_algorithm import coins_algorithm
 from middlewares.validation import LengthValidator
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer, get_product_by_id
+from messages.messages import (
+    LOGIN_REQUIRED, PRODUCT_NOT_FOUND, UNAUTHORIZED_ACCESS, REQUESTED_QUANTITY_EXCEEDS_AVAILABLE,
+    PRODUCT_REQUEST_CREATED_SUCCESSFULLY, REQUEST_ID_REQUIRED, PRODUCT_REQUEST_NOT_FOUND,
+    PRODUCT_REQUEST_DENIED_SUCCESSFULLY, INSUFFICIENT_PRODUCT_QUANTITY, PRODUCT_REQUEST_ACCEPTED_SUCCESSFULLY,
+    CO2_EMISSION_EXCEEDS_LIMIT, DELIVERY_CREATED_SUCCESSFULLY, ERROR_OCCURRED
+)
 
 class CreateProductRequestForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired(), 
@@ -29,6 +35,7 @@ class CarrierAcceptRequestAndCreateDeliveryForm(FlaskForm):
 def menage_product_requests():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -72,12 +79,13 @@ def menage_product_requests():
     form = DenyProductRequestForm()
 
     return render_template('employer_menage_product_requests.html', organization=organization, 
-                           providing_product_requests=providing_requests_with_details, 
-                           requesting_product_requests=requesting_requests_with_details, carriers=carriers, form=form)
+        providing_product_requests=providing_requests_with_details, 
+        requesting_product_requests=requesting_requests_with_details, carriers=carriers, form=form)
 
 def view_other_products():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
     session_db = get_db_session()
@@ -103,6 +111,7 @@ def view_other_products():
 def create_product_requests(product_id):
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
     session_db = get_db_session()
@@ -114,12 +123,12 @@ def create_product_requests(product_id):
 
         if not product:
             session_db.close()
-            flash('Product not found.', 'danger')
+            flash(PRODUCT_NOT_FOUND, 'danger')
             return redirect(url_for('view_other_products_route'))
         
         if product.id_organization == get_employer_by_username(session_db, username).id_organization:
             session_db.close()
-            flash('Unauthorized access.', 'error')
+            flash(UNAUTHORIZED_ACCESS, 'error')
             return redirect(url_for('permission_denied_route'))
 
         org = get_organization_by_id(session_db, product.id_organization)
@@ -142,7 +151,7 @@ def create_product_requests(product_id):
         product = get_product_by_id(session_db, product_id)
         
         if quantity > product.quantity:
-            flash('Requested quantity exceeds available quantity.', 'danger')
+            flash(REQUESTED_QUANTITY_EXCEEDS_AVAILABLE, 'danger')
             product_with_org = {
                 'product': product,
                 'organization_name': organization.name
@@ -161,7 +170,7 @@ def create_product_requests(product_id):
         session_db.add(new_request)
         session_db.commit()
         session_db.close()
-        flash('Product request created successfully.', 'success')
+        flash(PRODUCT_REQUEST_CREATED_SUCCESSFULLY, 'success')
 
         return redirect(url_for('menage_product_requests_route'))
     
@@ -171,12 +180,12 @@ def create_product_requests(product_id):
 def deny_product_request():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     request_id = request.form.get('request_id')
     if not request_id:
-        print('Request ID is required')
-        flash('Request ID is required', 'error')
+        flash(REQUEST_ID_REQUIRED, 'error')
         return redirect(url_for('menage_product_requests_route'))
 
     session_db = get_db_session()
@@ -184,20 +193,17 @@ def deny_product_request():
     try:
         product_request = session_db.query(ProductRequest).get(request_id)
         if not product_request:
-            print('Product request not found')
-            flash('Product request not found', 'error')
+            flash(PRODUCT_REQUEST_NOT_FOUND, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
         product_request.status = 'rejected'
         product_request.date_responded = datetime.now()
         session_db.commit()
-        print('Product request denied successfully')
-        flash('Product request denied successfully', 'success')
+        flash(PRODUCT_REQUEST_DENIED_SUCCESSFULLY, 'success')
     except Exception as e:
         session_db.rollback()
-        print(f'Error: {str(e)}')
         logging.error(f'Error: {str(e)}')
-        flash(f'Error: {str(e)}', 'error')
+        flash(ERROR_OCCURRED.format(str(e)), 'error')
     finally:
         session_db.close()
     
@@ -206,13 +212,13 @@ def deny_product_request():
 def accept_product_request():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     request_id = request.form.get('request_id')
     carrier_id = request.form.get('carrier_id')
     if not request_id or not carrier_id:
-        print('Request ID and Carrier ID are required')
-        flash('Request ID and Carrier ID are required', 'error')
+        flash(REQUEST_ID_REQUIRED, 'error')
         return redirect(url_for('menage_product_requests_route'))
 
     session_db = get_db_session()
@@ -220,19 +226,16 @@ def accept_product_request():
     try:
         product_request = session_db.query(ProductRequest).get(request_id)
         if not product_request:
-            print('Product request not found')
-            flash('Product request not found', 'error')
+            flash(PRODUCT_REQUEST_NOT_FOUND, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
         product = get_product_by_id(session_db, product_request.id_product)
         if not product:
-            print('Product not found')
-            flash('Product not found', 'error')
+            flash(PRODUCT_NOT_FOUND, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
         if product.quantity < product_request.quantity:
-            print('Insufficient product quantity')
-            flash('Insufficient product quantity', 'error')
+            flash(INSUFFICIENT_PRODUCT_QUANTITY, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
         product.quantity -= product_request.quantity
@@ -241,13 +244,11 @@ def accept_product_request():
         product_request.id_carrier_organization = carrier_id
         product_request.date_responded = datetime.now()
         session_db.commit()
-        print('Product request accepted successfully')
-        flash('Product request accepted successfully', 'success')
+        flash(PRODUCT_REQUEST_ACCEPTED_SUCCESSFULLY, 'success')
     except Exception as e:
         session_db.rollback()
-        print(f'Error: {str(e)}')
         logging.error(f'Error: {str(e)}')
-        flash(f'Error: {str(e)}', 'error')
+        flash(ERROR_OCCURRED.format(str(e)), 'error')
     finally:
         session_db.close()
     
@@ -256,6 +257,7 @@ def accept_product_request():
 def carrier_menage_product_requests():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -281,11 +283,12 @@ def carrier_menage_product_requests():
     form = CarrierAcceptRequestAndCreateDeliveryForm()
 
     return render_template('carrier_menage_product_requests.html', organization=organization, 
-                           carring_product_request=carring_request_with_details, form=form)
+        carring_product_request=carring_request_with_details, form=form)
 
 def carrier_accept_and_create_delivery():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     session_db = get_db_session()
@@ -299,8 +302,7 @@ def carrier_accept_and_create_delivery():
         try:
             product_request = session_db.query(ProductRequest).filter_by(id=request_id).first()
             if not product_request:
-                print('Product request not found')
-                flash('Product request not found', 'error')
+                flash(PRODUCT_REQUEST_NOT_FOUND, 'error')
                 return redirect(url_for('carrier_menage_product_requests_route'))
             
             organization = get_organization_by_id(session_db, product_request.id_carrier_organization)
@@ -310,7 +312,7 @@ def carrier_accept_and_create_delivery():
 
             if not coins_algorithm(co2_emission, co2_limit, organization, session_db):
                 session_db.rollback()
-                print('CO2 emission exceeds the limit')
+                flash(CO2_EMISSION_EXCEEDS_LIMIT, 'error')
                 return redirect(url_for('carrier_menage_product_requests_route'))
 
             delivery = Delivery(
@@ -326,14 +328,12 @@ def carrier_accept_and_create_delivery():
             session_db.add(delivery)
             product_request.status_delivery = 'delivered'
             session_db.commit()
-            print('Delivery created successfully')
-            flash('Delivery created successfully', 'success')
+            flash(DELIVERY_CREATED_SUCCESSFULLY, 'success')
             session_db.close()
         except Exception as e:
             session_db.rollback()
-            print(f'Error: {str(e)}')
             logging.error(f'Error: {str(e)}')
-            flash(f'Error: {str(e)}', 'error')
+            flash(ERROR_OCCURRED.format(str(e)), 'error')
             return redirect(url_for('carrier_menage_product_requests_route'))
         
     else:
