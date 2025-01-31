@@ -10,7 +10,7 @@ from controllers.logging_controller import setup_logging
 from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
 from controllers.products_controller import product_detail, get_all_products, employer_view_products, update_product
-from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org
+from controllers.auth_controller import login, logout, signup, add_employers_to_existing_org, permission_denied
 from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
@@ -25,12 +25,13 @@ load_dotenv()
 app = Flask(__name__)
 # Configura la chiave segreta per la sicurezza delle sessioni e dei token CSRF
 app.secret_key = os.getenv('SECRET_KEY')  # Carica la chiave segreta dall'ambiente
-# Abilita la protezione CSRF
-csrf = CSRFProtect(app)
 # Carica la configurazione dal file config.py
 app.config.from_object(Config)
+# Abilita la protezione CSRF
+csrf = CSRFProtect(app)
+csrf.init_app(app)
 # Configura Talisman per la sicurezza
-Talisman(app)
+talisman = Talisman(app, content_security_policy=None)
 # Configura il logging
 setup_logging(app)
 
@@ -70,15 +71,19 @@ def add_employers_route():
 def logout_route():
     return logout()
 
+@app.route("/permission_denied")
+def permission_denied_route():
+    return permission_denied()
+
 @app.route("/employer/")
 def employer_home_route():
     return employer_home()
 
-@app.route('/employer_update_personal_data', methods=['GET', 'POST'])
+@app.route('/employer/employer_update_personal_data', methods=['GET', 'POST'])
 def employer_update_personal_data_route():
     return employer_update_personal_data()
 
-@app.route("/create_products", methods=['GET', 'POST'])
+@app.route("/employer/create_products", methods=['GET', 'POST'])
 def create_product_route():
     return create_product()
 
@@ -86,7 +91,7 @@ def create_product_route():
 def employer_view_products_route():
     return employer_view_products()
 
-@app.route("/update_product/<int:product_id>", methods=['GET', 'POST'])
+@app.route("/employer/update_product/<int:product_id>", methods=['GET', 'POST'])
 def update_product_route(product_id):
     return update_product(product_id)
 

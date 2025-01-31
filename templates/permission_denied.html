@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CO2 Application</title>
+    <title>Permesso Negato</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/employer_view_products.js') }}" defer></script>
     {% if session.logged_in %}
         <link rel="icon" href="{{ url_for('static', filename='EGde.gif') }}" type="image/gif">
     {% else %}
@@ -27,6 +26,8 @@
                 {% if session.logged_in %}
                     {% if session.user_type == 'employer' %}
                         <li><a href="{{ url_for('employer_home_route', username=session.username) }}" class="orange-button">Employee Home</a></li>
+                    {% elif session.user_type == 'oracle' %}
+                        <li><a href="{{ url_for('oracle_home_route', username=session.username) }}" class="orange-button">Oracle Home</a></li>
                     {% endif %}
                     <li><a href="/logout" class="orange-button">Logout</a></li>
                 {% else %}
@@ -37,32 +38,11 @@
         </nav>
     </header>
     <main>
-        <section class="section-bordered">
-            <h2>All {{organization.name | e }} Products</h2>
-            {% if organization.type != 'seller' %}
-                <div>
-                    <button type="button" class="button-green" id="create-product-button">Create Products</button>
-                </div>
-            {% endif %}
-            <div class="section-bordered">
-                <div class="products">
-                    {% if products %}
-                    {% for product in products %}
-                        <div class="product">
-                            <h3><a href="/product/{{ product.id }}">{{ product.name | e }}</a></h3>
-                            <p>ID: {{ product.id | e }}</p>
-                            <p>Type: {{ product.type | e }}</p>
-                            <p>Quantity: {{ product.quantity | e }}</p>
-                            <p>CO2 Production: {{ product.co2_production_product }}</p>
-                            <a href="/employer/update_product/{{ product.id }}" class="orange-button">Update Product</a>
-                        </div>
-                    {% endfor %}
-                    {% else %}
-                        <p class="red-text"><b>No products found</b></p>
-                    {% endif %}
-                </div>
-            </div>
-        </section>
+        <div class="description">
+            <h1>Permesso Negato</h1>
+            <p>Non hai i permessi necessari per accedere a questa pagina.</p>
+            <p>Per favore, contatta l'amministratore se ritieni che questo sia un errore.</p>
+        </div>
     </main>
 </body>
 </html>

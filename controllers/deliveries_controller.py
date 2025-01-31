@@ -1,69 +1,39 @@
-from flask import render_template, session, redirect, url_for
+from flask import render_template, session, redirect, url_for, flash
 from database.database import DBIsConnected
 from database.migration import Product, Delivery, Organization, Employer
+from utilities.utilities import get_db_session, get_employer_by_username, get_organization_by_employer, get_delivery_details
+from messages.messages import LOGIN_REQUIRED
 
 def employer_view_deliveries():
     username = session.get('username')
-    if not username:
+    if not username or not session.get('user_type') == 'employer':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
     deliveries = session_db.query(Delivery).filter_by(id_deliver_organization=organization.id).all()
     receivers = session_db.query(Delivery).filter_by(id_receiver_organization=organization.id).all()
 
-    deliveries_with_orgs = []
-    for delivery in deliveries:
-        deliver_org = session_db.query(Organization).get(delivery.id_deliver_organization)
-        receive_org = session_db.query(Organization).get(delivery.id_receiver_organization)
-        carrier_org = session_db.query(Organization).get(delivery.id_carrier_organization)
-        deliveries_with_orgs.append({
-            'delivery': delivery,
-            'deliver_org_name': deliver_org.name,
-            'receive_org_name': receive_org.name,
-            'carrier_org_name': carrier_org.name
-        })
-
-    receivers_with_orgs = []
-    for receiver in receivers:
-        deliver_org = session_db.query(Organization).get(receiver.id_deliver_organization)
-        receive_org = session_db.query(Organization).get(receiver.id_receiver_organization)
-        carrier_org = session_db.query(Organization).get(receiver.id_carrier_organization)
-        receivers_with_orgs.append({
-            'receiver': receiver,
-            'deliver_org_name': deliver_org.name,
-            'receive_org_name': receive_org.name,
-            'carrier_org_name': carrier_org.name
-        })
+    deliveries_with_orgs = [get_delivery_details(session_db, delivery) for delivery in deliveries]
+    receivers_with_orgs = [get_delivery_details(session_db, receiver) for receiver in receivers]
 
     return render_template('employer_view_deliveries.html', deliveries=deliveries_with_orgs, receivers=receivers_with_orgs, organization=organization)
 
 def carrier_view_deliveries():
     username = session.get('username')
-    if not username:
+    if not username or not session.get('user_type') == 'employer':
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
 
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
     carriers = session_db.query(Delivery).filter_by(id_carrier_organization=organization.id).all()
 
-    carriers_with_orgs = []
-    for carrier in carriers:
-        deliver_org = session_db.query(Organization).get(carrier.id_deliver_organization)
-        receive_org = session_db.query(Organization).get(carrier.id_receiver_organization)
-        carrier_org = session_db.query(Organization).get(carrier.id_carrier_organization)
-        carriers_with_orgs.append({
-            'carrier': carrier,
-            'deliver_org_name': deliver_org.name,
-            'receive_org_name': receive_org.name,
-            'carrier_org_name': carrier_org.name
-        })
-
+    carriers_with_orgs = [get_delivery_details(session_db, carrier) for carrier in carriers]
 
     return render_template('carrier_view_deliveries.html', carriers=carriers_with_orgs, organization=organization)

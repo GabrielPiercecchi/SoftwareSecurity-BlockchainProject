@@ -1,18 +1,20 @@
-import time
 import logging
 from flask import render_template, request, redirect, url_for, flash, session
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, RadioField, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo
 from werkzeug.security import check_password_hash, generate_password_hash
-from database.database import DBIsConnected
-from database.migration import Oracle, Employer, Organization
+from database.migration import Employer, Organization
 from controllers.ethereum_controller import assign_addresses_to_organizations
-from algorithms.coins_algorithm import initialize_organization_coins  # Importa la funzione per inizializzare i coins delle organizzazioni
+from algorithms.coins_algorithm import CoinsAlgorithm, initialize_organization_coins  # Importa la funzione per inizializzare i coins delle organizzazioni
 from middlewares.validation import LengthValidator
-
-# Dizionario per tenere traccia dei tentativi di login falliti
-login_attempts = {}
+from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_oracle_by_username, check_login_attempts, update_login_attempts, reset_login_attempts
+from messages.messages import (
+    LOGIN_ATTEMPTS_EXCEEDED, INVALID_USERNAME_OR_PASSWORD, ACCOUNT_NOT_ENABLED, LOGIN_ERROR,
+    LOGOUT_SUCCESS, ORG_EMAIL_IN_USE, ORG_PARTITA_IVA_IN_USE, EMP_USERNAME_IN_USE, EMP_EMAIL_IN_USE,
+    SIGNUP_SUCCESS, SIGNUP_ERROR, ADD_EMPLOYERS_USERNAME_IN_USE, ADD_EMPLOYERS_EMAIL_IN_USE,
+    ADD_EMPLOYERS_SUCCESS, ADD_EMPLOYERS_ERROR
+)
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[
@@ -132,72 +134,47 @@ def login():
         username = form.username.data.lower()
         password = form.password.data
 
-        # Controlla se l'utente è bloccato
-        if username in login_attempts:
-            attempts, last_attempt_time = login_attempts[username]
-            if attempts >= 3 and time.time() - last_attempt_time < 30:
-                flash('Too many login attempts. Please try again in 30 seconds.', 'error')
-                return render_template('login.html', form=form)
+        if not check_login_attempts(username):
+            flash(LOGIN_ATTEMPTS_EXCEEDED, 'error')
+            return render_template('login.html', form=form)
 
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
 
         try:
-            # Controlla nella tabella Oracle
-            oracle_user = session_db.query(Oracle).filter_by(username=username).first()
+            oracle_user = get_oracle_by_username(session_db, username)
+            employer = get_employer_by_username(session_db, username) if not oracle_user else None
 
-            # Controlla nella tabella Employer se non trovato in Oracle
-            employer = None
-            if not oracle_user:
-                employer = session_db.query(Employer).filter_by(username=username).first()
-
-            # Verifica la password
-            if ((oracle_user and check_password_hash(oracle_user.password, password)) 
-                or (employer and check_password_hash(employer.password, password))):
-                if ((oracle_user) or (employer.status == 'active')):
-                    # Login riuscito
-                    print('Valid username and password')
+            if ((oracle_user and check_password_hash(oracle_user.password, password)) or
+                (employer and check_password_hash(employer.password, password))):
+                if oracle_user or (employer and employer.status == 'active'):
                     session['logged_in'] = True
                     session['username'] = username
 
                     if employer:
                         session['user_type'] = 'employer'
-                        session['user_org_type'] = session_db.query(Organization).filter_by(id=employer.id_organization).first().type
+                        session['user_org_id'] = employer.id_organization
+                        session['user_org_type'] = get_organization_by_id(session_db, employer.id_organization).type
                     else:
                         session['user_type'] = 'oracle'
-                    # Resetta i tentativi di login falliti
-                    if username in login_attempts:
-                        del login_attempts[username]
+
+                    reset_login_attempts(username)
                     return redirect(url_for('home_route'))
                 else:
-                    # Account disabilitato
-                    flash('Account not yet enabled')
-                    return render_template('login.html', form=form)
+                    flash(ACCOUNT_NOT_ENABLED, 'error')
             else:
-                # Login fallito
-                flash('Invalid username or password')
-                # Aggiorna i tentativi di login falliti
-                if username in login_attempts:
-                    attempts, last_attempt_time = login_attempts[username]
-                    login_attempts[username] = (attempts + 1, time.time())
-                else:
-                    login_attempts[username] = (1, time.time())
-                return render_template('login.html', form=form)
+                flash(INVALID_USERNAME_OR_PASSWORD, 'error')
+                update_login_attempts(username)
         except Exception as e:
-            print(f'Error during login: {e}')
-            flash('An error occurred during login. Please try again later.', 'error')
-            return render_template('login.html', form=form)
+            logging.error(f'Error during login: {e}')
+            flash(LOGIN_ERROR, 'error')
         finally:
             session_db.close()
 
     return render_template('login.html', form=form)
 
 def logout():
-    # Rimuove tutte le chiavi di sessione rilevanti per l'autenticazione
-    session.pop('logged_in', None)
-    session.pop('username', None)
-    # Passa un messaggio di successo al template
-    flash('You have been logged out successfully.', 'success')
+    session.clear()
+    flash(LOGOUT_SUCCESS, 'success')
     return redirect(url_for('home_route'))
 
 def signup_form():
@@ -210,90 +187,64 @@ def signup():
     emp_form = EmployerForm(request.form)
 
     if request.method == 'POST' and org_form.validate_on_submit() and emp_form.validate_on_submit():
-        db_instance = DBIsConnected.get_instance()
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
+        menager = CoinsAlgorithm()
 
         try:
             other_organizations = session_db.query(Organization).all()
+            other_emp = session_db.query(Employer).all()
 
             if any(org_form.org_email.data.lower() == o.email.lower() for o in other_organizations):
-                flash('Organization email already in use', 'wrong_org_email')
+                flash(ORG_EMAIL_IN_USE, 'wrong_org_email')
                 return signup_form()
             
             if any(org_form.org_partita_iva.data == o.partita_iva for o in other_organizations):
-                flash('Partita IVA already in use', 'wrong_org_partita_iva')
+                flash(ORG_PARTITA_IVA_IN_USE, 'wrong_org_partita_iva')
                 return signup_form()
 
-            org_name = org_form.org_name.data
-            org_email = org_form.org_email.data.lower()
-            org_address = org_form.org_address.data
-            org_city = org_form.org_city.data
-            org_cap = org_form.org_cap.data
-            org_telephone = org_form.org_telephone.data
-            org_partita_iva = org_form.org_partita_iva.data
-            org_ragione_sociale = org_form.org_ragione_sociale.data
-            org_type = org_form.org_type.data
-            org_description = org_form.org_description.data
-
-            emp_usernames = request.form.getlist('emp_username')
-            emp_passwords = request.form.getlist('emp_password')
-            emp_names = request.form.getlist('emp_name')
-            emp_surnames = request.form.getlist('emp_surname')
-            emp_emails = request.form.getlist('emp_email')
-
-            other_emp = session_db.query(Employer).all()
-
-            if any(emp_username.lower() in [e.username.lower() for e in other_emp] for emp_username in emp_usernames):
-                flash('Username already in use', 'wrong_emp_username')
+            if any(emp_form.emp_username.data.lower() == e.username.lower() for e in other_emp):
+                flash(EMP_USERNAME_IN_USE, 'wrong_emp_username')
                 return signup_form()
             
-            if any(emp_email.lower() in [e.email.lower() for e in other_emp] for emp_email in emp_emails):
-                flash('Email already in use', 'wrong_emp_email')
+            if any(emp_form.emp_email.data.lower() == e.email.lower() for e in other_emp):
+                flash(EMP_EMAIL_IN_USE, 'wrong_emp_email')
                 return signup_form()
 
-            # Crea l'organizzazione
             new_org = Organization(
-                name=org_name,
-                email=org_email,
-                address=org_address,
-                city=org_city,
-                cap=org_cap,
-                telephone=org_telephone,
-                partita_iva=org_partita_iva,
-                ragione_sociale=org_ragione_sociale,
-                type=org_type,
-                description=org_description,
+                name=org_form.org_name.data,
+                email=org_form.org_email.data.lower(),
+                address=org_form.org_address.data,
+                city=org_form.org_city.data,
+                cap=org_form.org_cap.data,
+                telephone=org_form.org_telephone.data,
+                partita_iva=org_form.org_partita_iva.data,
+                ragione_sociale=org_form.org_ragione_sociale.data,
+                type=org_form.org_type.data,
+                description=org_form.org_description.data,
             )
             session_db.add(new_org)
             session_db.commit()
-            print(f'New organization created: {new_org}')
 
-            # Assegna un indirizzo Ethereum alla nuova organizzazione
             assign_addresses_to_organizations(session_db)
-            
-            # Inizializza i coins dell'organizzazione sulla blockchain
-            initialize_organization_coins(new_org)
+            initialize_organization_coins(menager, new_org)
 
-            # Crea gli impiegati
-            for i in range(len(emp_usernames)):
-                new_emp = Employer(
-                    username=emp_usernames[i],
-                    password=generate_password_hash(emp_passwords[i]),
-                    name=emp_names[i],
-                    surname=emp_surnames[i],
-                    email=emp_emails[i].lower(),
-                    status='inactive',
-                    id_organization=new_org.id  # Associa l'impiegato all'organizzazione appena creata
-                )
-                session_db.add(new_emp)
-                print(f'New employee created: {new_emp}')
-            
+            new_emp = Employer(
+                username=emp_form.emp_username.data,
+                password=generate_password_hash(emp_form.emp_password.data),
+                name=emp_form.emp_name.data,
+                surname=emp_form.emp_surname.data,
+                email=emp_form.emp_email.data.lower(),
+                status='inactive',
+                id_organization=new_org.id
+            )
+            session_db.add(new_emp)
             session_db.commit()
-            print('Signup process completed successfully.')
+
+            flash(SIGNUP_SUCCESS, 'success')
         except Exception as e:
             session_db.rollback()
-            print(f'Error during signup: {e}')
-            flash('An error occurred during signup. Please try again later.', 'error')
+            logging.error(f'Error during signup: {e}')
+            flash(SIGNUP_ERROR, 'error')
         finally:
             session_db.close()
 
@@ -302,8 +253,7 @@ def signup():
     return signup_form()
 
 def add_employers_to_existing_org():
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     organizations = session_db.query(Organization).all()
     session_db.close()
 
@@ -318,17 +268,17 @@ def add_employers_to_existing_org():
         emp_surnames = request.form.getlist('emp_surname')
         emp_emails = request.form.getlist('emp_email')
 
-        session_db = db_instance.get_session()
+        session_db = get_db_session()
 
         try:
             other_emp = session_db.query(Employer).all()
 
             if any(emp_username.lower() in [e.username.lower() for e in other_emp] for emp_username in emp_usernames):
-                flash('Username already in use', 'wrong_emp_username')
+                flash(ADD_EMPLOYERS_USERNAME_IN_USE, 'wrong_emp_username')
                 return render_template('add_employers.html', form=form, organizations=organizations)
             
             if any(emp_email.lower() in [e.email.lower() for e in other_emp] for emp_email in emp_emails):
-                flash('Email already in use', 'wrong_emp_email')
+                flash(ADD_EMPLOYERS_EMAIL_IN_USE, 'wrong_emp_email')
                 return render_template('add_employers.html', form=form, organizations=organizations)
 
             for i in range(len(emp_usernames)):
@@ -343,14 +293,17 @@ def add_employers_to_existing_org():
                 session_db.add(new_emp)
             
             session_db.commit()
-            print('Employers added successfully!')
+            flash(ADD_EMPLOYERS_SUCCESS, 'success')
         except Exception as e:
             session_db.rollback()
-            print(f'Error during adding employers: {str(e)}')
-            flash('An error occurred while adding employers. Please try again later.', 'error')
+            logging.error(f'Error during adding employers: {str(e)}')
+            flash(ADD_EMPLOYERS_ERROR, 'error')
         finally:
             session_db.close()
 
         return redirect(url_for('home_route'))
 
     return render_template('add_employers.html', form=form, organizations=organizations)
+
+def permission_denied():
+    return render_template('permission_denied.html')

@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var updatePersonalDataButton = document.getElementById('update-personal-data-button');
     if (updatePersonalDataButton) {
         updatePersonalDataButton.addEventListener('click', function() {
-            window.location.href = "/employer_update_personal_data";
+            window.location.href = "/employer/employer_update_personal_data";
         });
     }
 

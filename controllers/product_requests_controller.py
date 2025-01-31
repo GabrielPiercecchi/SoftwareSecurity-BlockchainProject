@@ -3,10 +3,17 @@ from datetime import datetime
 from wtforms import IntegerField, SubmitField
 from wtforms.validators import DataRequired, NumberRange
 from flask_wtf import FlaskForm
-from database.database import DBIsConnected
-from database.migration import Product, Organization, Employer, ProductRequest, Delivery, Type
+import logging
+from database.migration import Product, Organization, ProductRequest, Delivery, Type
 from algorithms.coins_algorithm import coins_algorithm
 from middlewares.validation import LengthValidator
+from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer, get_product_by_id
+from messages.messages import (
+    LOGIN_REQUIRED, PRODUCT_NOT_FOUND, UNAUTHORIZED_ACCESS, REQUESTED_QUANTITY_EXCEEDS_AVAILABLE,
+    PRODUCT_REQUEST_CREATED_SUCCESSFULLY, REQUEST_ID_REQUIRED, PRODUCT_REQUEST_NOT_FOUND,
+    PRODUCT_REQUEST_DENIED_SUCCESSFULLY, INSUFFICIENT_PRODUCT_QUANTITY, PRODUCT_REQUEST_ACCEPTED_SUCCESSFULLY,
+    CO2_EMISSION_EXCEEDS_LIMIT, DELIVERY_CREATED_SUCCESSFULLY, ERROR_OCCURRED
+)
 
 class CreateProductRequestForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired(), 
@@ -17,7 +24,7 @@ class CreateProductRequestForm(FlaskForm):
 class DenyProductRequestForm(FlaskForm):
     rejectedButton = SubmitField('Reject Request')
 
-class CarrierAcceptRequestAndCreateDEliveryForm(FlaskForm):
+class CarrierAcceptRequestAndCreateDeliveryForm(FlaskForm):
     request_id = IntegerField(validators=[DataRequired()])
     co2_emission = IntegerField('CO2 Emission', validators=[DataRequired(),
                         NumberRange(min=1, message='The value must be greater than 0'),
@@ -28,25 +35,22 @@ class CarrierAcceptRequestAndCreateDEliveryForm(FlaskForm):
 def menage_product_requests():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    session_db = get_db_session()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
     
     providing_product_requests = session_db.query(ProductRequest).filter_by(id_providing_organization=organization.id).all()
     requesting_product_requests = session_db.query(ProductRequest).filter_by(id_requesting_organization=organization.id).all()
     
     providing_requests_with_details = []
     for request in providing_product_requests:
-        product = session_db.query(Product).get(request.id_product)
-        requesting_org = session_db.query(Organization).get(request.id_requesting_organization)
-        carrier_org = session_db.query(Organization).get(request.id_carrier_organization)
-        if carrier_org:
-            carrier_org_name = carrier_org.name
-        else:
-            carrier_org_name = "TBD"
+        product = get_product_by_id(session_db, request.id_product)
+        requesting_org = get_organization_by_id(session_db, request.id_requesting_organization)
+        carrier_org = get_organization_by_id(session_db, request.id_carrier_organization)
+        carrier_org_name = carrier_org.name if carrier_org else "TBD"
         providing_requests_with_details.append({
             'request': request,
             'product_name': product.name,
@@ -57,13 +61,10 @@ def menage_product_requests():
     
     requesting_requests_with_details = []
     for request in requesting_product_requests:
-        product = session_db.query(Product).get(request.id_product)
-        providing_org = session_db.query(Organization).get(request.id_providing_organization)
-        carrier_org = session_db.query(Organization).get(request.id_carrier_organization)
-        if carrier_org:
-            carrier_org_name = carrier_org.name
-        else:
-            carrier_org_name = "TBD"
+        product = get_product_by_id(session_db, request.id_product)
+        providing_org = get_organization_by_id(session_db, request.id_providing_organization)
+        carrier_org = get_organization_by_id(session_db, request.id_carrier_organization)
+        carrier_org_name = carrier_org.name if carrier_org else "TBD"
         requesting_requests_with_details.append({
             'request': request,
             'product_name': product.name,
@@ -75,22 +76,21 @@ def menage_product_requests():
     carriers = session_db.query(Organization).filter_by(type='carrier').all()
     
     session_db.close()
-    form=DenyProductRequestForm()
+    form = DenyProductRequestForm()
 
     return render_template('employer_menage_product_requests.html', organization=organization, 
-                           providing_product_requests=providing_requests_with_details, 
-                           requesting_product_requests=requesting_requests_with_details, carriers=carriers, form=form)
+        providing_product_requests=providing_requests_with_details, 
+        requesting_product_requests=requesting_requests_with_details, carriers=carriers, form=form)
 
 def view_other_products():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
-    employer = session_db.query(Employer).filter_by(username=username).first()
-
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    session_db = get_db_session()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
 
     # Retrieve products from other organizations
     other_products = session_db.query(Product).filter(Product.id_organization != organization.id).all()
@@ -98,7 +98,7 @@ def view_other_products():
     
     products_with_org = []
     for product in other_products:
-        org = session_db.query(Organization).get(product.id_organization)
+        org = get_organization_by_id(session_db, product.id_organization)
         products_with_org.append({
             'product': product,
             'organization_name': org.name
@@ -111,21 +111,27 @@ def view_other_products():
 def create_product_requests(product_id):
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     
     form = CreateProductRequestForm()
 
     if request.method == 'GET':
-        product = session_db.query(Product).get(product_id)
+        product = get_product_by_id(session_db, product_id)
+
         if not product:
             session_db.close()
-            flash('Product not found.', 'danger')
-            return redirect(url_for('view_other_products'))
+            flash(PRODUCT_NOT_FOUND, 'danger')
+            return redirect(url_for('view_other_products_route'))
+        
+        if product.id_organization == get_employer_by_username(session_db, username).id_organization:
+            session_db.close()
+            flash(UNAUTHORIZED_ACCESS, 'error')
+            return redirect(url_for('permission_denied_route'))
 
-        org = session_db.query(Organization).get(product.id_organization)
+        org = get_organization_by_id(session_db, product.id_organization)
         product_with_org = {
             'product': product,
             'organization_name': org.name
@@ -139,13 +145,13 @@ def create_product_requests(product_id):
     if request.method == 'POST' and form.validate_on_submit():
         quantity = form.quantity.data
 
-        employer = session_db.query(Employer).filter_by(username=username).first()
-        organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+        employer = get_employer_by_username(session_db, username)
+        organization = get_organization_by_employer(session_db, employer)
         
-        product = session_db.query(Product).get(product_id)
+        product = get_product_by_id(session_db, product_id)
         
         if quantity > product.quantity:
-            flash('Requested quantity exceeds available quantity.', 'danger')
+            flash(REQUESTED_QUANTITY_EXCEEDS_AVAILABLE, 'danger')
             product_with_org = {
                 'product': product,
                 'organization_name': organization.name
@@ -164,7 +170,7 @@ def create_product_requests(product_id):
         session_db.add(new_request)
         session_db.commit()
         session_db.close()
-        flash('Failed to update product.', 'error')
+        flash(PRODUCT_REQUEST_CREATED_SUCCESSFULLY, 'success')
 
         return redirect(url_for('menage_product_requests_route'))
     
@@ -174,33 +180,30 @@ def create_product_requests(product_id):
 def deny_product_request():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     request_id = request.form.get('request_id')
     if not request_id:
-        print('Request ID is required')
-        flash('Request ID is required', 'error')
+        flash(REQUEST_ID_REQUIRED, 'error')
         return redirect(url_for('menage_product_requests_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     
     try:
         product_request = session_db.query(ProductRequest).get(request_id)
         if not product_request:
-            print('Product request not found')
-            flash('Product request not found', 'error')
+            flash(PRODUCT_REQUEST_NOT_FOUND, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
         product_request.status = 'rejected'
         product_request.date_responded = datetime.now()
         session_db.commit()
-        print('Product request denied successfully')
-        flash('Product request denied successfully', 'success')
+        flash(PRODUCT_REQUEST_DENIED_SUCCESSFULLY, 'success')
     except Exception as e:
         session_db.rollback()
-        print(f'Error: {str(e)}')
-        flash(f'Error: {str(e)}', 'error')
+        logging.error(f'Error: {str(e)}')
+        flash(ERROR_OCCURRED.format(str(e)), 'error')
     finally:
         session_db.close()
     
@@ -209,34 +212,30 @@ def deny_product_request():
 def accept_product_request():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
     request_id = request.form.get('request_id')
     carrier_id = request.form.get('carrier_id')
     if not request_id or not carrier_id:
-        print('Request ID and Carrier ID are required')
-        flash('Request ID and Carrier ID are required', 'error')
+        flash(REQUEST_ID_REQUIRED, 'error')
         return redirect(url_for('menage_product_requests_route'))
 
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     
     try:
         product_request = session_db.query(ProductRequest).get(request_id)
         if not product_request:
-            print('Product request not found')
-            flash('Product request not found', 'error')
+            flash(PRODUCT_REQUEST_NOT_FOUND, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
-        product = session_db.query(Product).get(product_request.id_product)
+        product = get_product_by_id(session_db, product_request.id_product)
         if not product:
-            print('Product not found')
-            flash('Product not found', 'error')
+            flash(PRODUCT_NOT_FOUND, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
         if product.quantity < product_request.quantity:
-            print('Insufficient product quantity')
-            flash('Insufficient product quantity', 'error')
+            flash(INSUFFICIENT_PRODUCT_QUANTITY, 'error')
             return redirect(url_for('menage_product_requests_route'))
         
         product.quantity -= product_request.quantity
@@ -245,12 +244,11 @@ def accept_product_request():
         product_request.id_carrier_organization = carrier_id
         product_request.date_responded = datetime.now()
         session_db.commit()
-        print('Product request accepted successfully')
-        flash('Product request accepted successfully', 'success')
+        flash(PRODUCT_REQUEST_ACCEPTED_SUCCESSFULLY, 'success')
     except Exception as e:
         session_db.rollback()
-        print(f'Error: {str(e)}')
-        flash(f'Error: {str(e)}', 'error')
+        logging.error(f'Error: {str(e)}')
+        flash(ERROR_OCCURRED.format(str(e)), 'error')
     finally:
         session_db.close()
     
@@ -259,20 +257,20 @@ def accept_product_request():
 def carrier_menage_product_requests():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
 
-    employer = session_db.query(Employer).filter_by(username=username).first()
-    organization = session_db.query(Organization).filter_by(id=employer.id_organization).first()
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_employer(session_db, employer)
     carring_product_request = session_db.query(ProductRequest).filter_by(id_carrier_organization=organization.id).all()
 
     carring_request_with_details = []
     for request in carring_product_request:
-        product = session_db.query(Product).get(request.id_product)
-        requesting_org = session_db.query(Organization).get(request.id_requesting_organization)
-        providing_org = session_db.query(Organization).get(request.id_providing_organization)
+        product = get_product_by_id(session_db, request.id_product)
+        requesting_org = get_organization_by_id(session_db, request.id_requesting_organization)
+        providing_org = get_organization_by_id(session_db, request.id_providing_organization)
         carring_request_with_details.append({
             'request': request,
             'product_name': product.name,
@@ -282,20 +280,20 @@ def carrier_menage_product_requests():
         })
     
     session_db.close()
-    form=CarrierAcceptRequestAndCreateDEliveryForm()
+    form = CarrierAcceptRequestAndCreateDeliveryForm()
 
     return render_template('carrier_menage_product_requests.html', organization=organization, 
-                           carring_product_request=carring_request_with_details, form=form)
+        carring_product_request=carring_request_with_details, form=form)
 
 def carrier_accept_and_create_delivery():
     username = session.get('username')
     if not username:
+        flash(LOGIN_REQUIRED, 'error')
         return redirect(url_for('login_route'))
     
-    db_instance = DBIsConnected.get_instance()
-    session_db = db_instance.get_session()
+    session_db = get_db_session()
     
-    form = CarrierAcceptRequestAndCreateDEliveryForm()
+    form = CarrierAcceptRequestAndCreateDeliveryForm()
 
     if request.method == 'POST' and form.validate_on_submit():
         request_id = form.request_id.data
@@ -304,18 +302,17 @@ def carrier_accept_and_create_delivery():
         try:
             product_request = session_db.query(ProductRequest).filter_by(id=request_id).first()
             if not product_request:
-                print('Product request not found')
-                flash('Product request not found', 'error')
+                flash(PRODUCT_REQUEST_NOT_FOUND, 'error')
                 return redirect(url_for('carrier_menage_product_requests_route'))
             
-            organization = session_db.query(Organization).filter_by(id=product_request.id_carrier_organization).first()
+            organization = get_organization_by_id(session_db, product_request.id_carrier_organization)
             default_co2_value = session_db.query(Type).filter_by(id_type=organization.type).first().default_co2_value
             co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
-            co2_limit = default_co2_value + co2_standard*product_request.quantity
+            co2_limit = default_co2_value + co2_standard * product_request.quantity
 
             if not coins_algorithm(co2_emission, co2_limit, organization, session_db):
                 session_db.rollback()
-                print('CO2 emission exceeds the limit')
+                flash(CO2_EMISSION_EXCEEDS_LIMIT, 'error')
                 return redirect(url_for('carrier_menage_product_requests_route'))
 
             delivery = Delivery(
@@ -331,18 +328,16 @@ def carrier_accept_and_create_delivery():
             session_db.add(delivery)
             product_request.status_delivery = 'delivered'
             session_db.commit()
-            print('Delivery created successfully')
-            flash('Delivery created successfully', 'success')
+            flash(DELIVERY_CREATED_SUCCESSFULLY, 'success')
             session_db.close()
         except Exception as e:
             session_db.rollback()
-            print(f'Error: {str(e)}')
-            flash(f'Error: {str(e)}', 'error')
+            logging.error(f'Error: {str(e)}')
+            flash(ERROR_OCCURRED.format(str(e)), 'error')
             return redirect(url_for('carrier_menage_product_requests_route'))
         
     else:
         flash('The value must be greater than 0.00')
         return redirect(url_for('carrier_menage_product_requests_route'))
-
 
     return redirect(url_for('carrier_menage_product_requests_route'))
