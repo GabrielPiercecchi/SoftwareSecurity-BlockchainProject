@@ -219,6 +219,12 @@ def view_transactions():
         return redirect(url_for('view_transactions_route'))
     
 def register_rejected_transaction(manager, organization, amount, reason, product_name, product_quantity, co2_emission):
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login_route'))
+    
+    manager = CoinsAlgorithm()
+
     tx = manager.coin_contract.functions.registerRejectedTransaction(
         organization.blockchain_address,
         amount,

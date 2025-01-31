@@ -156,6 +156,7 @@ def create_product():
 
             if not coins_algorithm(co2_production_product, co2_limit, organization, session_db, name, quantity):
                 session_db.rollback()
+                session_db.close()
                 return redirect(url_for('create_product_route'))
 
             new_prod = Product(  

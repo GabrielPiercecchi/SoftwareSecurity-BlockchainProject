@@ -483,3 +483,14 @@ main h1, main h2, main h3, main p {
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* IE */
 }
+
+.disabled-button {
+    pointer-events: none;
+    opacity: 0.5; /* Opzionale: rende la pagina semi-trasparente per indicare che è disabilitata */
+    cursor: not-allowed; /* Cambia il cursore per indicare che il pulsante è disabilitato */
+}
+
+.no-interaction {
+    pointer-events: none;
+    opacity: 0.5; /* Opzionale: rende la pagina semi-trasparente per indicare che è disabilitata */
+}

@@ -47,8 +47,8 @@
                             <h3>Transaction N° {{ loop.index }}</h3>
                             <li>
                                 <p class="word-break">Transaction txHash: {{ transaction.txHash | e }}</p>
-                                <p>Amount: {{ transaction.amount | e }}</p>
-                                <p>Epoch Transaction Date: {{ transaction.timestamp | e }}</p>
+                                <p>Coin Amount: {{ transaction.amount | e }}</p>
+                                <p>Transaction Date: {{ transaction.timestamp | e }}</p>
                             </li>
                         </ul>
                     {% endfor %}

@@ -188,7 +188,7 @@ def signup():
 
     if request.method == 'POST' and org_form.validate_on_submit() and emp_form.validate_on_submit():
         session_db = get_db_session()
-        menager = CoinsAlgorithm()
+        manager = CoinsAlgorithm()
 
         try:
             other_organizations = session_db.query(Organization).all()
@@ -226,18 +226,27 @@ def signup():
             session_db.commit()
 
             assign_addresses_to_organizations(session_db)
-            initialize_organization_coins(menager, new_org)
+            initialize_organization_coins(manager, new_org)
 
-            new_emp = Employer(
-                username=emp_form.emp_username.data,
-                password=generate_password_hash(emp_form.emp_password.data),
-                name=emp_form.emp_name.data,
-                surname=emp_form.emp_surname.data,
-                email=emp_form.emp_email.data.lower(),
-                status='inactive',
-                id_organization=new_org.id
-            )
-            session_db.add(new_emp)
+            # Aggiungi tutti gli impiegati
+            emp_usernames = request.form.getlist('emp_username')
+            emp_passwords = request.form.getlist('emp_password')
+            emp_names = request.form.getlist('emp_name')
+            emp_surnames = request.form.getlist('emp_surname')
+            emp_emails = request.form.getlist('emp_email')
+
+            for i in range(len(emp_usernames)):
+                new_emp = Employer(
+                    username=emp_usernames[i],
+                    password=generate_password_hash(emp_passwords[i]),
+                    name=emp_names[i],
+                    surname=emp_surnames[i],
+                    email=emp_emails[i].lower(),
+                    status='inactive',
+                    id_organization=new_org.id
+                )
+                session_db.add(new_emp)
+
             session_db.commit()
 
             flash(SIGNUP_SUCCESS, 'success')
@@ -260,7 +269,7 @@ def add_employers_to_existing_org():
     form = AddEmployersForm()
     form.organization.choices = [(org.id, f"{org.id} - {org.name} - {org.type}") for org in organizations]
 
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST' and form.validate_on_submit():
         organization_id = form.organization.data
         emp_usernames = request.form.getlist('emp_username')
         emp_passwords = request.form.getlist('emp_password')

@@ -313,6 +313,7 @@ def carrier_accept_and_create_delivery():
 
             if not coins_algorithm(co2_emission, co2_limit, organization, session_db, product.name, product_request.quantity):
                 session_db.rollback()
+                session_db.close()
                 flash(CO2_EMISSION_EXCEEDS_LIMIT, 'error')
                 return redirect(url_for('carrier_menage_product_requests_route'))
 
