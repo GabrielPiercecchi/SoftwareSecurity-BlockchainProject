@@ -116,3 +116,21 @@ FAILED_TO_UPDATE_PRODUCT = 'Failed to update product.'
 FAILED_TO_ADD_PRODUCT = 'Failed to add product: intero fuori dall\'intervallo'
 FAILED_TO_REGISTER_PRODUCT_ORIGIN = 'Failed to register product origin on blockchain.'
 ORIGIN_PRODUCT_REQUIRED = 'At least one origin product must be selected.'
+
+############################################
+# coins_algorithm.py messages
+############################################
+
+# Coin Algorithm messages
+CONTRACT_ADDRESS_FILE_NOT_FOUND = 'Contract address file not found. Ensure the contract is deployed.'
+INVALID_CONTRACT_ADDRESS = 'Invalid contract address: {}'
+ERROR_GETTING_COINS = 'Error getting coins from blockchain: {}'
+COIN_DISCREPANCY_DETECTED = 'Coin discrepancy detected between database and blockchain'
+CO2_EMISSION_EXCEEDS_LIMIT = 'CO2 emission exceeds the limit. You need {} more coin'
+TRANSACTION_FAILED = 'Transaction failed: CO2 emission exceeds the limit. You need {} more coin'
+ERROR_IN_COINS_ALGORITHM = 'An error occurred: {}'
+FAILED_TO_UPDATE_COINS_PROVIDING = 'Failed to update coins for providing organization'
+FAILED_TO_UPDATE_COINS_REQUESTING = 'Failed to update coins for requesting organization'
+ERROR_UPDATING_COINS = 'Error updating organization coins on blockchain: {}'
+ERROR_GETTING_TRANSACTIONS = 'Error while getting transactions: {}'
+

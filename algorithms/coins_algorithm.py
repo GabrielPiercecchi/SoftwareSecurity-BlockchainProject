@@ -5,6 +5,11 @@ from database.migration import Organization
 from datetime import datetime
 from utilities.utilities import read_nonce, write_nonce, get_db_session, get_organization_by_id, get_employer_by_username
 import logging
+from messages.messages import (
+    CONTRACT_ADDRESS_FILE_NOT_FOUND, INVALID_CONTRACT_ADDRESS, ERROR_GETTING_COINS,
+    COIN_DISCREPANCY_DETECTED, CO2_EMISSION_EXCEEDS_LIMIT, TRANSACTION_FAILED, ERROR_IN_COINS_ALGORITHM,
+    FAILED_TO_UPDATE_COINS_PROVIDING, FAILED_TO_UPDATE_COINS_REQUESTING, ERROR_UPDATING_COINS, ERROR_GETTING_TRANSACTIONS
+)
 
 class CoinsAlgorithm:
     def __init__(self):
@@ -18,11 +23,11 @@ class CoinsAlgorithm:
                 contract_address = file.read().strip()
                 contract_address = Web3.to_checksum_address(contract_address)
         except FileNotFoundError:
-            logging.error("Contract address file not found. Ensure the contract is deployed.")
-            raise Exception("Contract address file not found. Ensure the contract is deployed.")
+            logging.error(CONTRACT_ADDRESS_FILE_NOT_FOUND)
+            raise Exception(CONTRACT_ADDRESS_FILE_NOT_FOUND)
         except ValueError as e:
-            logging.error(f"Invalid contract address: {e}")
-            raise Exception(f"Invalid contract address: {e}")
+            logging.error(INVALID_CONTRACT_ADDRESS.format(e))
+            raise Exception(INVALID_CONTRACT_ADDRESS.format(e))
 
         return self.contract_interactions.get_contract(contract_address)
 
@@ -38,8 +43,8 @@ class CoinsAlgorithm:
             coins = self.coin_contract.functions.getBalance(blockchain_address).call()
             return coins
         except Exception as e:
-            logging.error(f'Error getting coins from blockchain: {e}')
-            raise Exception(f'Error getting coins from blockchain: {e}')
+            logging.error(ERROR_GETTING_COINS.format(e))
+            raise Exception(ERROR_GETTING_COINS.format(e))
 
     def increment_nonce(self):
         self.nonce += 1
@@ -81,7 +86,7 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db):
     try:
         blockchain_coins = manager.get_coins_from_blockchain(organization.blockchain_address)
         if int(organization.coin) != int(blockchain_coins):
-            flash('Coin discrepancy detected between database and blockchain', 'error')
+            flash(COIN_DISCREPANCY_DETECTED, 'error')
             return False
 
         tx = manager.coin_contract.functions.updateCoinsBasedOnEmission(
@@ -103,7 +108,7 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db):
                 malus_coin = int(co2_emission - co2_limit)
                 organization.coin -= malus_coin
                 if organization.coin < 0:
-                    flash(f'CO2 emission exceeds the limit. You need { (organization.coin*-1) } more coin', 'error_co2')
+                    flash(CO2_EMISSION_EXCEEDS_LIMIT.format((organization.coin*-1)), 'error_co2')
                     return False
                 else:
                     session_db.add(organization)
@@ -115,12 +120,12 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db):
                 session_db.commit()
             return True
         else:
-            flash(f'Transaction failed: CO2 emission exceeds the limit. You need { int((organization.coin - co2_emission + co2_limit)*-1) } more coin', 'error')
+            flash(TRANSACTION_FAILED.format(int((organization.coin - co2_emission + co2_limit)*-1)), 'error')
             manager.increment_nonce()
             return False
     except Exception as e:
-        logging.error(f'Error in coins algorithm: {e}')
-        flash(f'An error occurred: {str(e)}', 'error')
+        logging.error(ERROR_IN_COINS_ALGORITHM.format(e))
+        flash(ERROR_IN_COINS_ALGORITHM.format(e), 'error')
         return False
 
 def update_organization_coins_on_blockchain(organization, organization_requesting, coin_request, session_db):
@@ -130,11 +135,11 @@ def update_organization_coins_on_blockchain(organization, organization_requestin
         blockchain_coins_org_req = manager.get_coins_from_blockchain(organization_requesting.blockchain_address)
 
         if int(organization.coin) != int(blockchain_coins_org_del):
-            flash(f'Coin discrepancy detected between database and blockchain for {organization.name}', 'error')
+            flash(COIN_DISCREPANCY_DETECTED.format(organization.name), 'error')
             return False
 
         if int(organization_requesting.coin) != int(blockchain_coins_org_req):
-            flash(f'Coin discrepancy detected between database and blockchain for {organization_requesting.name}', 'error')
+            flash(COIN_DISCREPANCY_DETECTED.format(organization_requesting.name), 'error')
             return False
 
         tx = manager.coin_contract.functions.updateCoins(organization.blockchain_address, -int(coin_request.coin)).build_transaction({
@@ -149,7 +154,7 @@ def update_organization_coins_on_blockchain(organization, organization_requestin
         if receipt.status == 1:
             manager.increment_nonce()
         else:
-            flash('Failed to update coins for providing organization', 'error')
+            flash(FAILED_TO_UPDATE_COINS_PROVIDING, 'error')
             manager.increment_nonce()
             return False
 
@@ -173,12 +178,12 @@ def update_organization_coins_on_blockchain(organization, organization_requestin
             session_db.close()
             return True
         else:
-            flash('Failed to update coins for requesting organization', 'error')
+            flash(FAILED_TO_UPDATE_COINS_REQUESTING, 'error')
             manager.increment_nonce()
             return False
     except Exception as e:
-        logging.error(f'Error updating organization coins on blockchain: {e}')
-        flash(f'Error updating organization coins on blockchain: {e}', 'error')
+        logging.error(ERROR_UPDATING_COINS.format(e))
+        flash(ERROR_UPDATING_COINS.format(e), 'error')
         return False
 
 def view_transactions():
@@ -206,6 +211,6 @@ def view_transactions():
         return render_template('employer_view_transactions.html', transactions=transactions, organization=organization)
     except Exception as e:
         session_db.close()
-        logging.error(f'Error while getting transactions: {e}')
-        flash(f'Error while getting transactions: {e}', 'error')
+        logging.error(ERROR_GETTING_TRANSACTIONS.format(e))
+        flash(ERROR_GETTING_TRANSACTIONS.format(e), 'error')
         return redirect(url_for('view_transactions_route'))

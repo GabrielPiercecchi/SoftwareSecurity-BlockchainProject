@@ -121,13 +121,21 @@ REVISIONE PROFESSORE:
 
 TODO_29_01_2025:
     1. Correggere bug: 
-        - doppia compilazione
-        - cookie 
+        - doppia compilazione DONE
+        - cookie DONE
     2. Correggere Vulnerabilità:
-        - URL
+        - URL DONE
         - hidden_tag nelle form DONE
     3. Pulire codice:
         - python:
             - utilities.py DONE
-            - messages.py
-        - javascript:
+            - messages.py:
+                - controllers DONE
+                - algorithms DONE
+        - javascript
+    4. Implementare tracciamento prodotti nella blockchain:
+    5. Testing:
+        - form
+        - validazione
+        - cookie
+        - sicurezza
