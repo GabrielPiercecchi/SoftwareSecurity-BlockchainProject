@@ -60,6 +60,7 @@ def initialize_organization_coins_for_all(session_db):
             print(f'Coins initialized for organization {org.name}')
 
 def initialize_organization_coins(manager, organization):
+    manager = CoinsAlgorithm()
     try:
         coin_value = int(organization.coin)
         tx = manager.coin_contract.functions.updateCoins(organization.blockchain_address, coin_value).build_transaction({
@@ -75,13 +76,14 @@ def initialize_organization_coins(manager, organization):
             manager.increment_nonce()
             return True
         else:
+            manager.increment_nonce()
             return False
     except Exception as e:
         logging.error(f'Error initializing organization coins: {e}')
         print(f'Error initializing organization coins: {e}')
         return False
 
-def coins_algorithm(co2_emission, co2_limit, organization, session_db):
+def coins_algorithm(co2_emission, co2_limit, organization, session_db, product_name, product_quantity):
     manager = CoinsAlgorithm()
     try:
         blockchain_coins = manager.get_coins_from_blockchain(organization.blockchain_address)
@@ -120,7 +122,23 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db):
                 session_db.commit()
             return True
         else:
+            manager.increment_nonce()
             flash(TRANSACTION_FAILED.format(int((organization.coin - co2_emission + co2_limit)*-1)), 'error')
+            tx = manager.coin_contract.functions.registerRejectedTransaction(
+                organization.blockchain_address,
+                int(co2_emission - co2_limit),
+                "Transaction failed",
+                product_name,
+                product_quantity,
+                co2_emission
+            ).build_transaction({
+                'chainId': manager.contract_interactions.chain_id,
+                'gas': 2000000,
+                'gasPrice': manager.contract_interactions.w3.eth.gas_price,
+                'nonce': manager.nonce,
+            })
+            signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
+            manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
             manager.increment_nonce()
             return False
     except Exception as e:
@@ -214,3 +232,38 @@ def view_transactions():
         logging.error(ERROR_GETTING_TRANSACTIONS.format(e))
         flash(ERROR_GETTING_TRANSACTIONS.format(e), 'error')
         return redirect(url_for('view_transactions_route'))
+    
+def view_rejected_transactions():
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login_route'))
+    
+    manager = CoinsAlgorithm()
+    session_db = get_db_session()
+    
+    employer = get_employer_by_username(session_db, username)
+    organization = get_organization_by_id(session_db, employer.id_organization)
+
+    try:
+        rejected_orgs, rejected_amounts, rejected_timestamps, rejected_reasons = manager.coin_contract.functions.getRejectedTransactionDetails1(organization.blockchain_address).call()
+        rejected_product_names, rejected_product_quantities, rejected_co2_emissions, rejected_tx_hashes = manager.coin_contract.functions.getRejectedTransactionDetails2(organization.blockchain_address).call()
+        
+        rejected_transactions = []
+        for i in range(len(rejected_orgs)):
+            rejected_transactions.append({
+                'organization': rejected_orgs[i],
+                'amount': rejected_amounts[i],
+                'timestamp': rejected_timestamps[i],
+                'reason': rejected_reasons[i],
+                'product_name': rejected_product_names[i],
+                'product_quantity': rejected_product_quantities[i],
+                'co2_emission': rejected_co2_emissions[i],
+                'tx_hash': rejected_tx_hashes[i]
+            })
+        session_db.close()
+        return render_template('employer_view_rejected_transactions.html', rejected_transactions=rejected_transactions, organization=organization)
+    except Exception as e:
+        session_db.close()
+        logging.error(ERROR_GETTING_TRANSACTIONS.format(e))
+        flash(ERROR_GETTING_TRANSACTIONS.format(e), 'error')
+        return redirect(url_for('view_rejected_transactions_route'))

@@ -154,7 +154,7 @@ def create_product():
             co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
             co2_limit = default_co2_value + co2_standard*quantity
 
-            if not coins_algorithm(co2_production_product, co2_limit, organization, session_db):
+            if not coins_algorithm(co2_production_product, co2_limit, organization, session_db, name, quantity):
                 session_db.rollback()
                 return redirect(url_for('create_product_route'))
 

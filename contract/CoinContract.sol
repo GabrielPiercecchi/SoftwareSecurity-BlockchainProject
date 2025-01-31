@@ -24,11 +24,26 @@ contract CoinContract {
         uint256 timestamp;
     }
 
+    /// @notice Struct to store rejected transaction details.
+    struct RejectedTransaction {
+        address organization;
+        int256 amount;
+        uint256 timestamp;
+        string reason;
+        string productName;
+        uint256 productQuantity;
+        uint256 co2Emission;
+        bytes32 txHash;
+    }
+
     /// @notice Array to store all transactions.
     Transaction[] public transactions;
 
     /// @notice Array to store all product origin transactions.
     ProductOriginTransaction[] public productOriginTransactions;
+
+    /// @notice Array to store all rejected transactions.
+    RejectedTransaction[] public rejectedTransactions;
 
     /// @notice Event emitted when the coin balance of an organization is updated.
     /// @param organization The address of the organization.
@@ -39,6 +54,16 @@ contract CoinContract {
     /// @param originProduct The ID of the origin product.
     /// @param endProduct The ID of the end product.
     event ProductOriginRegistered(uint256 indexed originProduct, uint256 indexed endProduct);
+
+    /// @notice Event emitted when a transaction is rejected.
+    /// @param organization The address of the organization.
+    /// @param amount The amount of the rejected transaction.
+    /// @param reason The reason for the rejection.
+    /// @param productName The name of the product.
+    /// @param productQuantity The quantity of the product.
+    /// @param co2Emission The CO2 emission of the product.
+    /// @param txHash The transaction hash.
+    event TransactionRejected(address indexed organization, int256 amount, string reason, string productName, uint256 productQuantity, uint256 co2Emission, bytes32 txHash);
 
     /// @notice Updates the coin balance of an organization.
     /// @param organization The address of the organization.
@@ -101,6 +126,7 @@ contract CoinContract {
     /// @param from The address of the organization sending the coins.
     /// @param to The address of the organization receiving the coins.
     /// @param amount The amount of coins to transfer.
+    /// @dev The transaction hash is generated using the block number, organization address, amount, and timestamp.
     function transferCoins(address from, address to, uint256 amount) public {
         require(from != address(0), "Invalid sender address");
         require(to != address(0), "Invalid recipient address");
@@ -147,6 +173,35 @@ contract CoinContract {
 
         // Emit the event
         emit ProductOriginRegistered(originProduct, endProduct);
+    }
+
+    /// @notice Registers a rejected transaction.
+    /// @param organization The address of the organization.
+    /// @param amount The amount of the rejected transaction.
+    /// @param reason The reason for the rejection.
+    /// @param productName The name of the rejected product.
+    /// @param productQuantity The quantity of the rejected product.
+    /// @param co2Emission The CO2 emission of the rejected product.
+    /// @dev The transaction hash is generated using the block number, organization address, amount, and timestamp.
+    function registerRejectedTransaction(address organization, int256 amount, string memory reason, string memory productName, uint256 productQuantity, uint256 co2Emission) public {
+        require(organization != address(0), "Invalid address");
+
+        // Genera il txHash
+        bytes32 txHash = keccak256(abi.encodePacked(block.number, organization, amount, block.timestamp));
+
+        // Memorizza la transazione rifiutata
+        rejectedTransactions.push(RejectedTransaction({
+            organization: organization,
+            amount: amount,
+            timestamp: block.timestamp,
+            reason: reason,
+            productName: productName,
+            productQuantity: productQuantity,
+            co2Emission: co2Emission,
+            txHash: txHash
+        }));
+
+        emit TransactionRejected(organization, amount, reason, productName, productQuantity, co2Emission, txHash);
     }
 
     /// @notice Returns the coin balance of an organization.
@@ -201,5 +256,63 @@ contract CoinContract {
         }
 
         return (originProducts, endProducts, timestamps);
+    }
+
+    /// @notice Returns the rejected transactions of an organization.
+    /// @param organization The address of the organization.
+    /// @return Arrays of rejected transaction details.
+    function getRejectedTransactionDetails1(address organization) public view returns (address[] memory, int256[] memory, uint256[] memory, string[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < rejectedTransactions.length; i++) {
+            if (rejectedTransactions[i].organization == organization) {
+                count++;
+            }
+        }
+
+        address[] memory orgs = new address[](count);
+        int256[] memory amounts = new int256[](count);
+        uint256[] memory timestamps = new uint256[](count);
+        string[] memory reasons = new string[](count);
+        uint256 index = 0;
+        for (uint256 i = 0; i < rejectedTransactions.length; i++) {
+            if (rejectedTransactions[i].organization == organization) {
+                orgs[index] = rejectedTransactions[i].organization;
+                amounts[index] = rejectedTransactions[i].amount;
+                timestamps[index] = rejectedTransactions[i].timestamp;
+                reasons[index] = rejectedTransactions[i].reason;
+                index++;
+            }
+        }
+
+        return (orgs, amounts, timestamps, reasons);
+    }
+
+    /// @notice Returns the rejected transactions of an organization.
+    /// @param organization The address of the organization.
+    /// @return Arrays of rejected transaction details.
+    function getRejectedTransactionDetails2(address organization) public view returns (string[] memory, uint256[] memory, uint256[] memory, bytes32[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < rejectedTransactions.length; i++) {
+            if (rejectedTransactions[i].organization == organization) {
+                count++;
+            }
+        }
+
+        string[] memory productNames = new string[](count);
+        uint256[] memory productQuantities = new uint256[](count);
+        uint256[] memory co2Emissions = new uint256[](count);
+        bytes32[] memory txHashes = new bytes32[](count);
+        uint256 index = 0;
+        for (uint256 i = 0; i < rejectedTransactions.length; i++) {
+            if (rejectedTransactions[i].organization == organization) {
+                productNames[index] = rejectedTransactions[i].productName;
+                productQuantities[index] = rejectedTransactions[i].productQuantity;
+                co2Emissions[index] = rejectedTransactions[i].co2Emission;
+                txHashes[index] = rejectedTransactions[i].txHash;
+                index++;
+            }
+        }
+
+        return (productNames, productQuantities, co2Emissions, txHashes);
     }
 }

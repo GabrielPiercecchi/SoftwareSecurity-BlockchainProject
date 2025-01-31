@@ -37,15 +37,20 @@
         </nav>
     </header>
     <main>
-        <div class="signup-container">
-            <div class="signup-form">
-                <h2>Welcome to your home</h2>
-                <button type="button" class="button-green" id="view-organization-inactive-button">View all inactive organizations</button>
-                <button type="button" class="button-green" id="view-employer-inactive-button">View all inactive employer in active organization </button>
-                <button type="button" class="button-green" id="coin-transfer-button">Coin transfer</button>
-                <button type="button" class="button-green" id="view-log-file-button">View Log file</button>
-            </div>
-        </div>
+        <section class="signup-container">
+            <ul class="section-bordered">
+                <h1>Log File Content</h1>
+                {% if log_content %}
+                    <ul class="log-content">
+                        {% for line in log_content %}
+                            <li>{{ line }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No log content found.</p>
+                {% endif %}
+            </ul>
+        </section>
     </main>
 </body>
 </html>

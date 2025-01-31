@@ -55,4 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    var viewRejectedTransactionsButton = document.getElementById('view-rejected-transactions-button');
+    if (viewRejectedTransactionsButton) {
+        viewRejectedTransactionsButton.addEventListener('click', function() {
+            window.location.href = "/employer/view_rejected_transactions/";
+        });
+    }
 });

@@ -15,9 +15,9 @@ from controllers.products_controller import create_product
 from controllers.employers_controller import employer_home, employer_update_personal_data
 from controllers.deliveries_controller import employer_view_deliveries, carrier_view_deliveries
 from controllers.product_requests_controller import menage_product_requests, view_other_products, create_product_requests, deny_product_request, accept_product_request, carrier_menage_product_requests, carrier_accept_and_create_delivery
-from controllers.oracle_controller import approve_employer, manage_employer_registration, oracle_home, reject_employer, view_employer_inactive, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer, oracle_view_organizations
+from controllers.oracle_controller import approve_employer, manage_employer_registration, oracle_home, reject_employer, view_employer_inactive, view_organization_inactive, manage_organization_registration, approve_organization, reject_organization, oracle_coin_transfer, oracle_view_organizations, view_log_file
 from controllers.coin_requests_controller import view_coin_requests, create_coin_request, accept_coin_request, view_accepted_coin_requests
-from algorithms.coins_algorithm import view_transactions
+from algorithms.coins_algorithm import view_transactions, view_rejected_transactions
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
@@ -151,6 +151,10 @@ def accept_coin_request_route():
 def view_transactions_route():
     return view_transactions()
 
+@app.route("/employer/view_rejected_transactions/")
+def view_rejected_transactions_route():
+    return view_rejected_transactions()
+
 @app.route("/oracle/")
 def oracle_home_route():
     return oracle_home()
@@ -194,6 +198,10 @@ def reject_employer_route(employer_id):
 @app.route("/oracle/coin_transfer/<int:organization_id>", methods=['GET', 'POST'])
 def oracle_coin_transfer_route(organization_id):
     return oracle_coin_transfer(organization_id)
+
+@app.route("/oracle/view_log_file/")
+def view_log_file_route():
+    return view_log_file()
 
 if __name__ == "__main__":
     if not os.environ.get('WERKZEUG_RUN_MAIN'):

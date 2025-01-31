@@ -306,11 +306,12 @@ def carrier_accept_and_create_delivery():
                 return redirect(url_for('carrier_menage_product_requests_route'))
             
             organization = get_organization_by_id(session_db, product_request.id_carrier_organization)
+            product = get_product_by_id(session_db, product_request.id_product)
             default_co2_value = session_db.query(Type).filter_by(id_type=organization.type).first().default_co2_value
             co2_standard = session_db.query(Type).filter_by(id_type=organization.type).first().standard
             co2_limit = default_co2_value + co2_standard * product_request.quantity
 
-            if not coins_algorithm(co2_emission, co2_limit, organization, session_db):
+            if not coins_algorithm(co2_emission, co2_limit, organization, session_db, product.name, product_request.quantity):
                 session_db.rollback()
                 flash(CO2_EMISSION_EXCEEDS_LIMIT, 'error')
                 return redirect(url_for('carrier_menage_product_requests_route'))

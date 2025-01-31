@@ -1,5 +1,6 @@
 from flask import flash, request, session, redirect, url_for, render_template, jsonify
 from flask_wtf import FlaskForm
+import os
 from wtforms import SelectField, IntegerField
 from wtforms.validators import DataRequired, NumberRange
 from database.migration import Oracle, Organization, Employer
@@ -40,6 +41,22 @@ def oracle_view_organizations():
     organizations = session_db.query(Organization).filter_by(status='active').all()
     session_db.close()
     return render_template('oracle_view_organizations.html', organizations=organizations)
+
+def view_log_file():
+    username = session.get('username')
+    if not username or session.get('user_type') != 'oracle':
+        flash(LOGIN_REQUIRED, 'error')
+        return redirect(url_for('login_route'))
+
+    log_file_path = os.path.join(os.getcwd(), 'log_users.txt')
+    if not os.path.exists(log_file_path):
+        flash("Log file not found.", 'error')
+        return redirect(url_for('oracle_home_route'))
+
+    with open(log_file_path, 'r') as file:
+        log_content = file.readlines()
+
+    return render_template('view_log_file.html', log_content=log_content)
 
 def oracle_coin_transfer(organization_id):
     username = session.get('username')

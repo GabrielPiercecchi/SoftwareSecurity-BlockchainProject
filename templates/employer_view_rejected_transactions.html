@@ -37,30 +37,30 @@
         </nav>
     </header>
     <main>
-        <div class="description">
-            <h1>Welcome {{ employer.username }}</h1>
-            <h3>Here you can manage your {{ organization.type | e }} organization data</h3>
-            <p><b><i>Your Organization {{ organization.name | e }} earned {{ organization.coin | e }} coins until now</i></b></p>
-        </div>
-        <div class="signup-container">
-            <div class="signup-form">
-                <button type="button" class="button-green" id="update-personal-data-button">Update Personal Data</button>
-                {% if organization.type == 'carrier' %}
-                    <button type="button" class="button-green" id="carrier-manage-product-requests-button">
-                    Manage my Organization Product Requests</button>
-                    <button type="button" class="button-green" id="carrier-view-deliveries-button">View my Organization Deliveries</button>
-                {% else %}
-                {% if organization.type != 'seller' %}
-                    <button type="button" class="button-green" id="view-products-button">Menage my Organization Products</button>
-                {% endif %}
-                    <button type="button" class="button-green" id="manage-product-requests-button">
-                        Manage my Organization Product Requests</button>
-                    <button type="button" class="button-green" id="view-deliveries-button">View my Organization Deliveries</button>
-                {% endif %}
-                <button type="button" class="button-green" id="view-coin-requests-button">View Coin Requests</button>
-                <button type="button" class="button-red" id="view-rejected-transactions-button">View Rejected Transactions</button>
-            </div>
-        </div>
+        <section class="section-bordered">
+            <h2>Rejected Transactions</h2>
+            {% if rejected_transactions %}
+                <ul class="section-bordered">
+                    <h3 class="blue-text">Rejected Transactions from {{ organization.name | e }}  with address {{ organization.blockchain_address | e }}</h3>
+                    {% for transaction in rejected_transactions %}
+                        <ul class="section-bordered">
+                            <h3>Rejected Transaction N° {{ loop.index }}</h3>
+                            <li>
+                                <p class="word-break">Transaction txHash: {{ transaction.tx_hash | e }}</p>
+                                <p>Coin Required: {{ transaction.amount | e }}</p>
+                                <p>Epoch Transaction Date: {{ transaction.timestamp | e }}</p>
+                                <p>Reason: {{ transaction.reason | e }}</p>
+                                <p>Product Name: {{ transaction.product_name | e }}</p>
+                                <p>Product Quantity: {{ transaction.product_quantity | e }}</p>
+                                <p>CO2 Emission: {{ transaction.co2_emission | e }}</p>
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="red-text"><b>No rejected transaction found</b></p>
+            {% endif %}
+        </section>
     </main>
 </body>
 </html>

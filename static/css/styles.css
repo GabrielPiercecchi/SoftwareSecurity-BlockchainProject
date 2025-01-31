@@ -453,3 +453,33 @@ main h1, main h2, main h3, main p {
     border-radius: 4px;
     vertical-align: middle; /* Align button vertically */
 }
+
+.button-red {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: red;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.button-red:hover {
+    background-color: darkred;
+}
+
+.log-content {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: .5rem;
+    white-space: pre-wrap; /* CSS3 */
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -pre-wrap; /* Opera <7 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* IE */
+}
