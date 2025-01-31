@@ -71,13 +71,15 @@ contract CoinContract {
     function updateCoins(address organization, int256 amount) public {
         require(organization != address(0), "Invalid address");
 
+        uint256 newBalance;
         if (amount < 0) {
             uint256 absAmount = uint256(-amount);
             require(balances[organization] >= absAmount, "Insufficient balance");
-            balances[organization] -= absAmount;
+            newBalance = balances[organization] - absAmount;
         } else {
-            balances[organization] += uint256(amount);
+            newBalance = balances[organization] + uint256(amount);
         }
+        balances[organization] = newBalance;
 
         // Memorizza la transazione
         bytes32 txHash = keccak256(abi.encodePacked(block.number, organization, amount, block.timestamp));
@@ -88,7 +90,7 @@ contract CoinContract {
             txHash: txHash
         }));
 
-        emit CoinsUpdated(organization, balances[organization]);
+        emit CoinsUpdated(organization, newBalance);
     }
 
     /// @notice Updates the coin balance of an organization based on CO2 emissions.
@@ -99,16 +101,18 @@ contract CoinContract {
         require(organization != address(0), "Invalid address");
 
         int256 amount;
+        uint256 newBalance;
         if (co2Emission > co2Limit) {
             uint256 malusCoin = co2Emission - co2Limit;
             require(balances[organization] >= malusCoin, "Insufficient balance for malus");
-            balances[organization] -= malusCoin;
+            newBalance = balances[organization] - malusCoin;
             amount = -int256(malusCoin);
         } else {
             uint256 bonusCoin = co2Limit - co2Emission;
-            balances[organization] += bonusCoin;
+            newBalance = balances[organization] + bonusCoin;
             amount = int256(bonusCoin);
         }
+        balances[organization] = newBalance;
 
         // Memorizza la transazione
         bytes32 txHash = keccak256(abi.encodePacked(block.number, organization, amount, block.timestamp));
@@ -119,7 +123,7 @@ contract CoinContract {
             txHash: txHash
         }));
 
-        emit CoinsUpdated(organization, balances[organization]);
+        emit CoinsUpdated(organization, newBalance);
     }
 
     /// @notice Transfers coins from one organization to another.

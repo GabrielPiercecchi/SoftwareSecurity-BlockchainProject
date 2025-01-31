@@ -133,7 +133,8 @@ TODO_29_01_2025:
                 - controllers DONE
                 - algorithms DONE
         - javascript
-    4. Implementare tracciamento prodotti nella blockchain:
+        - html
+    4. Implementare transazionni rifiutate:
     5. Testing:
         - form
         - validazione

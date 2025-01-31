@@ -3,7 +3,7 @@ from web3 import Web3
 from contract.deploy import ContractInteractions
 from database.migration import Organization
 from datetime import datetime
-from utilities.utilities import read_nonce, write_nonce, get_db_session, get_organization_by_id, get_employer_by_username
+from utilities.utilities import read_nonce, write_nonce, get_db_session, get_organization_by_id, get_employer_by_username, epoch_to_datetime
 import logging
 from messages.messages import (
     CONTRACT_ADDRESS_FILE_NOT_FOUND, INVALID_CONTRACT_ADDRESS, ERROR_GETTING_COINS,
@@ -124,22 +124,7 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db, product_n
         else:
             manager.increment_nonce()
             flash(TRANSACTION_FAILED.format(int((organization.coin - co2_emission + co2_limit)*-1)), 'error')
-            tx = manager.coin_contract.functions.registerRejectedTransaction(
-                organization.blockchain_address,
-                int(co2_emission - co2_limit),
-                "Transaction failed",
-                product_name,
-                product_quantity,
-                co2_emission
-            ).build_transaction({
-                'chainId': manager.contract_interactions.chain_id,
-                'gas': 2000000,
-                'gasPrice': manager.contract_interactions.w3.eth.gas_price,
-                'nonce': manager.nonce,
-            })
-            signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
-            manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-            manager.increment_nonce()
+            register_rejected_transaction(manager, organization, int(co2_emission - co2_limit), "Transaction failed", product_name, product_quantity, co2_emission)
             return False
     except Exception as e:
         logging.error(ERROR_IN_COINS_ALGORITHM.format(e))
@@ -222,7 +207,7 @@ def view_transactions():
             transactions.append({
                 'organization': orgs[i],
                 'amount': amounts[i],
-                'timestamp': timestamps[i],
+                'timestamp': epoch_to_datetime(timestamps[i]),
                 'txHash': txHashes[i]
             })
         session_db.close()
@@ -232,6 +217,24 @@ def view_transactions():
         logging.error(ERROR_GETTING_TRANSACTIONS.format(e))
         flash(ERROR_GETTING_TRANSACTIONS.format(e), 'error')
         return redirect(url_for('view_transactions_route'))
+    
+def register_rejected_transaction(manager, organization, amount, reason, product_name, product_quantity, co2_emission):
+    tx = manager.coin_contract.functions.registerRejectedTransaction(
+        organization.blockchain_address,
+        amount,
+        reason,
+        product_name,
+        product_quantity,
+        co2_emission
+    ).build_transaction({
+        'chainId': manager.contract_interactions.chain_id,
+        'gas': 2000000,
+        'gasPrice': manager.contract_interactions.w3.eth.gas_price,
+        'nonce': manager.nonce,
+    })
+    signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
+    manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+    manager.increment_nonce()
     
 def view_rejected_transactions():
     username = session.get('username')
@@ -253,7 +256,7 @@ def view_rejected_transactions():
             rejected_transactions.append({
                 'organization': rejected_orgs[i],
                 'amount': rejected_amounts[i],
-                'timestamp': rejected_timestamps[i],
+                'timestamp': epoch_to_datetime(rejected_timestamps[i]),
                 'reason': rejected_reasons[i],
                 'product_name': rejected_product_names[i],
                 'product_quantity': rejected_product_quantities[i],

@@ -4,8 +4,16 @@ from sqlalchemy.sql import func
 import time
 from flask import session
 import os
+from datetime import datetime
 
 NONCE_FILE = os.getenv('NONCE_FILE')
+
+##########################################################################
+# Utilities generali
+##########################################################################
+
+def epoch_to_datetime(epoch_time):
+    return datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
 
 ##########################################################################
 # Utilities di auth_controller.py
