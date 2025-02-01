@@ -1,0 +1,18 @@
+# primo avvio
+
+1. npx quorum-dev-quickstart
+2. rimuovi quorum-test-network/
+3. rimuovi algorithms/nonce.txt
+4. rimuovi contract/compiled_code.json
+5. creare .env
+6. avviare container
+
+7. andare in quorum-test-network/
+8. eseguire run.sh
+
+# riavvio
+
+1. ferma container
+2. rimuovi algorithms/nonce.txt
+3. rimuovi contract/compiled_code.json se hai modificato il contratto
+4. avvia container
