@@ -64,13 +64,13 @@ tips.txt
 TODO
 
 # Quorum Dev Quickstart
-/quorum-test-network/
-/config/
-/logs/
-/loki/
-/promtail/
-/my-private-blockchain/
-quorum-test-network\docker-compose.yml
+#/quorum-test-network/
+#/config/
+#/logs/
+#/loki/
+#/promtail/
+#/my-private-blockchain/
+#quorum-test-network\docker-compose.yml
 
 # Installer logs
 pip-log.txt
