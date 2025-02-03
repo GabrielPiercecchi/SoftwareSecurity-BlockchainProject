@@ -19,6 +19,7 @@ class CoinsAlgorithm:
 
     def initialize_contract(self):
         try:
+            # Legge l'indirizzo del contratto dal file e lo converte in checksum address
             with open('contract/contract_address.txt', 'r') as file:
                 contract_address = file.read().strip()
                 contract_address = Web3.to_checksum_address(contract_address)
@@ -29,9 +30,11 @@ class CoinsAlgorithm:
             logging.error(INVALID_CONTRACT_ADDRESS.format(e))
             raise Exception(INVALID_CONTRACT_ADDRESS.format(e))
 
+        # Ottiene il contratto utilizzando l'indirizzo letto
         return self.contract_interactions.get_contract(contract_address)
 
     def _initialize_nonce(self):
+        # Legge il nonce dal file, se non esiste lo ottiene dalla blockchain e lo scrive nel file
         nonce = read_nonce()
         if nonce is None:
             nonce = self.contract_interactions.w3.eth.get_transaction_count(self.contract_interactions.my_address, 'pending')
@@ -40,6 +43,7 @@ class CoinsAlgorithm:
 
     def get_coins_from_blockchain(self, blockchain_address):
         try:
+            # Ottiene il saldo di coin dall'indirizzo blockchain
             coins = self.coin_contract.functions.getBalance(blockchain_address).call()
             return coins
         except Exception as e:
@@ -47,9 +51,11 @@ class CoinsAlgorithm:
             raise Exception(ERROR_GETTING_COINS.format(e))
 
     def increment_nonce(self):
+        # Incrementa il nonce e lo scrive nel file
         self.nonce += 1
         write_nonce(self.nonce)
 
+# Inizializza i coin per tutte le organizzazioni nel database
 def initialize_organization_coins_for_all(session_db):
     manager = CoinsAlgorithm()
     organizations = session_db.query(Organization).all()
@@ -59,16 +65,20 @@ def initialize_organization_coins_for_all(session_db):
         else:
             print(f'Coins initialized for organization {org.name}')
 
+# Inizializza i coin per una singola organizzazione
 def initialize_organization_coins(manager, organization):
     manager = CoinsAlgorithm()
     try:
         coin_value = int(organization.coin)
+        
+        # Costruisce la transazione per aggiornare i coin
         tx = manager.coin_contract.functions.updateCoins(organization.blockchain_address, coin_value).build_transaction({
             'chainId': manager.contract_interactions.chain_id,
             'gas': 2000000,
             'gasPrice': manager.contract_interactions.w3.eth.gas_price,
             'nonce': manager.nonce,
         })
+        # Firma e invia la transazione
         signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
         tx_hash = manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         receipt = manager.contract_interactions.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -83,9 +93,11 @@ def initialize_organization_coins(manager, organization):
         print(f'Error initializing organization coins: {e}')
         return False
 
+# Algoritmo per aggiornare i coin basato sulle emissioni di CO2
 def coins_algorithm(co2_emission, co2_limit, organization, session_db, product_name, product_quantity):
     manager = CoinsAlgorithm()
     try:
+        # Ottiene il saldo di coin dalla blockchain e lo confronta con il database
         blockchain_coins = manager.get_coins_from_blockchain(organization.blockchain_address)
         if int(organization.coin) != int(blockchain_coins):
             organization.coin = int(blockchain_coins)
@@ -94,6 +106,7 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db, product_n
             flash(COIN_DISCREPANCY_DETECTED, 'error')
             return False
 
+        # Costruisce la transazione per aggiornare i coin basato sulle emissioni di CO2
         tx = manager.coin_contract.functions.updateCoinsBasedOnEmission(
             organization.blockchain_address,
             int(co2_emission),
@@ -104,6 +117,7 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db, product_n
             'gasPrice': manager.contract_interactions.w3.eth.gas_price,
             'nonce': manager.nonce,
         })
+        # Firma e invia la transazione
         signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
         tx_hash = manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         receipt = manager.contract_interactions.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -134,9 +148,11 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db, product_n
         flash(ERROR_IN_COINS_ALGORITHM.format(e), 'error')
         return False
 
+# Aggiorna i coin tra due organizzazioni sulla blockchain
 def update_organization_coins_on_blockchain(organization, organization_requesting, coin_request, session_db):
     manager = CoinsAlgorithm()
     try:
+        # Ottiene il saldo di coin dalla blockchain e lo confronta con il database
         blockchain_coins_org_del = manager.get_coins_from_blockchain(organization.blockchain_address)
         blockchain_coins_org_req = manager.get_coins_from_blockchain(organization_requesting.blockchain_address)
 
@@ -154,12 +170,14 @@ def update_organization_coins_on_blockchain(organization, organization_requestin
             flash(COIN_DISCREPANCY_DETECTED.format(organization_requesting.name), 'error')
             return False
 
+        # Costruisce la transazione per aggiornare i coin dell'organizzazione che fornisce
         tx = manager.coin_contract.functions.updateCoins(organization.blockchain_address, -int(coin_request.coin)).build_transaction({
             'chainId': manager.contract_interactions.chain_id,
             'gas': 2000000,
             'gasPrice': manager.contract_interactions.w3.eth.gas_price,
             'nonce': manager.nonce,
         })
+        # Firma e invia la transazione
         signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
         tx_hash = manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         receipt = manager.contract_interactions.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -170,12 +188,14 @@ def update_organization_coins_on_blockchain(organization, organization_requestin
             manager.increment_nonce()
             return False
 
+        # Costruisce la transazione per aggiornare i coin dell'organizzazione che riceve
         tx = manager.coin_contract.functions.updateCoins(organization_requesting.blockchain_address, int(coin_request.coin)).build_transaction({
             'chainId': manager.contract_interactions.chain_id,
             'gas': 2000000,
             'gasPrice': manager.contract_interactions.w3.eth.gas_price,
             'nonce': manager.nonce,
         })
+        # Firma e invia la transazione
         signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
         tx_hash = manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         receipt = manager.contract_interactions.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -198,6 +218,7 @@ def update_organization_coins_on_blockchain(organization, organization_requestin
         flash(ERROR_UPDATING_COINS.format(e), 'error')
         return False
 
+# Visualizza le transazioni per l'organizzazione dell'utente corrente
 def view_transactions():
     username = session.get('username')
     if not username:
@@ -210,6 +231,7 @@ def view_transactions():
     organization = get_organization_by_id(session_db, employer.id_organization)
 
     try:
+        # Ottiene le transazioni dalla blockchain
         orgs, amounts, timestamps, txHashes = manager.coin_contract.functions.getTransactions(organization.blockchain_address).call()
         transactions = []
         for i in range(len(orgs)):
@@ -226,7 +248,8 @@ def view_transactions():
         logging.error(ERROR_GETTING_TRANSACTIONS.format(e))
         flash(ERROR_GETTING_TRANSACTIONS.format(e), 'error')
         return redirect(url_for('view_transactions_route'))
-    
+
+# Registra una transazione rifiutata sulla blockchain
 def register_rejected_transaction(manager, organization, amount, reason, product_name, product_quantity, co2_emission):
     username = session.get('username')
     if not username:
@@ -234,6 +257,7 @@ def register_rejected_transaction(manager, organization, amount, reason, product
     
     manager = CoinsAlgorithm()
 
+    # Costruisce la transazione per registrare la transazione rifiutata
     tx = manager.coin_contract.functions.registerRejectedTransaction(
         organization.blockchain_address,
         amount,
@@ -247,10 +271,12 @@ def register_rejected_transaction(manager, organization, amount, reason, product
         'gasPrice': manager.contract_interactions.w3.eth.gas_price,
         'nonce': manager.nonce,
     })
+    # Firma e invia la transazione
     signed_tx = manager.contract_interactions.w3.eth.account.sign_transaction(tx, private_key=manager.contract_interactions.private_key)
     manager.contract_interactions.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     manager.increment_nonce()
-    
+
+# Visualizza le transazioni rifiutate per l'organizzazione dell'utente corrente
 def view_rejected_transactions():
     username = session.get('username')
     if not username:
@@ -263,6 +289,7 @@ def view_rejected_transactions():
     organization = get_organization_by_id(session_db, employer.id_organization)
 
     try:
+        # Ottiene i dettagli delle transazioni rifiutate dalla blockchain
         rejected_orgs, rejected_amounts, rejected_timestamps, rejected_reasons = manager.coin_contract.functions.getRejectedTransactionDetails1(organization.blockchain_address).call()
         rejected_product_names, rejected_product_quantities, rejected_co2_emissions, rejected_tx_hashes = manager.coin_contract.functions.getRejectedTransactionDetails2(organization.blockchain_address).call()
         

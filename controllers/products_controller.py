@@ -11,6 +11,7 @@ from messages.messages import (
 )
 
 def product_detail(id):
+    # Visualizza i dettagli di un prodotto specifico
     session_db = get_db_session()
     product = get_product_by_id(session_db, id)
 
@@ -68,6 +69,7 @@ def product_detail(id):
         products_made_from=products_made_from)
 
 def get_all_products():
+    # Visualizza tutti i prodotti
     session_db = get_db_session()
     products = session_db.query(Product).all()
     products_with_org = []
@@ -81,6 +83,7 @@ def get_all_products():
     return render_template("products.html", products=products_with_org)
 
 def create_product():
+    # Crea un nuovo prodotto
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -196,6 +199,7 @@ def create_product():
     return render_template('employer_create_products.html', form=form, organization=organization)
 
 def employer_view_products():
+    # Visualizza i prodotti per l'organizzazione dell'employer corrente
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -210,6 +214,7 @@ def employer_view_products():
     return render_template('employer_view_products.html', products=products, organization=organization)
 
 def update_product(product_id):
+    # Aggiorna un prodotto esistente
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -234,13 +239,7 @@ def update_product(product_id):
         form.type.default = 'end product'
     
     if request.method == 'GET':
-        # Fetch the product from the database
-        
-        if not product:
-            flash(PRODUCT_NOT_FOUND, 'error')
-            return redirect(url_for('employer_view_products_route'))
-        
-        # Populate the form with the product data
+        # Popola il modulo con i dati del prodotto
         form.name.data = product.name
         form.type.data = product.type
         

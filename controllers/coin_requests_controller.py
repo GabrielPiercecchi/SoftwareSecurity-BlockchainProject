@@ -7,6 +7,7 @@ from utilities.utilities import get_db_session, get_organization_by_id, get_empl
 from messages.messages import REQUEST_ID_REQUIRED, NOT_ENOUGH_COINS, COIN_REQUEST_ACCEPTED, ERROR_ACCEPTING_COIN_REQUEST
 
 def view_coin_requests():
+    # Visualizza le richieste di coin per l'organizzazione dell'utente corrente
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
         return redirect(url_for('login_route'))
@@ -17,6 +18,7 @@ def view_coin_requests():
     employer = get_employer_by_username(session_db, username)
     organization = get_organization_by_employer(session_db, employer)
 
+    # Ottiene le richieste di coin fatte e ricevute dall'organizzazione
     coin_request_made = session_db.query(CoinRequest).filter_by(id_requesting_organization=organization.id).all()
     coin_requests_received = session_db.query(CoinRequest).filter(CoinRequest.id_requesting_organization != organization.id).filter_by(status='pending').all()
 
@@ -45,6 +47,7 @@ def view_coin_requests():
         coin_requests_made=coin_request_made_with_details, coin_requests_received=coin_requests_received_with_details)
 
 def view_accepted_coin_requests():
+    # Visualizza le richieste di coin accettate per l'organizzazione dell'utente corrente
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
         return redirect(url_for('login_route'))
@@ -54,6 +57,7 @@ def view_accepted_coin_requests():
     employer = get_employer_by_username(session_db, username)
     organization = get_organization_by_employer(session_db, employer)
 
+    # Ottiene le richieste di coin accettate dall'organizzazione
     coin_request_accepted = session_db.query(CoinRequest).filter_by(id_providing_organization=organization.id).filter_by(status='approved').all()
 
     coin_request_accepted_with_details = []
@@ -71,6 +75,7 @@ def view_accepted_coin_requests():
         coin_requests_accepted=coin_request_accepted_with_details)
 
 def create_coin_request():
+    # Crea una nuova richiesta di coin
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
         return redirect(url_for('login_route'))
@@ -98,6 +103,7 @@ def create_coin_request():
     return render_template('employer_create_coin_request.html', organization=organization, form=form)
 
 def accept_coin_request():
+    # Accetta una richiesta di coin
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
         return redirect(url_for('login_route'))

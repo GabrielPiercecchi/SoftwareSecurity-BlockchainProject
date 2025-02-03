@@ -13,6 +13,7 @@ from messages.messages import (
 )
 
 def menage_product_requests():
+    # Gestisce le richieste di prodotti
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -22,6 +23,7 @@ def menage_product_requests():
     employer = get_employer_by_username(session_db, username)
     organization = get_organization_by_employer(session_db, employer)
     
+    # Ottiene le richieste di prodotti fornite e richieste dall'organizzazione
     providing_product_requests = session_db.query(ProductRequest).filter_by(id_providing_organization=organization.id).all()
     requesting_product_requests = session_db.query(ProductRequest).filter_by(id_requesting_organization=organization.id).all()
     
@@ -63,6 +65,7 @@ def menage_product_requests():
         requesting_product_requests=requesting_requests_with_details, carriers=carriers, form=form)
 
 def view_other_products():
+    # Visualizza i prodotti di altre organizzazioni
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -72,7 +75,7 @@ def view_other_products():
     employer = get_employer_by_username(session_db, username)
     organization = get_organization_by_employer(session_db, employer)
 
-    # Retrieve products from other organizations
+    # Recupera i prodotti di altre organizzazioni
     other_products = session_db.query(Product).filter(Product.id_organization != organization.id).all()
     other_organizations = session_db.query(Organization).filter(Organization.id != organization.id).all()
     
@@ -89,6 +92,7 @@ def view_other_products():
     return render_template('employer_view_other_products.html', products=products_with_org, organizations=other_organizations)
 
 def create_product_requests(product_id):
+    # Crea una nuova richiesta di prodotto
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -158,6 +162,7 @@ def create_product_requests(product_id):
     return render_template('employer_create_product_requests.html', form=form, product=product_with_org)
 
 def deny_product_request():
+    # Rifiuta una richiesta di prodotto
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -190,6 +195,7 @@ def deny_product_request():
     return redirect(url_for('menage_product_requests_route'))
 
 def accept_product_request():
+    # Accetta una richiesta di prodotto
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -235,6 +241,7 @@ def accept_product_request():
     return redirect(url_for('menage_product_requests_route'))
 
 def carrier_menage_product_requests():
+    # Gestisce le richieste di prodotti per il carrier
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')
@@ -266,6 +273,7 @@ def carrier_menage_product_requests():
         carring_product_request=carring_request_with_details, form=form)
 
 def carrier_accept_and_create_delivery():
+    # Accetta una richiesta di prodotto e crea una consegna
     username = session.get('username')
     if not username:
         flash(LOGIN_REQUIRED, 'error')

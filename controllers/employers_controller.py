@@ -6,6 +6,7 @@ from utilities.utilities import get_db_session, get_employer_by_username, get_or
 from messages.messages import LOGIN_REQUIRED, EMPLOYER_NOT_FOUND, USERNAME_ALREADY_IN_USE, EMAIL_ALREADY_IN_USE, DATA_UPDATED_SUCCESSFULLY, FAILED_TO_UPDATE_PERSONAL_DATA
 
 def employer_home():
+    # Visualizza la home page per l'employer corrente
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
         flash(LOGIN_REQUIRED, 'error')
@@ -18,6 +19,7 @@ def employer_home():
     return render_template('employer_home.html', employer=employer, organization=organization)
 
 def employer_update_personal_data():
+    # Gestisce l'aggiornamento dei dati personali dell'employer
     username = session.get('username')
     if not username or not session.get('user_type') == 'employer':
         flash(LOGIN_REQUIRED, 'error')
@@ -32,7 +34,7 @@ def employer_update_personal_data():
             flash(EMPLOYER_NOT_FOUND, 'error')
             return redirect(url_for('employer_home_route'))
         
-        # Populate the form with the employer data
+        # Popola il modulo con i dati dell'employer
         form.name.data = employer.name
         form.surname.data = employer.surname
         form.email.data = employer.email
@@ -45,15 +47,18 @@ def employer_update_personal_data():
     if request.method == 'POST' and form.validate_on_submit():
         other_employers = session_db.query(Employer).filter(Employer.id != employer.id).all()
 
+        # Verifica se il nome utente è già in uso
         if any(form.username.data.lower() == e.username for e in other_employers):
             flash(USERNAME_ALREADY_IN_USE, 'wrong_username')
             return render_template('employer_update_personal_data.html', form=form, employer=employer)
 
+        # Verifica se l'email è già in uso
         if any(form.email.data.lower() == e.email for e in other_employers):
             flash(EMAIL_ALREADY_IN_USE, 'wrong_email')
             return render_template('employer_update_personal_data.html', form=form, employer=employer)
 
         if employer:
+            # Aggiorna i dati dell'employer
             employer.name = form.name.data
             employer.surname = form.surname.data
             employer.email = form.email.data.lower()

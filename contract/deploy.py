@@ -6,8 +6,8 @@ from solcx import compile_standard, install_solc
 from dotenv import load_dotenv
 
 class ContractInteractions:
-
     def __init__(self):
+        # Carica le variabili d'ambiente dal file .env
         load_dotenv()
         self.node_address = os.getenv("BLOCKCHAIN_URL")
         self.w3 = Web3(Web3.HTTPProvider(self.node_address))
@@ -30,6 +30,7 @@ class ContractInteractions:
         self.load_contract()
 
     def compile_contract(self):
+        # Compila il contratto Solidity
         try:
             with open("./contract/CoinContract.sol", "r", encoding="utf-8") as file:
                 coin_contract_file = file.read()
@@ -59,6 +60,7 @@ class ContractInteractions:
             raise
 
     def load_contract(self):
+        # Carica il contratto compilato
         try:
             with open("./contract/compiled_code.json", "r", encoding="utf-8") as file:
                 compiled_sol = json.load(file)
@@ -71,6 +73,7 @@ class ContractInteractions:
             raise
 
     def deploy_contract(self):
+        # Distribuisce il contratto sulla blockchain
         try:
             # Verifica se il contratto è già stato distribuito
             if os.path.exists("./contract/contract_address.txt"):
@@ -103,6 +106,7 @@ class ContractInteractions:
             raise
 
     def get_contract(self, contract_address):
+        # Ottiene il contratto utilizzando l'indirizzo fornito
         try:
             with open("./contract/compiled_code.json", "r", encoding="utf-8") as file:
                 compiled_sol = json.load(file)

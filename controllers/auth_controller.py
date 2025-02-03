@@ -14,11 +14,13 @@ from messages.messages import (
 )
 
 def login():
+    # Gestisce il login degli utenti
     form = LoginForm()
     if form.validate_on_submit():
         username = form.username.data.lower()
         password = form.password.data
 
+        # Controlla i tentativi di login
         if not check_login_attempts(username):
             flash(LOGIN_ATTEMPTS_EXCEEDED, 'error')
             return render_template('login.html', form=form)
@@ -29,6 +31,7 @@ def login():
             oracle_user = get_oracle_by_username(session_db, username)
             employer = get_employer_by_username(session_db, username) if not oracle_user else None
 
+            # Verifica le credenziali dell'utente
             if ((oracle_user and check_password_hash(oracle_user.password, password)) or
                 (employer and check_password_hash(employer.password, password))):
                 if oracle_user or (employer and employer.status == 'active'):
@@ -58,16 +61,19 @@ def login():
     return render_template('login.html', form=form)
 
 def logout():
+    # Gestisce il logout degli utenti
     session.clear()
     flash(LOGOUT_SUCCESS, 'success')
     return redirect(url_for('home_route'))
 
 def signup_form():
+    # Mostra il modulo di registrazione
     org_form = OrganizationForm()
     emp_form = EmployerForm()
     return render_template('signup.html', org_form=org_form, emp_form=emp_form)
 
 def signup():
+    # Gestisce la registrazione di nuove organizzazioni e impiegati
     org_form = OrganizationForm(request.form)
     emp_form = EmployerForm(request.form)
 
@@ -79,6 +85,7 @@ def signup():
             other_organizations = session_db.query(Organization).all()
             other_emp = session_db.query(Employer).all()
 
+            # Verifica se l'email o la partita IVA dell'organizzazione sono già in uso
             if any(org_form.org_email.data.lower() == o.email.lower() for o in other_organizations):
                 flash(ORG_EMAIL_IN_USE, 'wrong_org_email')
                 return signup_form()
@@ -87,6 +94,7 @@ def signup():
                 flash(ORG_PARTITA_IVA_IN_USE, 'wrong_org_partita_iva')
                 return signup_form()
 
+            # Verifica se il nome utente o l'email dell'impiegato sono già in uso
             if any(emp_form.emp_username.data.lower() == e.username.lower() for e in other_emp):
                 flash(EMP_USERNAME_IN_USE, 'wrong_emp_username')
                 return signup_form()
@@ -95,6 +103,7 @@ def signup():
                 flash(EMP_EMAIL_IN_USE, 'wrong_emp_email')
                 return signup_form()
 
+            # Crea una nuova organizzazione
             new_org = Organization(
                 name=org_form.org_name.data,
                 email=org_form.org_email.data.lower(),
@@ -110,6 +119,7 @@ def signup():
             session_db.add(new_org)
             session_db.commit()
 
+            # Assegna indirizzi blockchain alle organizzazioni e inizializza i coin
             assign_addresses_to_organizations(session_db)
             initialize_organization_coins(manager, new_org)
 
@@ -147,6 +157,7 @@ def signup():
     return signup_form()
 
 def add_employers_to_existing_org():
+    # Aggiunge impiegati a un'organizzazione esistente
     session_db = get_db_session()
     organizations = session_db.query(Organization).all()
     session_db.close()
@@ -167,6 +178,7 @@ def add_employers_to_existing_org():
         try:
             other_emp = session_db.query(Employer).all()
 
+            # Verifica se il nome utente o l'email dell'impiegato sono già in uso
             if any(emp_username.lower() in [e.username.lower() for e in other_emp] for emp_username in emp_usernames):
                 flash(ADD_EMPLOYERS_USERNAME_IN_USE, 'wrong_emp_username')
                 return render_template('add_employers.html', form=form, organizations=organizations)
@@ -175,6 +187,7 @@ def add_employers_to_existing_org():
                 flash(ADD_EMPLOYERS_EMAIL_IN_USE, 'wrong_emp_email')
                 return render_template('add_employers.html', form=form, organizations=organizations)
 
+            # Aggiungi i nuovi impiegati
             for i in range(len(emp_usernames)):
                 new_emp = Employer(
                     username=emp_usernames[i],
@@ -200,4 +213,5 @@ def add_employers_to_existing_org():
     return render_template('add_employers.html', form=form, organizations=organizations)
 
 def permission_denied():
+    # Mostra la pagina di permesso negato
     return render_template('permission_denied.html')

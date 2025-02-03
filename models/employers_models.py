@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Email, EqualTo
 from middlewares.validation import LengthValidator
 
 class UpdateEmployerForm(FlaskForm):
+    # Form per l'aggiornamento dei dati di un employer
     name = StringField('Name', validators=[
         DataRequired(message='Name is required'), 
         LengthValidator(max_length=50, message='Name must be less than 50 characters')

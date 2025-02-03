@@ -11,6 +11,7 @@ from messages.messages import (
 )
 
 def oracle_home():
+    # Visualizza la home page per l'utente oracle
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -22,6 +23,7 @@ def oracle_home():
     return render_template('oracle_home.html', oracle=oracle_user)
 
 def oracle_view_organizations():
+    # Visualizza le organizzazioni attive
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -33,6 +35,7 @@ def oracle_view_organizations():
     return render_template('oracle_view_organizations.html', organizations=organizations)
 
 def view_log_file():
+    # Visualizza il file di log
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -49,6 +52,7 @@ def view_log_file():
     return render_template('view_log_file.html', log_content=log_content)
 
 def oracle_coin_transfer(organization_id):
+    # Gestisce il trasferimento di coin tra organizzazioni
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -109,6 +113,7 @@ def oracle_coin_transfer(organization_id):
         organizations={org.id: org.coin for org in organizations})
 
 def view_organization_inactive():
+    # Visualizza le organizzazioni inattive
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -120,6 +125,7 @@ def view_organization_inactive():
     return render_template('oracle_view_organization_inactive.html', pending_organizations=pending_organizations)
 
 def manage_organization_registration(organization_id):
+    # Gestisce la registrazione delle organizzazioni
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -136,6 +142,7 @@ def manage_organization_registration(organization_id):
     return render_template('oracle_manage_organization_registration.html', organization=organization, employers=employers)
 
 def approve_organization(organization_id):
+    # Approva una organizzazione
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -158,8 +165,9 @@ def approve_organization(organization_id):
         
         session_db.close()
         return jsonify({'message': message, 'redirect_url': url_for('view_organization_inactive_route')})
-    
+
 def reject_organization(organization_id):
+    # Rifiuta una organizzazione
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -182,8 +190,9 @@ def reject_organization(organization_id):
         
         session_db.close()
         return jsonify({'message': message, 'redirect_url': url_for('view_organization_inactive_route')})
-    
+
 def view_employer_inactive():
+    # Visualizza gli employer inattivi
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -214,6 +223,7 @@ def view_employer_inactive():
     return render_template('oracle_view_employer_inactive.html', pending_employers=employer_data)
 
 def manage_employer_registration(employer_id):
+    # Gestisce la registrazione degli employer
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -240,6 +250,7 @@ def manage_employer_registration(employer_id):
     return render_template('oracle_manage_employer_registration.html', employer=employer_info)
 
 def approve_employer(employer_id):
+    # Approva un employer
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')
@@ -262,6 +273,7 @@ def approve_employer(employer_id):
         return jsonify({'message': message, 'redirect_url': url_for('view_employer_inactive_route')})
 
 def reject_employer(employer_id):
+    # Rifiuta un employer
     username = session.get('username')
     if not username or session.get('user_type') != 'oracle':
         flash(LOGIN_REQUIRED, 'error')

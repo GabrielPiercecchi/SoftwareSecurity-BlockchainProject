@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Email, EqualTo
 from middlewares.validation import LengthValidator
 
 class LoginForm(FlaskForm):
+    # Form per il login
     username = StringField('Username', validators=[
         DataRequired(message='Username is required'), 
         LengthValidator(max_length=50, message='Username must be less than 50 characters')
@@ -14,6 +15,7 @@ class LoginForm(FlaskForm):
     ], render_kw={"placeholder": "Password"})
 
 class OrganizationForm(FlaskForm):
+    # Form per la registrazione di una nuova organizzazione
     org_name = StringField('Organization Name', validators=[
         DataRequired(message='Organization Name is required'), 
         LengthValidator(max_length=100, message='Organization Name must be less than 100 characters')
@@ -59,6 +61,7 @@ class OrganizationForm(FlaskForm):
     ], render_kw={"placeholder": "Description"})
 
 class EmployerForm(FlaskForm):
+    # Form per la registrazione di un nuovo employer
     emp_username = StringField('Username', validators=[
         DataRequired(message='Username is required'), 
         LengthValidator(max_length=50, message='Username must be less than 50 characters')
@@ -87,6 +90,7 @@ class EmployerForm(FlaskForm):
     ], render_kw={"placeholder": "Employer@Email"})
 
 class AddEmployersForm(FlaskForm):
+    # Form per aggiungere employer a un'organizzazione esistente
     organization = SelectField('Organization', choices=[], validators=[DataRequired(message='Organization is required')])
     emp_username = StringField('Username', validators=[
         DataRequired(message='Username is required'), 
