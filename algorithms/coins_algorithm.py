@@ -88,6 +88,9 @@ def coins_algorithm(co2_emission, co2_limit, organization, session_db, product_n
     try:
         blockchain_coins = manager.get_coins_from_blockchain(organization.blockchain_address)
         if int(organization.coin) != int(blockchain_coins):
+            organization.coin = int(blockchain_coins)
+            session_db.add(organization)
+            session_db.commit()
             flash(COIN_DISCREPANCY_DETECTED, 'error')
             return False
 
@@ -138,10 +141,16 @@ def update_organization_coins_on_blockchain(organization, organization_requestin
         blockchain_coins_org_req = manager.get_coins_from_blockchain(organization_requesting.blockchain_address)
 
         if int(organization.coin) != int(blockchain_coins_org_del):
+            organization.coin = int(blockchain_coins_org_del)
+            session_db.add(organization)
+            session_db.commit()
             flash(COIN_DISCREPANCY_DETECTED.format(organization.name), 'error')
             return False
 
         if int(organization_requesting.coin) != int(blockchain_coins_org_req):
+            organization_requesting.coin = int(blockchain_coins_org_req)
+            session_db.add(organization_requesting)
+            session_db.commit()
             flash(COIN_DISCREPANCY_DETECTED.format(organization_requesting.name), 'error')
             return False
 
