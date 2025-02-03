@@ -559,7 +559,7 @@ services:
       - "${PORT}:${PORT}"
     environment:
       - SECRET_KEY=${SECRET_KEY}
-      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DATABASE_PORT_FASK_APP}/${DATABASE_NAME}
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DATABASE_PORT_FLASK_APP}/${DATABASE_NAME}
     volumes:
       - .:/app
     depends_on:

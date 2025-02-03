@@ -17,7 +17,7 @@ def create_database_if_not_exists():
         user=os.getenv('DATABASE_USER'),
         password=os.getenv('DATABASE_PASSWORD'),
         host=os.getenv('POSTGRES_HOST'),
-        port=os.getenv('DATABASE_PORT_FASK_APP')
+        port=os.getenv('DATABASE_PORT_FLASK_APP')
     )
     conn.autocommit = True
     cursor = conn.cursor()

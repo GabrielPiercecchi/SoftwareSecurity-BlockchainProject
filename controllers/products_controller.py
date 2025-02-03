@@ -183,7 +183,7 @@ def create_product():
                         manager.increment_nonce()  # Incrementa il nonce
                         flash(FAILED_TO_REGISTER_PRODUCT_ORIGIN, 'error')
                         return redirect(url_for('create_product_route'))
-
+                    
             session_db.commit()
             session_db.close()
             print('Product added successfully!')

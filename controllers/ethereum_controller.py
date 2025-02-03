@@ -23,7 +23,7 @@ def assign_addresses_to_organizations(session_db):
         if not organization.blockchain_address:
             address = generate_ethereum_address()
             organization.blockchain_address = address
-            print(f"Assigned address {address} to organization {organization.name}")
+            print(f"Assigned address to organization {organization.name}")
     session_db.commit()
 
 def deploy_contract():

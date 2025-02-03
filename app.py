@@ -4,8 +4,6 @@ from flask_talisman import Talisman
 from flask_wtf import CSRFProtect
 from config import Config
 from dotenv import load_dotenv
-from database.migration import init_db
-from database.seeder import run_seeders
 from controllers.logging_controller import setup_logging
 from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
@@ -207,4 +205,4 @@ if __name__ == "__main__":
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
         # Inizializza il database e altri setup qui
         initialize_database()
-    app.run(host=(os.getenv('HOST')), port=(os.getenv('PORT')), debug=True)
+    app.run(host=(os.getenv('HOST')), port=(os.getenv('PORT')), debug=False)
