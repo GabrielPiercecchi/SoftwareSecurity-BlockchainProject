@@ -68,7 +68,7 @@ log_users.txt
 /loki/
 /promtail/
 /my-private-blockchain/
-
+quorum-test-network\docker-compose.yml
 
 # Installer logs
 pip-log.txt
