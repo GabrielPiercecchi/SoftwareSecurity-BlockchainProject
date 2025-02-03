@@ -68,7 +68,7 @@
                                         {{ form.hidden_tag() }}
                                         <input type="hidden" name="request_id" value="{{ item.request.id }}">
                                         <div class="form-group">
-                                            <label for="co2_emission">CO2 Emission:</label>
+                                            <label for="co2_emission">CO2 Emission in Kg/m<sup>3</sup>:</label>
                                                 {{ form.co2_emission }}
                                             {% if form.co2_emission.errors %}
                                                 <div class="invalid-tooltip" style="display: block;">

@@ -57,8 +57,6 @@
                     {% for employer in employers %}
                         <p><b>Employee N° {{ loop.index }}</b></p>
                         <li>
-                            <p>Name employer: {{ employer.name | e }}</p>
-                            <p>Surname employer: {{ employer.surname | e }}</p>
                             <p>Email employer: {{ employer.email | e }}</p>
                         </li>
                     {% endfor %}

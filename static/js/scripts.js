@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     // Riabilita l'interazione con la pagina dopo il compito
                     enablePageInteraction();
-                }, 20000); // Simula un compito che richiede 10 secondi
+                }, 10000); // Simula un compito che richiede 10 secondi
             });
         });
     }
