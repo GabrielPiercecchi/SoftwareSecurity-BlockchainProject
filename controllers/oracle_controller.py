@@ -1,10 +1,7 @@
 from flask import flash, request, session, redirect, url_for, render_template, jsonify
-from flask_wtf import FlaskForm
 import os
-from wtforms import SelectField, IntegerField
-from wtforms.validators import DataRequired, NumberRange
 from database.migration import Oracle, Organization, Employer
-from middlewares.validation import LengthValidator
+from models.oracle_model import CoinTransferForm
 from algorithms.coins_algorithm import CoinsAlgorithm
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_id
 from messages.messages import (
@@ -12,13 +9,6 @@ from messages.messages import (
     FAILED_TO_TRANSFER_COINS, ORGANIZATION_NOT_FOUND_OR_NOT_INACTIVE, ORGANIZATION_APPROVED, ORGANIZATION_NOT_FOUND,
     ORGANIZATION_REJECTED, EMPLOYER_NOT_FOUND_OR_NOT_INACTIVE, EMPLOYER_APPROVED, EMPLOYER_REJECTED, EMPLOYER_NOT_FOUND
 )
-
-class CoinTransferForm(FlaskForm):
-    target_organization = SelectField('Select Target Organization', validators=[DataRequired()])
-    amount = IntegerField('Amount to Transfer', validators=[DataRequired(), 
-        NumberRange(min=1, message='The value must be greater than 0'),
-        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
-        render_kw={'placeholder': '100'})
 
 def oracle_home():
     username = session.get('username')

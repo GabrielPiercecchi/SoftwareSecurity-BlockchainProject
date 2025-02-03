@@ -1,35 +1,14 @@
 from flask import flash, render_template, request, redirect, url_for, session
-from flask_wtf import FlaskForm
 import logging
 from database.migration import Product, Delivery, Organization, Type, ProductOrigin
-from wtforms.validators import DataRequired, NumberRange
-from wtforms import StringField, IntegerField, SelectField, SelectMultipleField
 from algorithms.coins_algorithm import coins_algorithm
-from middlewares.validation import LengthValidator
+from models.products_model import ProductForm, UpdateProductForm
 from algorithms.coins_algorithm import CoinsAlgorithm
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer, get_product_by_id
 from messages.messages import (
     LOGIN_REQUIRED, PRODUCT_NOT_FOUND, UNAUTHORIZED_ACCESS, PRODUCT_UPDATED_SUCCESSFULLY,
     FAILED_TO_UPDATE_PRODUCT, FAILED_TO_ADD_PRODUCT, FAILED_TO_REGISTER_PRODUCT_ORIGIN, ORIGIN_PRODUCT_REQUIRED
 )
-
-class ProductForm(FlaskForm):
-    name = StringField('Product Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
-    type = SelectField('Type', choices=[('raw material', 'Raw Material'), ('end product', 'End Product')], validators=[DataRequired()])
-    quantity = IntegerField('Quantity', validators=[DataRequired(), 
-        NumberRange(min=1, message='The value must be greater than 0'),
-        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
-        render_kw={'placeholder': '100'})
-    co2_production_product = IntegerField('CO2 Production', validators=[DataRequired(), 
-        NumberRange(min=1, message='The value must be greater than 0'),
-        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
-        render_kw={'placeholder': '100'})
-    co2_origin_product_list = SelectMultipleField('CO2 Origin Products', choices=[])
-
-class UpdateProductForm(FlaskForm):
-    name = StringField('Organization Name', validators=[DataRequired()])
-    type = SelectField('Type', choices=[('raw material', 'Raw material'), ('end product', 'End product')], 
-                validators=[DataRequired()])
 
 def product_detail(id):
     session_db = get_db_session()

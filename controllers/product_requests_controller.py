@@ -1,12 +1,9 @@
 from flask import render_template, session, redirect, url_for, flash, request
 from datetime import datetime
-from wtforms import IntegerField, SubmitField
-from wtforms.validators import DataRequired, NumberRange
-from flask_wtf import FlaskForm
 import logging
 from database.migration import Product, Organization, ProductRequest, Delivery, Type
 from algorithms.coins_algorithm import coins_algorithm
-from middlewares.validation import LengthValidator
+from models.product_requests_model import CreateProductRequestForm, DenyProductRequestForm, CarrierAcceptRequestAndCreateDeliveryForm
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer, get_product_by_id
 from messages.messages import (
     LOGIN_REQUIRED, PRODUCT_NOT_FOUND, UNAUTHORIZED_ACCESS, REQUESTED_QUANTITY_EXCEEDS_AVAILABLE,
@@ -14,23 +11,6 @@ from messages.messages import (
     PRODUCT_REQUEST_DENIED_SUCCESSFULLY, INSUFFICIENT_PRODUCT_QUANTITY, PRODUCT_REQUEST_ACCEPTED_SUCCESSFULLY,
     CO2_EMISSION_EXCEEDS_LIMIT, DELIVERY_CREATED_SUCCESSFULLY, ERROR_OCCURRED
 )
-
-class CreateProductRequestForm(FlaskForm):
-    quantity = IntegerField('Quantity', validators=[DataRequired(), 
-        NumberRange(min=1, message='The value must be greater than 0'),
-        LengthValidator(max_length=10, message='The value must be less than 10 digits')],
-        render_kw={'placeholder': '100'})
-
-class DenyProductRequestForm(FlaskForm):
-    rejectedButton = SubmitField('Reject Request')
-
-class CarrierAcceptRequestAndCreateDeliveryForm(FlaskForm):
-    request_id = IntegerField(validators=[DataRequired()])
-    co2_emission = IntegerField('CO2 Emission', validators=[DataRequired(),
-                        NumberRange(min=1, message='The value must be greater than 0'),
-                        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
-                        render_kw={'placeholder': '100'})
-    acceptButton = SubmitField('Accept Request')
 
 def menage_product_requests():
     username = session.get('username')

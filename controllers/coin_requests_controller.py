@@ -1,24 +1,10 @@
 from flask import render_template, session, redirect, url_for, flash, request
 import logging
-from wtforms import IntegerField, SubmitField
-from wtforms.validators import DataRequired, NumberRange
-from flask_wtf import FlaskForm
 from database.migration import CoinRequest
+from models.coin_requests_model import AcceptCoinRequestForm, CoinRequestForm
 from algorithms.coins_algorithm import update_organization_coins_on_blockchain
-from middlewares.validation import LengthValidator
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_organization_by_employer
 from messages.messages import REQUEST_ID_REQUIRED, NOT_ENOUGH_COINS, COIN_REQUEST_ACCEPTED, ERROR_ACCEPTING_COIN_REQUEST
-
-class AcceptCoinRequestForm(FlaskForm):
-    request_id = IntegerField('Request ID', validators=[DataRequired()])
-    submit = SubmitField('Accept')
-
-class CoinRequestForm(FlaskForm):
-    coin = IntegerField('Coin', validators=[DataRequired(message='You must digit an Integer number'), 
-        NumberRange(min=1, message='The value must be greater than 0'),
-        LengthValidator(max_length=10, message='The value must be less than 10 digits')], 
-        render_kw={'placeholder': '100'})
-    submit = SubmitField('Submit')
 
 def view_coin_requests():
     username = session.get('username')

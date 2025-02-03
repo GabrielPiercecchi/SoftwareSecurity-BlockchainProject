@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
 document.getElementById('manage-organization-registration-button').addEventListener('click', function() {
     window.location.href = "/manage_organization_registration/{{ organization.id }}";
 });

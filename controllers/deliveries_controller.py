@@ -1,6 +1,5 @@
 from flask import render_template, session, redirect, url_for, flash
-from database.database import DBIsConnected
-from database.migration import Product, Delivery, Organization, Employer
+from database.migration import Delivery
 from utilities.utilities import get_db_session, get_employer_by_username, get_organization_by_employer, get_delivery_details
 from messages.messages import LOGIN_REQUIRED
 
