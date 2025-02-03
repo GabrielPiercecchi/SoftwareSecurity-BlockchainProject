@@ -140,3 +140,7 @@ TODO_29_01_2025:
         - validazione
         - cookie
         - sicurezza
+
+TIPS:
+    1. Root progetto: http://localhost:5000
+    2. Root blockchain: http://localhost:25000/explorer/explorer

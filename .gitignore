@@ -72,6 +72,9 @@ TODO
 #/my-private-blockchain/
 #quorum-test-network\docker-compose.yml
 
+# Nginx Certificates
+nginx/certs/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt

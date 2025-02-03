@@ -2,8 +2,9 @@ import os
 from flask import Flask, request
 from flask_talisman import Talisman
 from flask_wtf import CSRFProtect
-from config import Config
+from config.flaskapp.config import Config
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 from controllers.logging_controller import setup_logging
 from controllers.home_controller import home, initialize_database
 from controllers.organizations_controller import organization_detail, get_all_organizations
@@ -29,7 +30,9 @@ app.config.from_object(Config)
 csrf = CSRFProtect(app)
 csrf.init_app(app)
 # Configura Talisman per la sicurezza
-talisman = Talisman(app, content_security_policy=None)
+talisman = Talisman(app, content_security_policy=None, force_https=False) # Disabilita la protezione HTTPS se False, abilitare in produzione
+# Configura il proxy per il reverse proxy Heroku
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 # Configura il logging
 setup_logging(app)
 

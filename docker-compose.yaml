@@ -571,6 +571,20 @@ services:
       quorum-dev-quickstart:
     #depends_on:
     #  - database_service_name  # Sostituisci con il nome del servizio del database se necessario
+    # Nota: non mappiamo la porta qui perché Nginx farà da proxy inverso
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d  # 🔥 Monta la configurazione di Nginx
+      - ./nginx/certs:/etc/nginx/certs    # 🔥 Monta i certificati SSL
+    depends_on:
+      - flask-app
 
 
 
