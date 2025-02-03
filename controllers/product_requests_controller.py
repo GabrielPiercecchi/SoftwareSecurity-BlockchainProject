@@ -9,7 +9,7 @@ from messages.messages import (
     LOGIN_REQUIRED, PRODUCT_NOT_FOUND, UNAUTHORIZED_ACCESS, REQUESTED_QUANTITY_EXCEEDS_AVAILABLE,
     PRODUCT_REQUEST_CREATED_SUCCESSFULLY, REQUEST_ID_REQUIRED, PRODUCT_REQUEST_NOT_FOUND,
     PRODUCT_REQUEST_DENIED_SUCCESSFULLY, INSUFFICIENT_PRODUCT_QUANTITY, PRODUCT_REQUEST_ACCEPTED_SUCCESSFULLY,
-    CO2_EMISSION_EXCEEDS_LIMIT, DELIVERY_CREATED_SUCCESSFULLY, ERROR_OCCURRED
+    DELIVERY_CREATED_SUCCESSFULLY, ERROR_OCCURRED
 )
 
 def menage_product_requests():
@@ -294,7 +294,6 @@ def carrier_accept_and_create_delivery():
             if not coins_algorithm(co2_emission, co2_limit, organization, session_db, product.name, product_request.quantity):
                 session_db.rollback()
                 session_db.close()
-                flash(CO2_EMISSION_EXCEEDS_LIMIT, 'error')
                 return redirect(url_for('carrier_menage_product_requests_route'))
 
             delivery = Delivery(
@@ -319,7 +318,6 @@ def carrier_accept_and_create_delivery():
             return redirect(url_for('carrier_menage_product_requests_route'))
         
     else:
-        flash('The value must be greater than 0.00')
         return redirect(url_for('carrier_menage_product_requests_route'))
 
     return redirect(url_for('carrier_menage_product_requests_route'))
