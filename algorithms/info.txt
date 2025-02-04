@@ -1,0 +1,1 @@
+This folder contains methods that interface with the blockchain and a file for generating the secret key.

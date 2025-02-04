@@ -1,0 +1,1 @@
+This folder contains utilities and scripts used repeatedly in the SoftwareSecurity-BlockchainProject.

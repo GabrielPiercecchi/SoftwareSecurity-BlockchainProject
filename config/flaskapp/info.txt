@@ -1,0 +1,1 @@
+This folder contains security configuration files for the Flask application used in the SoftwareSecurity-BlockchainProject.

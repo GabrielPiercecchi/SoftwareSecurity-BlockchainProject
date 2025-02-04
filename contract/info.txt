@@ -1,0 +1,1 @@
+This folder contains the smart contracts used in the SoftwareSecurity-BlockchainProject.

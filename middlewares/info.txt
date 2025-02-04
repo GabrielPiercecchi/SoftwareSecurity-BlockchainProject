@@ -1,0 +1,1 @@
+This folder contains the middleware components used in the SoftwareSecurity-BlockchainProject.

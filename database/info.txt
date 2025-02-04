@@ -1,0 +1,1 @@
+This folder contains database connection, schemas and migration files used in the SoftwareSecurity-BlockchainProject.
