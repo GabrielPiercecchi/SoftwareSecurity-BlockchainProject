@@ -267,12 +267,13 @@ For Linux, the procedure is similar. You will have to use your package manager t
 
 For MacOS, OpenSSL is available at the following [address](http://macappstore.org/openssl/)
 
-After this, navigate to the *nginx/certs* directory from the root of the project and execute the following command:
+After this, navigate to the *nginx/certs* directory from the root of the project (*If the directory doesn't exist you can create it with this terminal line:* `mkdir -p nginx/certs`) and execute the following command:
 
 ```bash
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 ```
-> ⚠️ **NOTE**:  This will create two certificates (`key.pem` and `cert.pem`) that will expire after *365 days*.
+
+> ⚠️ **NOTE**: This will create two certificates (`key.pem` and `cert.pem`) that will expire after *365 days*.
 
 - *openssl req*: Initiates a certificate request.
 - *x509*: Specifies that a self-signed certificate is to be created instead of a certificate signing request (CSR).
