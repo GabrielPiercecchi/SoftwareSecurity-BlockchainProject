@@ -22,17 +22,15 @@ from algorithms.coins_algorithm import view_transactions, view_rejected_transact
 load_dotenv()
 
 app = Flask(__name__)
-# Configura la chiave segreta per la sicurezza delle sessioni e dei token CSRF
-app.secret_key = os.getenv('SECRET_KEY')  # Carica la chiave segreta dall'ambiente
 # Carica la configurazione dal file config.py
 app.config.from_object(Config)
+# Configura il proxy per il reverse proxy Heroku
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=Config.PROXY_FIX_X_FOR, x_proto=Config.PROXY_FIX_X_PROTO, x_host=Config.PROXY_FIX_X_HOST, x_port=Config.PROXY_FIX_X_PORT, x_prefix=Config.PROXY_FIX_X_PREFIX)   
+# Configura Talisman per la sicurezza
+talisman = Talisman(app, content_security_policy=Config.TALISMAN_CONTENT_SECURITY_POLICY, force_https=Config.TALISMAN_FORCE_HTTPS)
 # Abilita la protezione CSRF
 csrf = CSRFProtect(app)
 csrf.init_app(app)
-# Configura Talisman per la sicurezza
-talisman = Talisman(app, content_security_policy=None, force_https=False) # Disabilita la protezione HTTPS se False, abilitare in produzione
-# Configura il proxy per il reverse proxy Heroku
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 # Configura il logging
 setup_logging(app)
 
