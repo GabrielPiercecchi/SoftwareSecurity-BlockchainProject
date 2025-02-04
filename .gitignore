@@ -73,7 +73,7 @@ TODO
 #quorum-test-network\docker-compose.yml
 
 # Nginx Certificates
-nginx/certs/
+nginx/certs/*
 
 # Installer logs
 pip-log.txt
