@@ -3,8 +3,8 @@
   <img src="blockchain-filiera-alimentare.png" alt="Blockchain filiera produttiva alimentare" width="400">
 </p>
 -->
-![Python](https://img.shields.io/badge/python-%230376D6?style=for-the-badge&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-%23000000?style=for-the-badge&logo=flask&logoColor=white)
+[![Python](https://img.shields.io/badge/python-%230376D6?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-%23000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/en/stable/)
 ![Jinja](https://img.shields.io/badge/Jinja-%23000000?style=for-the-badge&logo=jinja&logoColor=white)
 ![VSCode](https://img.shields.io/badge/VSCode-%23007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-%23121011?style=for-the-badge&logo=github&logoColor=white)
