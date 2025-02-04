@@ -8,7 +8,7 @@ def organization_detail(id):
     session_db = get_db_session()
     organization = get_organization_by_id(session_db, id)
 
-    if not organization:
+    if not organization or organization.status == 'inactive':
         session_db.close()
         flash(ORGANIZATION_NOT_FOUND, 'danger')
         return redirect(url_for('organizations_route'))

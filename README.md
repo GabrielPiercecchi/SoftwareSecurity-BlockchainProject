@@ -192,13 +192,15 @@ LOG4J_CONFIGURATION_FILE=/quorum-test-network/config/log-config.xml
 - `USER4_USERNAME`: The username for the fourth user account. Set this to the desired username for the fourth user.
 - `USER4_PASSWORD`: The password for the fourth user account. Set this to the desired password for the fourth user.
 
-In case the `quorum-test-network` folder does not work (there are many `.env` files inside it that cannot be uploaded in this repository), you can safely delete it and then run the following command:
+The `quorum-test-network` folder exists, but to ensure its functionality, it is recommended to delete it and then run the following command:
 
 ```bash
 npx quorum-dev-quickstart
 ```
 
-You terminal will lool like this:
+> ⚠️ **NOTE**: To run this command, you need to have *Node.js* and *npm* installed, as mentioned earlier and later when discussing the commands for the three types of operating systems.
+
+Your terminal will lool like this:
 
 ```bash
 yourTerminal$ npx quorum-dev-quickstart
@@ -255,7 +257,7 @@ For more information on the test network, see 'README.md' in the directory, './q
 ```
 You will have to choose *1. Hyperledger Besu*, *y* for enabling Private Trnsactions, *1. Loki*, *n* for *Chainlens* and *Blockscout* and, finally, press *Enter* for creating the default directory *./quorum-test-network*
 
-For increased security, you need to create keys using [OpenSSL](https://www.openssl.org/).
+After that, for increased security, you need to create keys using [OpenSSL](https://www.openssl.org/).
 
 For Windows, OpenSSL must be downloaded through the Linux distribution available inside WSL (Ubuntu in this case) using the following command:
 
@@ -267,7 +269,7 @@ For Linux, the procedure is similar. You will have to use your package manager t
 
 For MacOS, OpenSSL is available at the following [address](http://macappstore.org/openssl/)
 
-After this, navigate to the *nginx/certs* directory from the root of the project (*If the directory doesn't exist you can create it with this terminal line:* `mkdir -p nginx/certs`) and execute the following command:
+After this, navigate to the *nginx/certs* directory from the root of the project (*The directory won't probably exist; you will have to create it with this terminal line:* `mkdir -p nginx/certs`) and execute the following command:
 
 ```bash
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
