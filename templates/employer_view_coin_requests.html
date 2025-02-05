@@ -38,10 +38,6 @@
     </header>
     <main>
         <section class="section-bordered">
-            <h2 class="blue-text">Coin Requests made by {{organization.name}}</h2>
-            <div class="description">
-                <p><b><i>Your Organization {{ organization.name }} earned {{ organization.coin }} coins until now</i></b></p>
-            </div>
             <div>
                 <button type="button" class="button-green" id="create-coin-request-button">Create Coin Request</button>
             </div>
@@ -50,6 +46,10 @@
                 <button type="button" class="blue-button" id="view-accepted-coin-request-button">View Accepted Coin Requests by {{ organization.name }}</button>
             </div>
             <br>
+            <h2 class="blue-text">Coin Requests made by {{organization.name}}</h2>
+            <div class="description">
+                <p><b><i>Your Organization {{ organization.name }} earned {{ organization.coin }} coins until now</i></b></p>
+            </div>
             <div class="section-bordered">
                 <div class="organizations">
                     {% if coin_requests_made %}

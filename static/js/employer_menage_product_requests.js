@@ -5,8 +5,4 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = "/employer/menage_product_requests/view_other_products/";
         });
     }
-
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip(); 
-    });
 });

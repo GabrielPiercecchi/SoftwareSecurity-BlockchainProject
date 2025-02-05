@@ -66,12 +66,17 @@ def seed_employers(session: Session):
 def seed_products(session: Session):
     if not session.query(Product).first():
         products = [
-            Product(name='Prod1', type='raw material', quantity=100, id_organization=1, co2_production_product=1),
-            Product(name='Prod2', type='end product', quantity=200, id_organization=2, co2_production_product=2),
-            Product(name='Prod3', type='raw material', quantity=100, id_organization=1, co2_production_product=100),
+            Product(name='Pomodori', type='raw material', quantity=100, id_organization=1, co2_production_product=1),
+            Product(name='Salsa di Pomodoro', type='end product', quantity=200, id_organization=2, co2_production_product=2),
+            Product(name='Grano', type='raw material', quantity=100, id_organization=1, co2_production_product=100),
         ]
         session.bulk_save_objects(products)
         session.commit()
+
+# This commented seeders are not used in the project
+# They are just examples of how to seed the database with some data
+# You can use them as a reference to seed the database with your own data
+"""
 
 def seed_product_requests(session: Session):
     # Assicurati che ci siano organizzazioni e prodotti di esempio
@@ -162,6 +167,8 @@ def seed_deliveries(session: Session):
         session.bulk_save_objects(deliveries)
         session.commit()
 
+"""
+
 def run_seeders():
     db_instance = DBIsConnected.get_instance()
     session = db_instance.get_session()
@@ -172,9 +179,12 @@ def run_seeders():
         seed_organizations(session)
         seed_employers(session)
         seed_products(session)  # Seed products before deliveries
+        # This are the commented seeders that are not used in the project
+        """
         seed_product_requests(session)
         seed_coin_requests(session)
         seed_deliveries(session)
+        """
     except Exception as e:
         session.rollback()
         print(f"Error seeding database: {e}")

@@ -247,7 +247,7 @@ def view_transactions():
         session_db.close()
         logging.error(ERROR_GETTING_TRANSACTIONS.format(e))
         flash(ERROR_GETTING_TRANSACTIONS.format(e), 'error')
-        return redirect(url_for('view_transactions_route'))
+        return redirect(url_for('employer_home_route'))
 
 # Registra una transazione rifiutata sulla blockchain
 def register_rejected_transaction(manager, organization, amount, reason, product_name, product_quantity, co2_emission):
@@ -311,4 +311,4 @@ def view_rejected_transactions():
         session_db.close()
         logging.error(ERROR_GETTING_TRANSACTIONS.format(e))
         flash(ERROR_GETTING_TRANSACTIONS.format(e), 'error')
-        return redirect(url_for('view_rejected_transactions_route'))
+        return redirect(url_for('employer_home_route'))

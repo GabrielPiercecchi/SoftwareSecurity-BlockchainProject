@@ -71,7 +71,7 @@
                                 <form method="post" action="{{ url_for('accept_product_request_route') }}">
                                     {{ form.hidden_tag() }}
                                     <input type="hidden" name="request_id" value="{{ item.request.id }}">
-                                    <div class="carrier-select" style="display: none;">
+                                    <div class="carrier-select">
                                         <label for="carrier_id">Select Carrier Organization:</label>
                                         <select name="carrier_id" id="carrier_id">
                                             {% for carrier in carriers %}
@@ -79,6 +79,13 @@
                                             {% endfor %}
                                         </select>
                                         <button type="submit" class="button-orange">Accept Request N° {{ loop.index }}</button>
+                                    </div>
+                                </form>
+                                <form method="post" action="{{ url_for('deny_product_request_route') }}">
+                                    {{ form.hidden_tag() }}
+                                    <input type="hidden" name="request_id" value="{{ item.request.id }}">
+                                    <div>
+                                        <button type="submit" class="button-red">Reject Request N° {{ loop.index }}</button>
                                     </div>
                                 </form>
                                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -91,13 +98,6 @@
                                         {% endfor %}
                                     {% endif %}
                                 {% endwith %}
-                                <form method="post" action="{{ url_for('deny_product_request_route') }}">
-                                    {{ form.hidden_tag() }}
-                                    <input type="hidden" name="request_id" value="{{ item.request.id }}">
-                                    <div>
-                                        <button type="submit" class="button-red">Reject Request N° {{ loop.index }}</button>
-                                    </div>
-                                </form>
                                 {% endif %}
                             </li>
                         </ul>

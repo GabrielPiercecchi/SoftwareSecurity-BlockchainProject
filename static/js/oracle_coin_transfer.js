@@ -5,8 +5,4 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = "/oracle_coin_transfer/";
         });
     }
-
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip(); 
-    }); 
 });

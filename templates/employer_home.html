@@ -44,6 +44,15 @@
         </div>
         <div class="signup-container">
             <div class="signup-form">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="invalid-tooltip" style="display: block;">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 <button type="button" class="button-green" id="update-personal-data-button">Update Personal Data</button>
                 {% if organization.type == 'carrier' %}
                     <button type="button" class="button-green" id="carrier-manage-product-requests-button">

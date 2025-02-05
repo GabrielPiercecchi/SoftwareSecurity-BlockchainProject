@@ -14,6 +14,7 @@ LOGOUT_SUCCESS = 'You have been logged out successfully.'
 # Signup messages
 ORG_EMAIL_IN_USE = 'Organization email already in use'
 ORG_PARTITA_IVA_IN_USE = 'Partita IVA already in use'
+ORG_TELEPHONE = 'Invalid phone number format. It should start with + followed by digits.'
 EMP_USERNAME_IN_USE = 'Username already in use'
 EMP_EMAIL_IN_USE = 'Email already in use'
 SIGNUP_SUCCESS = 'Signup process completed successfully.'

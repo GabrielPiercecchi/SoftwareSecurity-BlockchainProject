@@ -106,10 +106,24 @@
                                     {{ org_form.org_telephone.errors[0] }}
                                 </div>
                             {% endif %}
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                            <div class="invalid-tooltip" style="display: block;">
+                                                {{ message }}
+                                            </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
                         </div>
                         <div class="form-group">
                             <label for="org_partita_iva">Partita IVA:</label>
                             {{ org_form.org_partita_iva(id='org_partita_iva') }}
+                            {% if org_form.org_telephone.errors %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ org_form.org_partita_iva.errors[0] }}
+                                </div>
+                            {% endif %}
                             {% with messages = get_flashed_messages(with_categories=true) %}
                                 {% if messages %}
                                     {% for category, message in messages %}
@@ -161,6 +175,11 @@
                                 <div class="form-group">
                                     <label for="emp_username_0">Username:</label>
                                     {{ emp_form.emp_username(id='emp_username_0') }}
+                                    {% if emp_form.emp_username.errors %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ emp_form.emp_username.errors[0] }}
+                                        </div>
+                                    {% endif %}
                                     {% with messages = get_flashed_messages(with_categories=true) %}
                                         {% if messages %}
                                             {% for category, message in messages %}
@@ -176,6 +195,11 @@
                                 <div class="form-group">
                                     <label for="emp_password_0">Password:</label>
                                     {{ emp_form.emp_password }}
+                                    {% if emp_form.emp_password.errors %}
+                                        <div class="invalid-tooltip" style="display: block;">
+                                            {{ emp_form.emp_password.errors[0] }}
+                                        </div>
+                                    {% endif %}
                                     {% with messages = get_flashed_messages(with_categories=true) %}
                                         {% if messages %}
                                             {% for category, message in messages %}

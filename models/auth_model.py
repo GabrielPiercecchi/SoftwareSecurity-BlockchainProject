@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, RadioField, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo
-from middlewares.validation import LengthValidator
+from middlewares.validation import LengthValidator, PhoneNumberValidator
 
 class LoginForm(FlaskForm):
     # Form per il login
@@ -39,7 +39,8 @@ class OrganizationForm(FlaskForm):
     ], render_kw={"placeholder": "CAP"})
     org_telephone = StringField('Telephone', validators=[
         DataRequired(message='Telephone is required'), 
-        LengthValidator(max_length=20, message='Telephone must be less than 20 characters')
+        LengthValidator(max_length=20, message='Telephone must be less than 20 characters'),
+        PhoneNumberValidator(message='Invalid phone number format. It should start with + followed by digits.')
     ], render_kw={"placeholder": "Telephone"})
     org_partita_iva = StringField('Partita IVA', validators=[
         DataRequired(message='Partita IVA is required'), 

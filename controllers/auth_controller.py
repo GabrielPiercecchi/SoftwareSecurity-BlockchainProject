@@ -6,6 +6,7 @@ from models.auth_model import LoginForm, OrganizationForm, EmployerForm, AddEmpl
 from controllers.ethereum_controller import assign_addresses_to_organizations
 from algorithms.coins_algorithm import CoinsAlgorithm, initialize_organization_coins  # Importa la funzione per inizializzare i coins delle organizzazioni
 from utilities.utilities import get_db_session, get_organization_by_id, get_employer_by_username, get_oracle_by_username, check_login_attempts, update_login_attempts, reset_login_attempts
+from middlewares.validation import PhoneNumberValidator
 from messages.messages import (
     LOGIN_ATTEMPTS_EXCEEDED, INVALID_USERNAME_OR_PASSWORD, ACCOUNT_NOT_ENABLED, LOGIN_ERROR,
     LOGOUT_SUCCESS, ORG_EMAIL_IN_USE, ORG_PARTITA_IVA_IN_USE, EMP_USERNAME_IN_USE, EMP_EMAIL_IN_USE,
@@ -90,6 +91,7 @@ def signup():
                 flash(ORG_EMAIL_IN_USE, 'wrong_org_email')
                 return signup_form()
             
+            # Verifica se la partita IVA dell'organizzazione è già in uso
             if any(org_form.org_partita_iva.data == o.partita_iva for o in other_organizations):
                 flash(ORG_PARTITA_IVA_IN_USE, 'wrong_org_partita_iva')
                 return signup_form()
@@ -99,6 +101,7 @@ def signup():
                 flash(EMP_USERNAME_IN_USE, 'wrong_emp_username')
                 return signup_form()
             
+            # Verifica se l'email dell'impiegato è già in uso
             if any(emp_form.emp_email.data.lower() == e.email.lower() for e in other_emp):
                 flash(EMP_EMAIL_IN_USE, 'wrong_emp_email')
                 return signup_form()
@@ -183,6 +186,7 @@ def add_employers_to_existing_org():
                 flash(ADD_EMPLOYERS_USERNAME_IN_USE, 'wrong_emp_username')
                 return render_template('add_employers.html', form=form, organizations=organizations)
             
+            # Verifica se l'email dell'impiegato è già in uso
             if any(emp_email.lower() in [e.email.lower() for e in other_emp] for emp_email in emp_emails):
                 flash(ADD_EMPLOYERS_EMAIL_IN_USE, 'wrong_emp_email')
                 return render_template('add_employers.html', form=form, organizations=organizations)
