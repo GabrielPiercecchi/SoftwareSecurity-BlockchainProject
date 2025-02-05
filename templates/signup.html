@@ -40,6 +40,18 @@
                     <button type="button" class="button-green" id="add-employers-button">Add Employees to Existing Organization</button>
                 </div>
                 <h2>Register Organization</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'length_error' %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ message }}
+                                </div>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 <div class="form-columns">
                     <div class="employer">
                         <div class="form-group">
@@ -109,9 +121,11 @@
                             {% with messages = get_flashed_messages(with_categories=true) %}
                                 {% if messages %}
                                     {% for category, message in messages %}
+                                        {% if category == 'wrong_telephone' %}
                                             <div class="invalid-tooltip" style="display: block;">
                                                 {{ message }}
                                             </div>
+                                        {% endif %}
                                     {% endfor %}
                                 {% endif %}
                             {% endwith %}

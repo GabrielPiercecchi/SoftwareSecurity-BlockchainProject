@@ -6,6 +6,7 @@
     <title>{{ product.name | e }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/product_detail.js') }}" defer></script>
     <link rel="icon" href="{{ url_for('static', filename='carbon.png') }}" type="image/gif">
 </head>
 <body>
@@ -77,7 +78,7 @@
                     <h3>Product Made With... N° {{ loop.index }}</h3>
                     <ul class="section-bordered">
                         <li>
-                            <p>Product Name: {{ prod.product.name }}</p>
+                            <p>Product Name: <span class="product-link" data-product-id="{{ prod.product.id }}">{{ prod.product.name }}</span></p>
                             <p>Type: {{ prod.product.type }}</p>
                             <p>CO2 Production: {{ prod.product.co2_production_product }}</p>
                             <p>Organization: {{ prod.organization_name }}</p>
@@ -94,10 +95,10 @@
             {% if products_made_from %}
                 <ul class="section-bordered">
                     {% for prod in products_made_from %}
-                    <h3>Product Made For... N° {{ loop.index }}</h3>
+                    <h3>Product Used For... N° {{ loop.index }}</h3>
                     <ul class="section-bordered">
                         <li>
-                            <p>Product Name: {{ prod.product.name }}</p>
+                            <p>Product Name: <span class="product-link" data-product-id="{{ prod.product.id }}">{{ prod.product.name }}</span></p>
                             <p>Type: {{ prod.product.type }}</p>
                             <p>CO2 Production: {{ prod.product.co2_production_product }}</p>
                             <p>Organization: {{ prod.organization_name }}</p>

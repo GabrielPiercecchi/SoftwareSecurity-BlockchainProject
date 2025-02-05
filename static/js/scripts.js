@@ -1,31 +1,38 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Seleziona tutti i pulsanti di tipo submit nella pagina
-    const submitButtons = document.querySelectorAll('button[type="submit"]');
+    // Seleziona tutti i moduli nella pagina
+    const forms = document.querySelectorAll('form');
 
-    // Verifica se ci sono pulsanti di tipo submit nella pagina
-    if (submitButtons.length > 0) {
-        // Aggiungi un event listener a ciascun pulsante di tipo submit
-        submitButtons.forEach(button => {
-            button.addEventListener('click', function(event) {
-                // Disabilita l'interazione con la pagina
-                disablePageInteraction();
+    // Aggiungi un event listener a ciascun modulo
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
 
-                // Simula un compito asincrono (ad esempio, una richiesta AJAX)
-                setTimeout(() => {
-                    // Riabilita l'interazione con la pagina dopo il compito
-                    enablePageInteraction();
-                }, 7000); // Simula un compito che richiede 7 secondi
-            });
+            // Disabilita tutti i pulsanti
+            disableButtons();
+
+            // Aggiungi un overlay per disabilitare l'interazione con la pagina
+            disablePageInteraction();
+        });
+    });
+
+    function disableButtons() {
+        // Disabilita tutti i pulsanti
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.disabled = true;
         });
     }
 
     function disablePageInteraction() {
-        // Aggiungi una classe CSS per disabilitare l'interazione
-        document.body.classList.add('no-interaction');
-    }
-
-    function enablePageInteraction() {
-        // Rimuovi la classe CSS per riabilitare l'interazione
-        document.body.classList.remove('no-interaction');
+        // Aggiungi un overlay trasparente per disabilitare l'interazione con la pagina
+        const overlay = document.createElement('div');
+        overlay.id = 'interaction-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = 0;
+        overlay.style.left = 0;
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+        overlay.style.zIndex = 9999;
+        document.body.appendChild(overlay);
     }
 });

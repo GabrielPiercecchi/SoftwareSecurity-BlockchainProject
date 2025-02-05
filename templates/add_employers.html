@@ -41,6 +41,18 @@
             <form class="signup-form" method="post" action="/add_employers">
                 {{ form.hidden_tag() }} <!-- Token CSRF -->
                 <h2>Add Employees to Existing Organization</h2>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'length_error' %}
+                                <div class="invalid-tooltip" style="display: block;">
+                                    {{ message }}
+                                </div>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 <div class="form-group">
                     <label for="organization">Select Organization:</label>
                     <select name="organization" id="organization" required>
@@ -95,7 +107,7 @@
                                         <div class="invalid-tooltip" style="display: block;">
                                             {{ form.emp_email.errors[0] }}
                                         </div>
-                                    {% endif %}
+                                {% endif %}
                                 {% with messages = get_flashed_messages(with_categories=true) %}
                                     {% if messages %}
                                         {% for category, message in messages %}

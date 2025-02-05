@@ -46,7 +46,7 @@
                     {% if messages %}
                         <ul class="flashes">
                             {% for category, message in messages %}
-                                {% if category != 'error_co2' %}
+                                {% if category != 'error_co2' or category == 'length_error' %}
                                     <div class="invalid-tooltip" style="display: block;">
                                         {{ message }}
                                     </div>

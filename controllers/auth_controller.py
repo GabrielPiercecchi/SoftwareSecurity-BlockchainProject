@@ -15,6 +15,8 @@ from messages.messages import (
 )
 
 def login():
+    if session.get('logged_in'):
+        return redirect(url_for('home_route'))
     # Gestisce il login degli utenti
     form = LoginForm()
     if form.validate_on_submit():
@@ -23,7 +25,7 @@ def login():
 
         # Controlla i tentativi di login
         if not check_login_attempts(username):
-            flash(LOGIN_ATTEMPTS_EXCEEDED, 'error')
+            flash(LOGIN_ATTEMPTS_EXCEEDED, 'login_error')
             return render_template('login.html', form=form)
 
         session_db = get_db_session()
@@ -49,13 +51,13 @@ def login():
                     reset_login_attempts(username)
                     return redirect(url_for('home_route'))
                 else:
-                    flash(ACCOUNT_NOT_ENABLED, 'error')
+                    flash(ACCOUNT_NOT_ENABLED, 'login_error')
             else:
-                flash(INVALID_USERNAME_OR_PASSWORD, 'error')
+                flash(INVALID_USERNAME_OR_PASSWORD, 'login_error')
                 update_login_attempts(username)
         except Exception as e:
             logging.error(f'Error during login: {e}')
-            flash(LOGIN_ERROR, 'error')
+            flash(LOGIN_ERROR, 'login_error')
         finally:
             session_db.close()
 
@@ -74,6 +76,9 @@ def signup_form():
     return render_template('signup.html', org_form=org_form, emp_form=emp_form)
 
 def signup():
+    if session.get('logged_in'):
+        return redirect(url_for('home_route'))
+
     # Gestisce la registrazione di nuove organizzazioni e impiegati
     org_form = OrganizationForm(request.form)
     emp_form = EmployerForm(request.form)
@@ -160,6 +165,9 @@ def signup():
     return signup_form()
 
 def add_employers_to_existing_org():
+    if session.get('logged_in'):
+        return redirect(url_for('home_route'))
+
     # Aggiunge impiegati a un'organizzazione esistente
     session_db = get_db_session()
     organizations = session_db.query(Organization).all()

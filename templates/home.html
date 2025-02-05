@@ -41,7 +41,7 @@
         <section class="description">
             <h2>Carbon Footprint Tracking of Products</h2>
             <p>This application allows you to track the carbon footprint of products through the various stages of their production and distribution.</p>
-            <p>If you are a company and want to register on our website, go to the <a href="/signup">Sign Up</a> page and fill out the provided form. Within 24 hours, the <i>oracle</i> will add you to the system.</p>
+            <p>If you are a company and want to register on our website, go to the <a href="/signup"><b>Sign Up</b></a> page and fill out the provided form. Within 24 hours, the <i>oracle</i> will add you to the system.</p>
             <p><b>It will be necessary to register at least one employee to manage your data.</b></p>
         </section>
         <section>
@@ -74,6 +74,19 @@
                 {% else %}
                     <p>There are no products registered in the system.</p>
                 {% endif %}
+            </div>
+        </section>
+        <section>
+            <h2>F.A.Q.</h2>
+            <div class="description">
+                <p>For more information on how the site works, please refer to the following documents: <a href="{{ url_for('static', filename='tesina.pdf') }}" target="_blank"><b>Thesis PDF</b></a> and <a href="{{ url_for('static', filename='powerpoint.pdf') }}" target="_blank"><b>PowerPoint Presentation</b></a>.</p>
+                <h3>Frequently Asked Questions:</h3>
+                <ul>
+                    <li><b>How can I use the site without logging in?</b> You can browse the list of organizations and products and track all products, but you will need to log in to access detailed information and manage your data.</li><li><b>How do I register my organization?</b> Go to the <a href="/signup"><b>Sign Up</b></a> page and fill out the form. An oracle will review and approve your registration within 24 hours.</li>
+                    <li><b>How can I track the carbon footprint of my products?</b> Once registered, you can add your products and track their carbon footprint through the various stages of production and distribution.</li>
+                    <li><b>Who can access the data?</b> Only registered organizations and their employees can access and manage their data. Oracles have administrative access to oversee the system.</li>
+                    <li><b>What is an oracle?</b> An oracle is an administrative user who has the authority to approve new registrations and manage the overall system.</li>
+                </ul>
             </div>
         </section>
     </main>

@@ -1,5 +1,6 @@
 from wtforms.validators import ValidationError
 import re
+from flask import flash
 
 class LengthValidator:
     # Validatore personalizzato per controllare la lunghezza massima di un campo
@@ -12,6 +13,7 @@ class LengthValidator:
     def __call__(self, form, field):
         # Verifica se la lunghezza del campo supera la lunghezza massima
         if len(str(field.data)) > self.max_length:
+            flash(self.message, 'length_error')
             raise ValidationError(self.message)
         
 class PhoneNumberValidator:
@@ -24,4 +26,5 @@ class PhoneNumberValidator:
     def __call__(self, form, field):
         # Verifica se il numero di telefono inizia con + e contiene solo numeri
         if not re.match(r'^\+\d+$', field.data):
+            flash(self.message, 'wrong_telephone')
             raise ValidationError(self.message)

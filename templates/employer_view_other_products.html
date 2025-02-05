@@ -48,7 +48,7 @@
                             <p>Type: {{ item.product.type | e }}</p>
                             <p>Max Quantity: {{ item.product.quantity | e }}</p>
                             <p>Organization: {{ item.organization_name | e }}</p>
-                            <a id="product-request-button" data-product-id="{{ item.product.id }}" class="orange-button">Create Product Request</a>
+                            <a class="product-request-button orange-button" data-product-id="{{ item.product.id }}">Create Product Request</a>
                         </div>
                     {% endfor %}
                 {% else %}
