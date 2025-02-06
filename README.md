@@ -3,6 +3,7 @@
   <img src="https://github.com/user-attachments/assets/3bef384b-b867-4595-ab94-6fdee39d7dc7" alt="blockchain-filiera-alimentare" width="300">
 </p>
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/491c54aad43d499093defccb410d4b53)](https://app.codacy.com/gh/GabrielPiercecchi/SoftwareSecurity-BlockchainProject?utm_source=github.com&utm_medium=referral&utm_content=GabrielPiercecchi/SoftwareSecurity-BlockchainProject&utm_campaign=Badge_Grade)
 [![Python](https://img.shields.io/badge/python-%230376D6?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-%23000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/en/stable/)
 [![Jinja](https://img.shields.io/badge/Jinja-%23000000?style=for-the-badge&logo=jinja&logoColor=white)](https://jinja.palletsprojects.com/en/stable/templates/)
