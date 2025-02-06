@@ -26,6 +26,7 @@
     - [Main Features 🌟](#main-features-)
     - [How it Works ⚙️](#how-it-works-️)
     - [Technologies Used 🧩](#technologies-used-)
+    - [Codacy Evaluation 📊](#codacy-evaluation-)
   - [Gettin Started 🗂️](#gettin-started-️)
     - [Prerequisites 📋](#prerequisites-)
     - [Installation 🛠️](#installation-️)
@@ -78,6 +79,14 @@ The Supply-Chain application is built using the following technologies:
 - [Nginx](https://nginx.org/) as the reverse proxy server
 - [Docker](https://www.docker.com/) and [Compose](https://docs.docker.com/compose/) for containerization
 - [PostgreSQL](https://www.postgresql.org/) for the database
+
+### Codacy Evaluation 📊
+
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9fcbf5b50d4442539b29a34f81b5bf4d)](https://app.codacy.com/gh/GabrielPiercecchi/SoftwareSecurity-BlockchainProject/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
+Codacy is an automated code review tool that helps identify code quality issues, security vulnerabilities, and performance improvements. It provides an in-depth analysis of the source code and suggests corrections to improve the overall quality of the project. By using Codacy, you can ensure that your code adheres to coding standards and industry best practices.
+
+The badge above shows the current project rating on Codacy. By clicking on the badge, you can access the Codacy dashboard for this project and view the details of the code analysis.
 
 ## Gettin Started 🗂️
 
