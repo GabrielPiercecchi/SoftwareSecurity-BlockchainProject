@@ -370,7 +370,7 @@ flask-app  | [2025-02-04 11:08:34 +0000] [9] [INFO] Booting worker with pid: 9
 flask-app  | [2025-02-04 11:08:34 +0000] [10] [INFO] Booting worker with pid: 10
 ```
 
-> ⚠️ **NOTE**: If you see a warning in the logs about the `version` attribute being obsolete, it is not a problem. This warning indicates that the `version` attribute in the `docker-compose.yaml` file is deprecated and will be ignored. The functionality of your Docker setup will not be affected. You can safely remove the `version` attribute from the `docker-compose.yaml` file to avoid this warning in the future.
+> ⚠️ **NOTE**: If you see a warning in the logs about the `version` attribute being obsolete, it is not a problem. This warning indicates that the `version` attribute in the `docker-compose.yaml` file is deprecated and will be ignored. The functionality of your Docker setup will not be affected.
 
 Now, you can interact with the application through the address 
 
