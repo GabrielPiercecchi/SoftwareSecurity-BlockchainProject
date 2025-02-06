@@ -51,7 +51,7 @@
             <h2>Actions</h2>
             <form method="post" action="{{ url_for('approve_employer_route', employer_id=employer.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="button-orange">Accept registration</button>
+                <button type="submit" class="blue-button">Accept registration</button>
             </form>    
             <form method="post" action="{{ url_for('reject_employer_route', employer_id=employer.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

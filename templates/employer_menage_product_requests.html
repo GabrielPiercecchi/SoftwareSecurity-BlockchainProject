@@ -78,7 +78,7 @@
                                                 <option value="{{ carrier.id }}">{{ carrier.name }}</option>
                                             {% endfor %}
                                         </select>
-                                        <button type="submit" class="button-orange">Accept Request N° {{ loop.index }}</button>
+                                        <button type="submit" class="blue-button">Accept Request N° {{ loop.index }}</button>
                                     </div>
                                 </form>
                                 <form method="post" action="{{ url_for('deny_product_request_route') }}">

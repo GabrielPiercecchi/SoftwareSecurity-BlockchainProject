@@ -19,12 +19,16 @@ EMP_USERNAME_IN_USE = 'Username already in use'
 EMP_EMAIL_IN_USE = 'Email already in use'
 SIGNUP_SUCCESS = 'Signup process completed successfully.'
 SIGNUP_ERROR = 'An error occurred during signup. Please try again later.'
+DUPLICATE_EMP_USERNAME = 'Duplicate employee username found in the list.'
+DUPLICATE_EMP_EMAIL = 'Duplicate employee email found in the list.'
 
 # Add Employers messages
 ADD_EMPLOYERS_USERNAME_IN_USE = 'Username already in use'
 ADD_EMPLOYERS_EMAIL_IN_USE = 'Email already in use'
 ADD_EMPLOYERS_SUCCESS = 'Employers added successfully!'
 ADD_EMPLOYERS_ERROR = 'An error occurred while adding employers. Please try again later.'
+# DUPLICATE_EMP_USERNAME = 'Duplicate employee username found in the list.'
+# DUPLICATE_EMP_EMAIL = 'Duplicate employee email found in the list.'
 
 ############################################
 # coin_requests_controller.py messages

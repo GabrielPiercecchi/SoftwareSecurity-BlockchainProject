@@ -11,7 +11,7 @@ from messages.messages import (
     LOGIN_ATTEMPTS_EXCEEDED, INVALID_USERNAME_OR_PASSWORD, ACCOUNT_NOT_ENABLED, LOGIN_ERROR,
     LOGOUT_SUCCESS, ORG_EMAIL_IN_USE, ORG_PARTITA_IVA_IN_USE, EMP_USERNAME_IN_USE, EMP_EMAIL_IN_USE,
     SIGNUP_SUCCESS, SIGNUP_ERROR, ADD_EMPLOYERS_USERNAME_IN_USE, ADD_EMPLOYERS_EMAIL_IN_USE,
-    ADD_EMPLOYERS_SUCCESS, ADD_EMPLOYERS_ERROR
+    ADD_EMPLOYERS_SUCCESS, ADD_EMPLOYERS_ERROR, DUPLICATE_EMP_USERNAME, DUPLICATE_EMP_EMAIL
 )
 
 def login():
@@ -92,22 +92,41 @@ def signup():
             other_emp = session_db.query(Employer).all()
 
             # Verifica se l'email o la partita IVA dell'organizzazione sono già in uso
-            if any(org_form.org_email.data.lower() == o.email.lower() for o in other_organizations):
+            org_email_in_use = any(org_form.org_email.data.lower() == o.email.lower() for o in other_organizations)
+            org_partita_iva_in_use = any(org_form.org_partita_iva.data == o.partita_iva for o in other_organizations)
+
+            # Aggiungi tutti gli impiegati
+            emp_usernames = [username.lower() for username in request.form.getlist('emp_username')]
+            emp_passwords = request.form.getlist('emp_password')
+            emp_names = request.form.getlist('emp_name')
+            emp_surnames = request.form.getlist('emp_surname')
+            emp_emails = [email.lower() for email in request.form.getlist('emp_email')]
+
+            # Verifica se ci sono duplicati nella lista degli impiegati
+            duplicate_emp_username = len(emp_usernames) != len(set(emp_usernames))
+            duplicate_emp_email = len(emp_emails) != len(set(emp_emails))
+
+            # Verifica se il nome utente o l'email dell'impiegato sono già in uso nel database
+            emp_username_in_use = any(emp_username in [e.username.lower() for e in other_emp] for emp_username in emp_usernames)
+            emp_email_in_use = any(emp_email in [e.email.lower() for e in other_emp] for emp_email in emp_emails)
+
+            # Controllo unico per tutti gli errori
+            if org_email_in_use:
                 flash(ORG_EMAIL_IN_USE, 'wrong_org_email')
                 return signup_form()
-            
-            # Verifica se la partita IVA dell'organizzazione è già in uso
-            if any(org_form.org_partita_iva.data == o.partita_iva for o in other_organizations):
+            if org_partita_iva_in_use:
                 flash(ORG_PARTITA_IVA_IN_USE, 'wrong_org_partita_iva')
                 return signup_form()
-
-            # Verifica se il nome utente o l'email dell'impiegato sono già in uso
-            if any(emp_form.emp_username.data.lower() == e.username.lower() for e in other_emp):
+            if duplicate_emp_username:
+                flash(DUPLICATE_EMP_USERNAME, 'wrong_emp_username')
+                return signup_form()
+            if duplicate_emp_email:
+                flash(DUPLICATE_EMP_EMAIL, 'wrong_emp_email')
+                return signup_form()
+            if emp_username_in_use:
                 flash(EMP_USERNAME_IN_USE, 'wrong_emp_username')
                 return signup_form()
-            
-            # Verifica se l'email dell'impiegato è già in uso
-            if any(emp_form.emp_email.data.lower() == e.email.lower() for e in other_emp):
+            if emp_email_in_use:
                 flash(EMP_EMAIL_IN_USE, 'wrong_emp_email')
                 return signup_form()
 
@@ -131,34 +150,26 @@ def signup():
             assign_addresses_to_organizations(session_db)
             initialize_organization_coins(manager, new_org)
 
-            # Aggiungi tutti gli impiegati
-            emp_usernames = request.form.getlist('emp_username')
-            emp_passwords = request.form.getlist('emp_password')
-            emp_names = request.form.getlist('emp_name')
-            emp_surnames = request.form.getlist('emp_surname')
-            emp_emails = request.form.getlist('emp_email')
-
             for i in range(len(emp_usernames)):
                 new_emp = Employer(
                     username=emp_usernames[i],
                     password=generate_password_hash(emp_passwords[i]),
                     name=emp_names[i],
                     surname=emp_surnames[i],
-                    email=emp_emails[i].lower(),
+                    email=emp_emails[i],
                     status='inactive',
                     id_organization=new_org.id
                 )
                 session_db.add(new_emp)
 
             session_db.commit()
-
+            session_db.close()
             flash(SIGNUP_SUCCESS, 'success')
         except Exception as e:
             session_db.rollback()
+            session_db.close()
             logging.error(f'Error during signup: {e}')
             flash(SIGNUP_ERROR, 'error')
-        finally:
-            session_db.close()
 
         return redirect(url_for('home_route'))
 
@@ -178,11 +189,19 @@ def add_employers_to_existing_org():
 
     if request.method == 'POST' and form.validate_on_submit():
         organization_id = form.organization.data
-        emp_usernames = request.form.getlist('emp_username')
+        emp_usernames = [username.lower() for username in request.form.getlist('emp_username')]
         emp_passwords = request.form.getlist('emp_password')
         emp_names = request.form.getlist('emp_name')
         emp_surnames = request.form.getlist('emp_surname')
-        emp_emails = request.form.getlist('emp_email')
+        emp_emails = [email.lower() for email in request.form.getlist('emp_email')]
+
+        # Verifica se ci sono duplicati nella lista degli impiegati
+        if len(emp_usernames) != len(set(emp_usernames)):
+            flash(DUPLICATE_EMP_USERNAME, 'wrong_emp_username')
+            return render_template('add_employers.html', form=form, organizations=organizations)
+        if len(emp_emails) != len(set(emp_emails)):
+            flash(DUPLICATE_EMP_EMAIL, 'wrong_emp_email')
+            return render_template('add_employers.html', form=form, organizations=organizations)
 
         session_db = get_db_session()
 
@@ -190,12 +209,12 @@ def add_employers_to_existing_org():
             other_emp = session_db.query(Employer).all()
 
             # Verifica se il nome utente o l'email dell'impiegato sono già in uso
-            if any(emp_username.lower() in [e.username.lower() for e in other_emp] for emp_username in emp_usernames):
+            if any(emp_username in [e.username.lower() for e in other_emp] for emp_username in emp_usernames):
                 flash(ADD_EMPLOYERS_USERNAME_IN_USE, 'wrong_emp_username')
                 return render_template('add_employers.html', form=form, organizations=organizations)
             
             # Verifica se l'email dell'impiegato è già in uso
-            if any(emp_email.lower() in [e.email.lower() for e in other_emp] for emp_email in emp_emails):
+            if any(emp_email in [e.email.lower() for e in other_emp] for emp_email in emp_emails):
                 flash(ADD_EMPLOYERS_EMAIL_IN_USE, 'wrong_emp_email')
                 return render_template('add_employers.html', form=form, organizations=organizations)
 
@@ -212,13 +231,13 @@ def add_employers_to_existing_org():
                 session_db.add(new_emp)
             
             session_db.commit()
+            session_db.close()
             flash(ADD_EMPLOYERS_SUCCESS, 'success')
         except Exception as e:
             session_db.rollback()
+            session_db.close()
             logging.error(f'Error during adding employers: {str(e)}')
             flash(ADD_EMPLOYERS_ERROR, 'error')
-        finally:
-            session_db.close()
 
         return redirect(url_for('home_route'))
 

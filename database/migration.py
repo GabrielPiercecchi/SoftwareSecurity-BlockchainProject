@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Float, DateTime
+from sqlalchemy import Column, Integer, String, Enum, ForeignKey, DateTime
+from sqlalchemy_utils import database_exists, create_database, drop_database
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
-import psycopg2
 import os
 from .database import DBIsConnected
 from werkzeug.security import generate_password_hash
@@ -12,25 +12,21 @@ load_dotenv()
 Base = declarative_base()
 
 def create_database_if_not_exists():
-    conn = psycopg2.connect(
-        dbname='postgres',
-        user=os.getenv('DATABASE_USER'),
-        password=os.getenv('DATABASE_PASSWORD'),
-        host=os.getenv('POSTGRES_HOST'),
-        port=os.getenv('DATABASE_PORT_FLASK_APP')
-    )
-    conn.autocommit = True
-    cursor = conn.cursor()
-    try:
-        cursor.execute(f"CREATE DATABASE {os.getenv('DATABASE_NAME')}")
-    except psycopg2.errors.DuplicateDatabase:
-        print(f"Database {os.getenv('DATABASE_NAME')} already exists.")
-        cursor.execute(f"DROP DATABASE {os.getenv('DATABASE_NAME')}")
-        print(f"Database {os.getenv('DATABASE_NAME')} dropped.")
-        cursor.execute(f"CREATE DATABASE {os.getenv('DATABASE_NAME')}")
-        print(f"Database {os.getenv('DATABASE_NAME')} created.")
-    cursor.close()
-    conn.close()
+    db_instance = DBIsConnected.get_instance()
+    engine = db_instance.engine
+    
+    db_name = os.getenv('DATABASE_NAME')
+    db_url_with_db = engine.url
+    
+    if not database_exists(db_url_with_db):
+        create_database(db_url_with_db)
+        print(f"Database {db_name} created.")
+    else:
+        print(f"Database {db_name} already exists.")
+        drop_database(db_url_with_db)
+        print(f"Database {db_name} dropped.")
+        create_database(db_url_with_db)
+        print(f"Database {db_name} created.")
 
 class Oracle(Base):
     __tablename__ = 'oracle'
